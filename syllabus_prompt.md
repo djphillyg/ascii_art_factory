@@ -106,8 +106,13 @@ OBJECTIVES: [a list of 3-5 objectives for me to complete that day in the 3 hour 
 GIFT: [a tiny reward for myself for completing this certain days work, it can be a walk, meditation, somethng that is easy and accessible for me to feel good about]
 READ: [a little dig at me as if i was a contestant on rupauls drag race but done in a loving way to motivate me on my studies]
 FEEDBACK: [this will be left intentionally blank]
-
 </structure>
+
+<format>
+Return back the format in a markdown artifact file.
+</format>
+
 
 STEPS:
 1. Create the 12 working days blocks as follows. These will be put in my google calendar later but for now, generate a document in markdown with all of the requirements.
+2. The objectives must be CRYSTAL CLEAR. It is encouraged they reference specific test cases and be as close to code logic as possible and not vague.
