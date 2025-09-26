@@ -1,17 +1,76 @@
-import _ from 'lodash';
+#!/usr/bin/env node
+/* eslint-disable */
+// grab the arguments from the process arg thing
+const args = process.argv.slice(2)
 
-const data = [
-  { name: 'John', age: 30, city: 'New York' },
-  { name: 'Jane', age: 25, city: 'Boston' },
-  { name: 'Bob', age: 35, city: 'Chicago' },
-];
+const [command] = args
 
-const groupedByCity = _.groupBy(data, 'city');
-const sortedByAge = _.sortBy(data, 'age');
-const names = _.map(data, 'name');
+const options = args.slice(1)
 
-console.log('Grouped by city:', groupedByCity);
-console.log('Sorted by age:', sortedByAge);
-console.log('Names:', names);
+const commands = {
+  create: {
+    aliases: ['c'],
+    description: 'Create a new item',
+    handler: (options) => {
+      const name = options._[0];
+      console.log(`Creating ${name}`);
+    }
+  },
+  
+  // delete: {
+  //   aliases: ['d', 'remove'],
+  //   description: 'Delete an item',
+  //   handler: (options) => {
+  //     const name = options._[0];
+  //     console.log(`Deleting ${name}`);
+  //   }
+  // },
+  
+  // list: {
+  //   aliases: ['ls'],
+  //   description: 'List all items',
+  //   handler: (options) => {
+  //     console.log('Listing items');
+  //   }
+  // }
+};
 
-export { data, groupedByCity, sortedByAge, names };
+function parseArgs(args) {
+  /**
+   * the parsed has 2 things happening
+   * - positional arguments
+   * - and flag argumetns
+   *  the `_` represents the positional arguments like create myfile becomes `create` `myfile`
+   * - and the flag arguments are like `--force`-> { force: true }
+   * 
+   */
+  const parsed = { _: [] }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.slice(2).split('=')
+      parsed[key] = value || true
+    } else if (arg.startsWith('-')) {
+      parsed[args.slice(1)] = true
+    } else {
+      parsed._.push(arg)
+    }
+  }
+  return parsed
+}
+
+function main() {
+  console.log('Hello World', args); // eslint-disable-line no-console
+}
+
+function showHelp() {
+  console.log('Available commands')
+  Object.entries(commands).forEach(([name, cmd]) => {
+    const aliases = cmd.aliases.length ? `(${cmd.aliases.join(', ')})` : ''
+    console.log(` ${name}${aliases} - ${cmd.description}`)
+  })
+}
+
+
+main();
