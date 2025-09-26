@@ -1,0 +1,42 @@
+{
+  "name": "ai_mastery_challenge",
+  "version": "1.0.0",
+  "description": "AI Mastery Challenge project with modern Node.js and ES7+ features",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djphillyg/ai_mastery_challenge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/djphillyg/ai_mastery_challenge/issues"
+  },
+  "homepage": "https://github.com/djphillyg/ai_mastery_challenge#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
