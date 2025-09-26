@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "AI Mastery Challenge project with modern Node.js and ES7+ features",
   "main": "index.js",
+  "bin": {
+    "mycli": "./index.js"
+  },
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
@@ -14,7 +17,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -34,7 +37,8 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^7.2.1",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "lodash": "^4.17.21"
