@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // grab the arguments from the process arg thing
 import { parseArgs } from './parser.js'
-import { printShape } from './renderer.js'
 import { ShapeGenerator } from './shapes.js'
+import { ValidationError, CLIError, ParseError } from './errors.js'
 
 
 const commands = {
@@ -24,30 +24,30 @@ const commands = {
 
       // Check if shape is provided
       if (!flags.shape) {
-        throw new Error('Error: --shape is required. Please specify a shape to draw.');
+        throw new ValidationError('Error: --shape is required. Please specify a shape to draw.');
       }
 
       if (flags.shape !== 'rectangle') {
-        throw new Error('Error: shapes other than rectangle have not been implemented yet. Please specify a shape to draw.')
+        throw new ValidationError('Error: shapes other than rectangle have not been implemented yet. Please specify a shape to draw.')
       }
 
       // If shape is rectangle, validate width and height
       if (flags.shape === 'rectangle') {
         if (!flags.width) {
-          throw new Error('Error: --width is required when drawing a rectangle.');
+          throw new ValidationError('Error: --width is required when drawing a rectangle.');
         }
         if (!flags.height) {
-          throw new Error('Error: --height is required when drawing a rectangle.');
+          throw new ValidationError('Error: --height is required when drawing a rectangle.');
         }
 
         const width = parseFloat(flags.width);
         const height = parseFloat(flags.height);
 
         if (isNaN(width) || width <= 0) {
-          throw new Error('Error: --width must be a number greater than 0.');
+          throw new ValidationError('Error: --width must be a number greater than 0.');
         }
         if (isNaN(height) || height <= 0) {
-          throw new Error('Error: --height must be a number greater than 0.');
+          throw new ValidationError('Error: --height must be a number greater than 0.');
         }
       }
 
@@ -72,6 +72,19 @@ const commands = {
 };
 
 
+/**
+ * Helper function that shows help before throwing an error
+ * @param {Error} error - The error to throw
+ * @param {boolean} showHelp - Whether to show help (default: true)
+ */
+function throwWithHelp(error, showHelp = true) {
+  console.error(error.message);
+  if (showHelp) {
+    showGeneralHelp();
+  }
+  process.exit(1);
+}
+
 function findCommand(commandName) {
   if (!commandName) return null;
 
@@ -93,9 +106,7 @@ function findCommand(commandName) {
 function validateArguments(args) {
   // Check if no arguments provided at all
   if (args.length === 0) {
-    console.error('Error: No command provided.')
-    showGeneralHelp()
-    process.exit(1)
+    throwWithHelp(new CLIError('Error: No command provided.'));
   }
 
   // Check if they just want help
@@ -108,25 +119,20 @@ function validateArguments(args) {
 
   // Check if command name is malformed (starts with -)
   if (commandName && commandName.startsWith('-')) {
-    console.error('Error: Invalid command format. Commands cannot start with dashes.')
-    showGeneralHelp()
-    process.exit(1)
+    throwWithHelp(new ParseError('Error: Invalid command format. Commands cannot start with dashes.'));
   }
 
   // Validate flag format - check for malformed flags
   const remainingArgs = args.slice(1);
   for (const arg of remainingArgs) {
     if (arg.startsWith('--') && arg.length === 2) {
-      console.error('Error: Invalid flag format. Empty flag "--" is not allowed.')
-      process.exit(1)
+      throwWithHelp(new ParseError('Error: Invalid flag format. Empty flag "--" is not allowed.'));
     }
     if (arg.startsWith('-') && arg.length === 1) {
-      console.error('Error: Invalid flag format. Empty flag "-" is not allowed.')
-      process.exit(1)
+      throwWithHelp(new ParseError('Error: Invalid flag format. Empty flag "-" is not allowed.'));
     }
     if (arg.startsWith('---')) {
-      console.error('Error: Invalid flag format. Flags cannot start with "---".')
-      process.exit(1)
+      throwWithHelp(new ParseError('Error: Invalid flag format. Flags cannot start with "---".'));
     }
   }
 
@@ -142,9 +148,7 @@ function main() {
 
   const command = findCommand(commandName)
   if (!command) {
-    console.error(`Error: Unknown command: ${commandName}`)
-    showGeneralHelp()
-    process.exit(1)
+    throwWithHelp(new CLIError(`Error: Unknown command: ${commandName}`));
   }
   // if there is a valid command and theyre just looking for help
   // show the command help and exit the function
