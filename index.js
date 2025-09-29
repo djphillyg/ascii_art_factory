@@ -1,6 +1,62 @@
 #!/usr/bin/env node
 // grab the arguments from the process arg thing
 
+
+/**
+ * 
+ * @param {*} param0 
+ */
+function printShape({
+  shapeType = "",
+  shapeArray = [],
+}) {
+  // iterate through the shapes array to print the shape properly
+  console.log(`------------- SHAPE GENERATED ----------------\n`)
+  console.log(`SHAPE TYPE: ${shapeType}`)
+  for (const shapeLine of shapeArray) {
+    console.log(`${shapeLine.join('')}\n`)
+  }
+}
+
+/**
+ * This function generates a rectangle in a 2d array of strings 
+ * @param {*} width 
+ * @param {*} height 
+ * @param {*} */ 
+function generateRectangle({
+  width,
+  height,
+  char = "*",
+  isFilled = false,
+}) {
+  // create the final string to print
+  const rectangleArray = []
+  //
+  for (let i = 0; i < height; i +=1) {
+    // if its the first or last one, fully fill the array
+    if (i == 0 || i == height - 1) {
+      // generate full line
+      const line = new Array(width).fill(char)
+      rectangleArray.push(line)
+    } else {
+      const line = []
+      if (isFilled) {
+        // fill with character
+        line.push(...new Array(width).fill(char))
+      } else {
+        // fill with space
+        line.push(...new Array(width).fill(' '))
+        // assign the last and first to characters, rest will stay empty
+        line[0] = line[line.length - 1] = char
+      }
+      rectangleArray.push(line)
+    }
+  }
+
+  return rectangleArray
+}
+
+
 const commands = {
   draw: {
     aliases: ['d'],
@@ -9,7 +65,8 @@ const commands = {
     options: [
       '--shape=<shape> The type of shape that you want me to draw',
       '--width=<width> The width of the shape that you want me to draw',
-      '--height=<height> The height of the shape that you want me to draw'
+      '--height=<height> The height of the shape that you want me to draw',
+      'filled when this flag is on, it will fill the shape',
     ],
     examples: [
       'draw shape=rectangle width 5 height 7',
@@ -45,12 +102,31 @@ const commands = {
           throw new Error('Error: --height must be a number greater than 0.');
         }
       }
+
     },
     handler: (options) => {
+      const { flags } = options
       console.log('these are the options', options)
      // const name = options._[0];
       console.log(`Hi there!`);
+
+      // we know from validator that flags have been checked, just extract them
+        const width = parseFloat(flags.width);
+        const height = parseFloat(flags.height);
+        const newShapeArray = generateRectangle({
+          width,
+          height,
+          isFilled: flags.filled,
+        })
+
+        // print the shape
+        printShape({
+          // TODO: pass common object
+          shapeType: 'rectangle',
+          shapeArray: newShapeArray
+        })
     }
+
   },
 };
 
@@ -111,7 +187,7 @@ function findCommand(commandName) {
   }
 
   // Check aliases
-  for (const [_name, cmd] of Object.entries(commands)) {
+  for (const [, cmd] of Object.entries(commands)) {
     if (cmd.aliases && cmd.aliases.includes(commandName)) {
       return cmd;
     }
@@ -120,20 +196,59 @@ function findCommand(commandName) {
   return null;
 }
 
-function main() {
-  const args = process.argv.slice(2)
-  // we need to check if they just want help
-  console.log(args, 'these are the args')
+function validateArguments(args) {
+  // Check if no arguments provided at all
+  if (args.length === 0) {
+    console.error('Error: No command provided.')
+    showGeneralHelp()
+    process.exit(1)
+  }
+
+  // Check if they just want help
   if (args.length === 1 && args[0] === '--help') {
     showGeneralHelp()
     process.exit(1)
   }
+
   const [commandName] = args
+
+  // Check if command name is malformed (starts with -)
+  if (commandName && commandName.startsWith('-')) {
+    console.error('Error: Invalid command format. Commands cannot start with dashes.')
+    showGeneralHelp()
+    process.exit(1)
+  }
+
+  // Validate flag format - check for malformed flags
+  const remainingArgs = args.slice(1);
+  for (const arg of remainingArgs) {
+    if (arg.startsWith('--') && arg.length === 2) {
+      console.error('Error: Invalid flag format. Empty flag "--" is not allowed.')
+      process.exit(1)
+    }
+    if (arg.startsWith('-') && arg.length === 1) {
+      console.error('Error: Invalid flag format. Empty flag "-" is not allowed.')
+      process.exit(1)
+    }
+    if (arg.startsWith('---')) {
+      console.error('Error: Invalid flag format. Flags cannot start with "---".')
+      process.exit(1)
+    }
+  }
+
+  return commandName
+}
+
+function main() {
+  const args = process.argv.slice(2)
+  const commandName = validateArguments(args)
   const options = parseArgs(args.slice(1))
+  console.log(args, 'these are the args')
   console.log(options, 'these are the options in main')
+
   const command = findCommand(commandName)
   if (!command) {
-    console.error(`Unknown command: ${commandName}`)
+    console.error(`Error: Unknown command: ${commandName}`)
     showGeneralHelp()
     process.exit(1)
   }

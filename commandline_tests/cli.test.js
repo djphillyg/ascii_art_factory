@@ -113,6 +113,59 @@ describe('CLI Draw Command Validation', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('Hi there!');
   });
+
+  test('should accept width as 1 (edge case)', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '1', '--height', '5']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+  });
+
+  test('should accept height as 1 (edge case)', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '5', '--height', '1']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+  });
+
+  test('should accept both width and height as 1 (1x1 edge case)', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '1', '--height', '1']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+});
+
+describe('CLI Rectangle Drawing Output', () => {
+  test('should draw 3x3 hollow rectangle', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '3', '--height', '3']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('***');
+    expect(result.stdout).toContain('* *');
+    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
+  });
+
+  test('should draw 4x2 filled rectangle', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '4', '--height', '2', '--filled']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('****');
+    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
+    // Both rows should be fully filled
+    const lines = result.stdout.split('\n');
+    const asteriskLines = lines.filter(line => line.includes('****'));
+    expect(asteriskLines.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test('should draw 1x1 rectangle (single asterisk)', async () => {
+    const result = await runCLI(['draw', '--shape', 'rectangle', '--width', '1', '--height', '1']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
+  });
 });
 
 describe('CLI Help Commands', () => {
