@@ -1,60 +1,8 @@
 #!/usr/bin/env node
 // grab the arguments from the process arg thing
-
-
-/**
- * 
- * @param {*} param0 
- */
-function printShape({
-  shapeType = "",
-  shapeArray = [],
-}) {
-  // iterate through the shapes array to print the shape properly
-  console.log(`------------- SHAPE GENERATED ----------------\n`)
-  console.log(`SHAPE TYPE: ${shapeType}`)
-  for (const shapeLine of shapeArray) {
-    console.log(`${shapeLine.join('')}\n`)
-  }
-}
-
-/**
- * This function generates a rectangle in a 2d array of strings 
- * @param {*} width 
- * @param {*} height 
- * @param {*} */ 
-function generateRectangle({
-  width,
-  height,
-  char = "*",
-  isFilled = false,
-}) {
-  // create the final string to print
-  const rectangleArray = []
-  //
-  for (let i = 0; i < height; i +=1) {
-    // if its the first or last one, fully fill the array
-    if (i == 0 || i == height - 1) {
-      // generate full line
-      const line = new Array(width).fill(char)
-      rectangleArray.push(line)
-    } else {
-      const line = []
-      if (isFilled) {
-        // fill with character
-        line.push(...new Array(width).fill(char))
-      } else {
-        // fill with space
-        line.push(...new Array(width).fill(' '))
-        // assign the last and first to characters, rest will stay empty
-        line[0] = line[line.length - 1] = char
-      }
-      rectangleArray.push(line)
-    }
-  }
-
-  return rectangleArray
-}
+import { parseArgs } from './parser.js'
+import { printShape } from './renderer.js'
+import { ShapeGenerator } from './shapes.js'
 
 
 const commands = {
@@ -107,76 +55,22 @@ const commands = {
     handler: (options) => {
       const { flags } = options
       console.log('these are the options', options)
-     // const name = options._[0];
       console.log(`Hi there!`);
 
       // we know from validator that flags have been checked, just extract them
-        const width = parseFloat(flags.width);
-        const height = parseFloat(flags.height);
-        const newShapeArray = generateRectangle({
-          width,
-          height,
-          isFilled: flags.filled,
-        })
+      const width = parseFloat(flags.width);
+      const height = parseFloat(flags.height);
 
-        // print the shape
-        printShape({
-          // TODO: pass common object
-          shapeType: 'rectangle',
-          shapeArray: newShapeArray
-        })
+      ShapeGenerator.create(flags.shape, {
+        width,
+        height,
+        isFilled: flags.filled,
+      })
     }
 
   },
 };
 
-function parseArgs(args) {
-  /**
-   * the parsed has 2 things happening
-   * - positional arguments
-   * - and flag argumetns
-   *  the `_` represents the positional arguments like create myfile becomes `create` `myfile`
-   * - and the flag arguments are like `--force`-> { force: true }
-   *
-   */
-  const parsed = {
-    positional: [],
-    flags: {},
-  }
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-
-    if (arg.startsWith('--')) {
-      const [key, value] = arg.slice(2).split('=')
-      if (value !== undefined) {
-        // Handle --key=value format
-        parsed.flags[key] = value
-      } else {
-        // Handle --key value format (check next argument)
-        const nextArg = args[i + 1]
-        if (nextArg && !nextArg.startsWith('-')) {
-          parsed.flags[key] = nextArg
-          i++ // Skip the next argument since we consumed it
-        } else {
-          parsed.flags[key] = true
-        }
-      }
-    } else if (arg.startsWith('-')) {
-      // Handle single dash flags like -v, -h
-      const key = arg.slice(1)
-      const nextArg = args[i + 1]
-      if (nextArg && !nextArg.startsWith('-')) {
-        parsed.flags[key] = nextArg
-        i++ // Skip the next argument since we consumed it
-      } else {
-        parsed.flags[key] = true
-      }
-    } else {
-      parsed.positional.push(arg)
-    }
-  }
-  return parsed
-}
 
 function findCommand(commandName) {
   if (!commandName) return null;
