@@ -44,11 +44,11 @@ describe('CLI Draw Command Validation', () => {
     expect(result.stderr).toContain('Error: --shape is required. Please specify a shape to draw.');
   });
 
-  test('should throw if not rectangle', async () => {
+  test('should require --radius for circle', async () => {
     const result = await runCLI(['draw', '--shape=circle'])
 
     expect(result.code).toBe(1)
-    expect(result.stderr).toContain('Error: shapes other than rectangle have not been implemented yet. Please specify a shape to draw.')
+    expect(result.stderr).toContain('Error: --radius is required when drawing a circle.')
   })
 
   test('should require --width for rectangle', async () => {
@@ -162,6 +162,28 @@ describe('CLI Rectangle Drawing Output', () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('*');
+  });
+});
+
+describe('CLI Circle Drawing Output', () => {
+  test('should draw hollow circle with radius 3', async () => {
+    const result = await runCLI(['draw', '--shape', 'circle', '--radius', '3']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    // Should have a 7x7 grid (radius * 2 + 1)
+    const lines = result.stdout.split('\n').filter(l => l.trim().length > 0);
+    expect(lines.length).toBeGreaterThanOrEqual(5);
+  });
+
+  test('should draw filled circle with radius 3', async () => {
+    const result = await runCLI(['draw', '--shape', 'circle', '--radius', '3', '--filled']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    // Filled circle should have more asterisks than hollow
+    const asteriskCount = (result.stdout.match(/\*/g) || []).length;
+    expect(asteriskCount).toBeGreaterThan(4);
   });
 });
 

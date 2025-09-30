@@ -3,6 +3,24 @@
  */
 
 /**
+ * Helper function to check if a string is a negative number
+ * @param {string} str - String to check
+ * @returns {boolean} True if string is a negative number
+ */
+function isNegativeNumber(str) {
+  return str.startsWith('-') && /^-\d/.test(str);
+}
+
+/**
+ * Helper function to check if argument is a flag (not a negative number)
+ * @param {string} arg - Argument to check
+ * @returns {boolean} True if argument is a flag
+ */
+function isFlag(arg) {
+  return arg.startsWith('-') && !isNegativeNumber(arg);
+}
+
+/**
  * Parses command line arguments into positional and flag arguments
  * @param {string[]} args - Array of command line arguments
  * @returns {{positional: string[], flags: Object}} Parsed arguments object
@@ -24,18 +42,18 @@ export function parseArgs(args) {
       } else {
         // Handle --key value format (check next argument)
         const nextArg = args[i + 1];
-        if (nextArg && !nextArg.startsWith('-')) {
+        if (nextArg && !isFlag(nextArg)) {
           parsed.flags[key] = nextArg;
           i++; // Skip the next argument since we consumed it
         } else {
           parsed.flags[key] = true;
         }
       }
-    } else if (arg.startsWith('-')) {
-      // Handle single dash flags like -v, -h
+    } else if (isFlag(arg)) {
+      // Handle single dash flags like -v, -h (but not negative numbers like -5)
       const key = arg.slice(1);
       const nextArg = args[i + 1];
-      if (nextArg && !nextArg.startsWith('-')) {
+      if (nextArg && !isFlag(nextArg)) {
         parsed.flags[key] = nextArg;
         i++; // Skip the next argument since we consumed it
       } else {

@@ -27,10 +27,6 @@ const commands = {
         throw new ValidationError('Error: --shape is required. Please specify a shape to draw.');
       }
 
-      if (flags.shape !== 'rectangle') {
-        throw new ValidationError('Error: shapes other than rectangle have not been implemented yet. Please specify a shape to draw.')
-      }
-
       // If shape is rectangle, validate width and height
       if (flags.shape === 'rectangle') {
         if (!flags.width) {
@@ -40,8 +36,8 @@ const commands = {
           throw new ValidationError('Error: --height is required when drawing a rectangle.');
         }
 
-        const width = parseFloat(flags.width);
-        const height = parseFloat(flags.height);
+        const width = Number(flags.width);
+        const height = Number(flags.height);
 
         if (isNaN(width) || width <= 0) {
           throw new ValidationError('Error: --width must be a number greater than 0.');
@@ -51,25 +47,35 @@ const commands = {
         }
       }
 
+      // If shape is circle, validate radius
+      if (flags.shape === 'circle') {
+        if (!flags.radius) {
+          throw new ValidationError('Error: --radius is required when drawing a circle.');
+        }
+
+        const radius = Number(flags.radius);
+
+        if (isNaN(radius) || radius <= 0) {
+          throw new ValidationError('Error: --radius must be a number greater than 0.');
+        }
+      }
+
     },
     handler: (options) => {
       const { flags, positional } = options
       console.log('these are the options', options)
       console.log(`Hi there!`);
 
-      // we know from validator that flags have been checked, just extract them
-      const width = parseFloat(flags.width);
-      const height = parseFloat(flags.height);
+      const append = !!positional.find(param => param === 'append')
 
-      // will get set to false if it doesnt exist
-      const append = positional.find(param => param === 'append')
-
+      // Pass all possible options - each shape extracts what it needs
       ShapeGenerator.create(flags.shape, {
-        width,
-        height,
+        width: Number(flags.width),
+        height: Number(flags.height),
+        radius: Number(flags.radius),
         isFilled: flags.filled,
         output: flags.output,
-        append: !!append,
+        append,
       })
     }
 

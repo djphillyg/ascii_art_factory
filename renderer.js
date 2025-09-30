@@ -20,7 +20,6 @@ export function shapeArrayToString(shapeArray) {
   return shapeArray.map(line => line.join('')).join('\n');
 }
 
-
 /**
  * Resolves the file path for output, creating directories as needed
  * @param {string} fileName - The requested filename or path
