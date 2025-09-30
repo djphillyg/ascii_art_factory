@@ -53,7 +53,7 @@ const commands = {
 
     },
     handler: (options) => {
-      const { flags } = options
+      const { flags, positional } = options
       console.log('these are the options', options)
       console.log(`Hi there!`);
 
@@ -61,11 +61,15 @@ const commands = {
       const width = parseFloat(flags.width);
       const height = parseFloat(flags.height);
 
+      // will get set to false if it doesnt exist
+      const append = positional.find(param => param === 'append')
+
       ShapeGenerator.create(flags.shape, {
         width,
         height,
         isFilled: flags.filled,
         output: flags.output,
+        append: !!append,
       })
     }
 

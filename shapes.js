@@ -65,6 +65,7 @@ export class ShapeGenerator {
           exportShape({
             shapeOutput: rectangleOutput,
             fileName: options.output,
+            appendFile: options.append,
           })
         } else {
           console.log(rectangleOutput)

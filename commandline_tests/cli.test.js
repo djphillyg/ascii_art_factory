@@ -300,4 +300,75 @@ describe('CLI File Output Error Handling', () => {
       }
     }
   });
+
+  test('should append to existing file with append subcommand', async () => {
+    const { writeFileSync, readFileSync, rmSync } = await import('fs');
+    const testFile = 'generated_shapes/test_append.txt';
+
+    try {
+      // Create initial file
+      writeFileSync(testFile, '*****\n*   *\n*****\n', 'utf-8');
+
+      // Append to file
+      const result = await runCLI([
+        'draw',
+        'append',
+        '--shape', 'rectangle',
+        '--width', '5',
+        '--height', '3',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN APPENDED/);
+
+      // Verify file contains both rectangles
+      const content = readFileSync(testFile, 'utf-8');
+      const lines = content.split('\n').filter(l => l.length > 0);
+      expect(lines.length).toBe(6); // Two 3-line rectangles
+    } finally {
+      // Cleanup
+      try {
+        rmSync(testFile);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  });
+
+  test('should overwrite existing file without append subcommand', async () => {
+    const { writeFileSync, readFileSync, rmSync, mkdirSync } = await import('fs');
+    const testFile = 'generated_shapes/test_overwrite.txt';
+
+    try {
+      mkdirSync('generated_shapes', { recursive: true });
+
+      // Create initial file with content
+      writeFileSync(testFile, 'OLD CONTENT\n', 'utf-8');
+
+      // Draw without append - should overwrite
+      const result = await runCLI([
+        'draw',
+        '--shape', 'rectangle',
+        '--width', '3',
+        '--height', '2',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN SUCCESSFULLY WRITTEN/);
+
+      // Verify file contains only new rectangle (overwritten)
+      const content = readFileSync(testFile, 'utf-8');
+      expect(content).not.toContain('OLD CONTENT');
+      expect(content).toContain('***');
+    } finally {
+      // Cleanup
+      try {
+        rmSync(testFile);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  });
 });
