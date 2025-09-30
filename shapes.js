@@ -1,7 +1,7 @@
 /**
  * Shapes module - handles shape generation logic
  */
-import { printShape } from './renderer.js' 
+import {shapeArrayToString, exportShape } from './renderer.js' 
 
 /**
  * Generates a rectangle as a 2D array of characters
@@ -12,7 +12,11 @@ import { printShape } from './renderer.js'
  * @param {boolean} options.isFilled - Whether to fill the rectangle (default: false)
  * @returns {string[][]} 2D array representing the rectangle
  */
-export function generateRectangle({ width, height, char = '*', isFilled = false }) {
+export function generateRectangle({
+  width,
+  height,
+  char = '*',
+  isFilled = false }) {
   const rectangleArray = [];
 
   for (let i = 0; i < height; i += 1) {
@@ -53,10 +57,20 @@ export class ShapeGenerator {
     switch (shapeType.toLowerCase()) {
       case 'rectangle': {
         const rectangle = generateRectangle(options)
-        printShape({
-          shapeType,
-          shapeArray: rectangle
-        })
+
+        const rectangleOutput = shapeArrayToString(rectangle)
+
+        // if it goes to a file send it out, if not just output it
+        if (options.output) {
+          exportShape({
+            shapeOutput: rectangleOutput,
+            fileName: options.output,
+          })
+        } else {
+          console.log(rectangleOutput)
+        }
+
+
         return rectangle
       } default:
         throw new Error(`Shape type "${shapeType}" is not implemented yet.`);

@@ -65,6 +65,7 @@ const commands = {
         width,
         height,
         isFilled: flags.filled,
+        output: flags.output,
       })
     }
 
@@ -162,13 +163,13 @@ function main() {
     if (command.validator) {
       command.validator(options);
     }
+
+    // if no help is needed and validation passes
+    command.handler(options)
   } catch (error) {
     console.error(error.message);
     process.exit(1);
   }
-
-  // if no help is needed and validation passes
-  command.handler(options)
 }
 
 

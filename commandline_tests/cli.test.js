@@ -144,7 +144,6 @@ describe('CLI Rectangle Drawing Output', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('***');
     expect(result.stdout).toContain('* *');
-    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
   });
 
   test('should draw 4x2 filled rectangle', async () => {
@@ -152,7 +151,6 @@ describe('CLI Rectangle Drawing Output', () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('****');
-    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
     // Both rows should be fully filled
     const lines = result.stdout.split('\n');
     const asteriskLines = lines.filter(line => line.includes('****'));
@@ -164,7 +162,6 @@ describe('CLI Rectangle Drawing Output', () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('*');
-    expect(result.stdout).toContain('SHAPE TYPE: rectangle');
   });
 });
 
@@ -192,5 +189,115 @@ describe('CLI Help Commands', () => {
 
     expect(result.code).toBe(1);
     expect(result.stderr).toContain('Unknown command: unknown');
+  });
+});
+
+describe('CLI File Output Error Handling', () => {
+  test('should handle permission denied error (EACCES)', async () => {
+    // Create a read-only directory
+    const { mkdirSync, chmodSync, rmSync } = await import('fs');
+    const testDir = 'test_readonly_dir';
+
+    try {
+      mkdirSync(testDir, { recursive: true });
+      chmodSync(testDir, 0o444); // Read-only
+
+      const result = await runCLI([
+        'draw',
+        '--shape', 'rectangle',
+        '--width', '3',
+        '--height', '3',
+        '--output', `${testDir}/test`
+      ]);
+
+      expect(result.code).toBe(1);
+      expect(result.stderr).toMatch(/IOError|Permission denied|EACCES/i);
+    } finally {
+      // Cleanup
+      try {
+        chmodSync(testDir, 0o755);
+        rmSync(testDir, { recursive: true, force: true });
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  });
+
+  test('should handle directory path error (EISDIR)', async () => {
+    const { mkdirSync, rmSync } = await import('fs');
+    const testDir = 'test_eisdir';
+
+    try {
+      mkdirSync(testDir, { recursive: true });
+
+      const result = await runCLI([
+        'draw',
+        '--shape', 'rectangle',
+        '--width', '3',
+        '--height', '3',
+        '--output', testDir // Trying to write to a directory
+      ]);
+
+      expect(result.code).toBe(1);
+      expect(result.stderr).toMatch(/IOError|is a directory|EISDIR/i);
+    } finally {
+      // Cleanup
+      try {
+        rmSync(testDir, { recursive: true, force: true });
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  });
+
+  test('should handle invalid path error', async () => {
+    const result = await runCLI([
+      'draw',
+      '--shape', 'rectangle',
+      '--width', '3',
+      '--height', '3',
+      '--output', '/nonexistent/deep/path/that/does/not/exist/file'
+    ]);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toMatch(/IOError|Failed to write|ENOENT/i);
+  });
+
+  test('should successfully write to valid file path', async () => {
+    const { rmSync, existsSync } = await import('fs');
+    const testFile = 'test_output_success';
+
+    try {
+      const result = await runCLI([
+        'draw',
+        '--shape', 'rectangle',
+        '--width', '3',
+        '--height', '3',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN SUCCESSFULLY WRITTEN/);
+
+      // Verify file was actually created in generated_shapes/
+      const files = await import('fs').then(fs =>
+        fs.readdirSync('generated_shapes')
+      );
+      const createdFile = files.find(f => f.startsWith(testFile));
+      expect(createdFile).toBeDefined();
+    } finally {
+      // Cleanup - remove any files starting with testFile
+      try {
+        const { readdirSync, rmSync } = await import('fs');
+        const files = readdirSync('generated_shapes');
+        files.forEach(file => {
+          if (file.startsWith(testFile)) {
+            rmSync(`generated_shapes/${file}`);
+          }
+        });
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
   });
 });

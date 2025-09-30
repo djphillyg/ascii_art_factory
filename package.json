@@ -41,6 +41,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "uuid": "^13.0.0"
   }
 }

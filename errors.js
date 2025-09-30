@@ -51,3 +51,13 @@ export class RenderError extends Error {
     this.name = 'RenderError';
   }
 }
+
+/**
+ * Error thrown when file I/O operations fail
+ */
+export class IOError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'IOError';
+  }
+}
