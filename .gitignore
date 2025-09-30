@@ -86,3 +86,6 @@ Thumbs.db
 dist/
 build/
 *.map
+
+# Generated shapes output
+generated_shapes/
