@@ -48,7 +48,7 @@ describe('CLI Draw Command Validation', () => {
     const result = await runCLI(['draw', '--shape=circle'])
 
     expect(result.code).toBe(1)
-    expect(result.stderr).toContain('Error: --radius is required when drawing a circle.')
+    expect(result.stderr).toContain('Error: --radius is required when drawing a polygon or circle.')
   })
 
   test('should require --width for rectangle', async () => {
@@ -184,6 +184,101 @@ describe('CLI Circle Drawing Output', () => {
     // Filled circle should have more asterisks than hollow
     const asteriskCount = (result.stdout.match(/\*/g) || []).length;
     expect(asteriskCount).toBeGreaterThan(4);
+  });
+});
+
+describe('CLI Polygon Validation', () => {
+  test('should require --radius for polygon', async () => {
+    const result = await runCLI(['draw', '--shape=polygon']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --radius is required when drawing a polygon or circle.');
+  });
+
+  test('should require --sides for polygon', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --sides is required when drawing a polygon.');
+  });
+
+  test('should reject radius of 0 for polygon', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '0', '--sides', '5']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --radius must be a number greater than 0.');
+  });
+
+  test('should reject negative radius for polygon', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '-3', '--sides', '5']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --radius must be a number greater than 0.');
+  });
+
+  test('should reject non-numeric radius for polygon', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', 'abc', '--sides', '5']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --radius must be a number greater than 0.');
+  });
+
+  test('should reject sides less than 3', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4', '--sides', '2']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --sides must be a number greater than 3.');
+  });
+
+  test('should reject sides equal to 3 (boundary)', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4', '--sides', '3']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --sides must be a number greater than 3.');
+  });
+
+  test('should reject negative sides', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4', '--sides', '-5']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --sides must be a number greater than 3.');
+  });
+
+  test('should reject non-numeric sides', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4', '--sides', 'xyz']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --sides must be a number greater than 3.');
+  });
+
+  test('should succeed with valid polygon parameters (4 sides)', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '4', '--sides', '4']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+
+  test('should succeed with valid polygon parameters (5 sides)', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '5', '--sides', '5']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+
+  test('should accept sides as 4 (minimum valid)', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '3', '--sides', '4']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+  });
+
+  test('should accept radius as 1 (edge case)', async () => {
+    const result = await runCLI(['draw', '--shape=polygon', '--radius', '1', '--sides', '6']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
   });
 });
 

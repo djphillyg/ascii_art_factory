@@ -61,15 +61,17 @@ const commands = {
       }
 
       //if a polygon, it must have a sides parameter > 3
+      if (flags.shape === 'polygon') {
         if (!flags.sides) {
           throw new ValidationError('Error: --sides is required when drawing a polygon.');
         }
 
         const sides = Number(flags.sides);
 
-        if (isNaN(sides) || sides < 3) {
+        if (isNaN(sides) || sides <= 3) {
           throw new ValidationError('Error: --sides must be a number greater than 3.');
         }
+      }
   
 
     },
@@ -85,6 +87,7 @@ const commands = {
         width: Number(flags.width),
         height: Number(flags.height),
         radius: Number(flags.radius),
+        sides: Number(flags.sides),
         isFilled: flags.filled,
         output: flags.output,
         append,

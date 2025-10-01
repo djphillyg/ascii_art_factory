@@ -54,9 +54,9 @@ function generateCircle({
 }
 
 
-function generatePolygon(sides, radius) {
+function generatePolygon({ sides, radius }) {
     // Setup: calculate grid size
-    // set up the diameter 
+    // set up the diameter
     const gridSize = radius * 2 + 1
     // Determine center point coordinates
     // center point coordinates would be just (radius, radius)
@@ -123,12 +123,18 @@ function drawLine(grid, start, end) {
 
     let xCurr = startXNum
     let yCurr = startYNum
-    grid[xCurr][yCurr] = '*'
+
     for (let i = 0; i<= maxSteps; i+=1) {
+      const roundedX = Math.round(xCurr)
+      const roundedY = Math.round(yCurr)
+
+      // Only set if within grid bounds
+      if (grid[roundedX] && grid[roundedX][roundedY] !== undefined) {
+        grid[roundedX][roundedY] = '*'
+      }
+
       xCurr += xIncrement
       yCurr += yIncrement
-      // round it and add 
-      grid[Math.round(xCurr)][Math.round(yCurr)] = '*'
     }
     
     return grid
