@@ -1,7 +1,8 @@
 /**
  * Shapes module - handles shape generation logic
  */
-import {gridOutputToString, exportShape } from './renderer.js' 
+import {gridOutputToString, exportShape } from './renderer.js'
+import { fillGrid } from './decorator.js' 
 
 const tolerance = Number(0.5)
 
@@ -197,62 +198,49 @@ export class ShapeGenerator {
    * @throws {Error} If shape type is not supported
    */
   static create(shapeType, options) {
+    let shapeGrid;
+
     switch (shapeType.toLowerCase()) {
       case 'rectangle': {
-        const rectangle = generateRectangle(options)
-
-        const rectangleOutput = gridOutputToString(rectangle)
-
-        // if it goes to a file send it out, if not just output it
-        if (options.output) {
-          exportShape({
-            shapeOutput: rectangleOutput,
-            fileName: options.output,
-            appendFile: options.append,
-          })
-        } else {
-          console.log(rectangleOutput)
-        }
-
-
-        return rectangle
+        shapeGrid = generateRectangle(options)
+        break;
       }
       case 'circle': {
-        const circle = generateCircle(options)
-
-        const circleOutput = gridOutputToString(circle)
-
-        // if it goes to a file send it out, if not just output it
-        if (options.output) {
-          exportShape({
-            shapeOutput: circleOutput,
-            fileName: options.output,
-            appendFile: options.append,
-          })
-        } else {
-          console.log(circleOutput)
-        }
-        return circle
+        shapeGrid = generateCircle(options)
+        break;
       }
       case 'polygon': {
-        const polygon = generatePolygon(options)
-
-        const polygonOutput = gridOutputToString(polygon)
-
-        // if it goes to a file send it out, if not just output it
-        if (options.output) {
-          exportShape({
-            shapeOutput: polygonOutput,
-            fileName: options.output,
-            appendFile: options.append,
-          })
-        } else {
-          console.log(polygonOutput)
-        }
-        return polygonOutput
+        shapeGrid = generatePolygon(options)
+        break;
       }
       default:
         throw new Error(`Shape type "${shapeType}" is not implemented yet.`);
     }
+
+    // Apply fill pattern if specified
+    if (options.fillPattern) {
+      shapeGrid = fillGrid({
+        grid: shapeGrid,
+        fillPattern: options.fillPattern,
+        width: options.width || shapeGrid[0]?.length,
+        height: options.height || shapeGrid.length,
+        direction: options.direction || 'horizontal',
+      })
+    }
+
+    const shapeOutput = gridOutputToString(shapeGrid)
+
+    // if it goes to a file send it out, if not just output it
+    if (options.output) {
+      exportShape({
+        shapeOutput,
+        fileName: options.output,
+        appendFile: options.append,
+      })
+    } else {
+      console.log(shapeOutput)
+    }
+
+    return shapeGrid
   }
 }

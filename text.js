@@ -3,6 +3,7 @@
  */
 import { gridOutputToString, exportShape } from './renderer.js'
 import charMap from './char_mapping.js'
+import { fillGrid } from './decorator.js'
 
 /**
  * Generates ASCII art text from a string
@@ -55,6 +56,7 @@ function generateText({ text }) {
   return grid
 }
 
+
 /**
  * Text factory class for creating ASCII art text
  */
@@ -68,7 +70,16 @@ export class TextGenerator {
    * @returns {string[][]} 2D array representing the text
    */
   static create(options) {
-    const textGrid = generateText(options)
+    let textGrid = generateText(options)
+    // if it has a fill pattern that needs to applied do it here
+    if (options.fillPattern) {
+      textGrid = fillGrid({
+        grid: textGrid,
+        fillPattern: options.fillPattern,
+        ...options
+      })
+    }
+
     const textOutput = gridOutputToString(textGrid)
     // if it goes to a file send it out, if not just output it
     if (options.output) {

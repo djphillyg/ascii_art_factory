@@ -16,6 +16,8 @@ const commands = {
       '--width=<width> The width of the shape that you want me to draw',
       '--height=<height> The height of the shape that you want me to draw',
       'filled when this flag is on, it will fill the shape',
+      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient)',
+      '--direction=<direction> Direction for gradient (horizontal or vertical, default: horizontal)',
     ],
     examples: [
       'draw shape=rectangle width 5 height 7',
@@ -74,6 +76,28 @@ const commands = {
         }
       }
 
+      // Validate fillPattern if provided (support both camelCase and kebab-case)
+      const fillPattern = flags.fillPattern || flags['fill-pattern'];
+      if (fillPattern) {
+        const validFillPatterns = ['dots', 'gradient'];
+        if (!validFillPatterns.includes(fillPattern)) {
+          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient.');
+        }
+
+        // If gradient, validate width and height are available
+        if (fillPattern === 'gradient') {
+          // For rectangles, width and height are already validated
+          // For circles and polygons, we need to ensure radius is provided (already validated above)
+
+          // Validate direction if provided
+          if (flags.direction) {
+            const validDirections = ['horizontal', 'vertical'];
+            if (!validDirections.includes(flags.direction)) {
+              throw new ValidationError('Error: --direction must be one of: horizontal, vertical.');
+            }
+          }
+        }
+      }
 
     },
     handler: (options) => {
@@ -82,6 +106,7 @@ const commands = {
       console.log(`Hi there!`);
 
       const append = !!positional.find(param => param === 'append')
+      const fillPattern = flags.fillPattern || flags['fill-pattern'];
 
       // Pass all possible options - each shape extracts what it needs
       ShapeGenerator.create(flags.shape, {
@@ -90,6 +115,8 @@ const commands = {
         radius: Number(flags.radius),
         sides: Number(flags.sides),
         isFilled: flags.filled,
+        fillPattern,
+        direction: flags.direction || 'horizontal',
         output: flags.output,
         append,
       })
@@ -102,11 +129,18 @@ const commands = {
     usage: 'banner [options]',
     options: [
       '--text=<text> The text to render (A-Z, 0-9 only)',
+      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient)',
+      '--width=<width> Width for gradient pattern (required for gradient)',
+      '--height=<height> Height for gradient pattern (required for gradient)',
+      '--direction=<direction> Direction for gradient (horizontal or vertical, default: horizontal)',
       '--output=<file> Optional file to save output',
     ],
     examples: [
       'banner --text=HELLO',
       'banner --text=CODE123',
+      'banner --text=HELLO --fillPattern=dots',
+      'banner --text=HELLO --fillPattern=gradient --width=5 --height=5',
+      'banner --text=HELLO --fillPattern=gradient --width=5 --height=5 --direction=vertical',
     ],
     validator: (options) => {
       const { flags } = options;
@@ -121,6 +155,43 @@ const commands = {
       if (!validPattern.test(flags.text)) {
         throw new ValidationError('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
       }
+
+      // Validate fillPattern if provided (support both camelCase and kebab-case)
+      const fillPattern = flags.fillPattern || flags['fill-pattern'];
+      if (fillPattern) {
+        const validFillPatterns = ['dots', 'gradient'];
+        if (!validFillPatterns.includes(fillPattern)) {
+          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient.');
+        }
+
+        // If gradient, validate width and height
+        if (fillPattern === 'gradient') {
+          if (!flags.width) {
+            throw new ValidationError('Error: --width is required when using gradient fillPattern.');
+          }
+          if (!flags.height) {
+            throw new ValidationError('Error: --height is required when using gradient fillPattern.');
+          }
+
+          const width = Number(flags.width);
+          const height = Number(flags.height);
+
+          if (isNaN(width) || width <= 0) {
+            throw new ValidationError('Error: --width must be a number greater than 0.');
+          }
+          if (isNaN(height) || height <= 0) {
+            throw new ValidationError('Error: --height must be a number greater than 0.');
+          }
+
+          // Validate direction if provided
+          if (flags.direction) {
+            const validDirections = ['horizontal', 'vertical'];
+            if (!validDirections.includes(flags.direction)) {
+              throw new ValidationError('Error: --direction must be one of: horizontal, vertical.');
+            }
+          }
+        }
+      }
     },
     handler: (options) => {
       const { flags, positional } = options
@@ -128,8 +199,13 @@ const commands = {
       console.log(`Hi there!`);
 
       const append = !!positional.find(param => param === 'append')
+      const fillPattern = flags.fillPattern || flags['fill-pattern'];
       TextGenerator.create({
         text: flags.text,
+        fillPattern,
+        width: Number(flags.width),
+        height: Number(flags.height),
+        direction: flags.direction || 'horizontal',
         output: flags.output,
         append: !!append,
       })
