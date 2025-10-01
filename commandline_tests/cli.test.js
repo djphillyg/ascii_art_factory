@@ -569,14 +569,14 @@ describe('CLI Banner Command Validation', () => {
     const result = await runCLI(['banner', '--text=HELLO', '--fillPattern=invalid']);
 
     expect(result.code).toBe(1);
-    expect(result.stderr).toContain('Error: --fillPattern must be one of: dots, gradient.');
+    expect(result.stderr).toContain('Error: --fillPattern must be one of: dots, gradient, diagonal, crosshatch');
   });
 
   test('should reject another invalid fillPattern (stripes)', async () => {
     const result = await runCLI(['banner', '--text=HELLO', '--fillPattern=stripes']);
 
     expect(result.code).toBe(1);
-    expect(result.stderr).toContain('Error: --fillPattern must be one of: dots, gradient.');
+    expect(result.stderr).toContain('Error: --fillPattern must be one of: dots, gradient, diagonal, crosshatch');
   });
 
   test('should work without fillPattern (optional)', async () => {

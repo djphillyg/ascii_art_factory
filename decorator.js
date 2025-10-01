@@ -49,5 +49,45 @@ export function fillGrid({
     }
   }
 
+  if (fillPattern === 'diagonal') {
+    // fill it with alternating forward slashes
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (grid[i][j] === ' ') {
+          // if odd row do 1, 3, 5
+          // if even row do 2, 4, 6
+          // for now programtically write it mods and see what happens
+          /**
+           * for val we check if its a mod 0 ? (0, 2, 4) and 
+           */
+          const rowEven = i%2
+          const colEven = j%2
+
+          grid[i][j] = ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : ' '
+        }
+      }
+    }
+  }
+
+  if (fillPattern=== 'crosshatch') {
+        // fill it with alternating forward slashes
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[i].length; j++) {
+        if (grid[i][j] === ' ') {
+          // if odd row do 1, 3, 5
+          // if even row do 2, 4, 6
+          // for now programtically write it mods and see what happens
+          /**
+           * for val we check if its a mod 0 ? (0, 2, 4) and 
+           */
+          const rowEven = i%2
+          const colEven = j%2
+
+          grid[i][j] = ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : '\\'
+        }
+      }
+    }
+  }
+
   return grid
 }

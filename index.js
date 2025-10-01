@@ -16,7 +16,7 @@ const commands = {
       '--width=<width> The width of the shape that you want me to draw',
       '--height=<height> The height of the shape that you want me to draw',
       'filled when this flag is on, it will fill the shape',
-      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient)',
+      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient, diagonal, crosshatch)',
       '--direction=<direction> Direction for gradient (horizontal or vertical, default: horizontal)',
     ],
     examples: [
@@ -79,9 +79,9 @@ const commands = {
       // Validate fillPattern if provided (support both camelCase and kebab-case)
       const fillPattern = flags.fillPattern || flags['fill-pattern'];
       if (fillPattern) {
-        const validFillPatterns = ['dots', 'gradient'];
+        const validFillPatterns = ['dots', 'gradient', 'diagonal', 'crosshatch'];
         if (!validFillPatterns.includes(fillPattern)) {
-          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient.');
+          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient, diagonal, crosshatch');
         }
 
         // If gradient, validate width and height are available
@@ -129,7 +129,7 @@ const commands = {
     usage: 'banner [options]',
     options: [
       '--text=<text> The text to render (A-Z, 0-9 only)',
-      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient)',
+      '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient, diagonal, crosshatch, crosshatch)',
       '--width=<width> Width for gradient pattern (required for gradient)',
       '--height=<height> Height for gradient pattern (required for gradient)',
       '--direction=<direction> Direction for gradient (horizontal or vertical, default: horizontal)',
@@ -159,9 +159,9 @@ const commands = {
       // Validate fillPattern if provided (support both camelCase and kebab-case)
       const fillPattern = flags.fillPattern || flags['fill-pattern'];
       if (fillPattern) {
-        const validFillPatterns = ['dots', 'gradient'];
+        const validFillPatterns = ['dots', 'gradient', 'diagonal', 'crosshatch'];
         if (!validFillPatterns.includes(fillPattern)) {
-          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient.');
+          throw new ValidationError('Error: --fillPattern must be one of: dots, gradient, diagonal, crosshatch');
         }
 
         // If gradient, validate width and height
