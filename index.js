@@ -2,6 +2,7 @@
 // grab the arguments from the process arg thing
 import { parseArgs } from './parser.js'
 import { ShapeGenerator } from './shapes.js'
+import { TextGenerator } from './text.js'
 import { ValidationError, CLIError, ParseError } from './errors.js'
 
 
@@ -72,7 +73,7 @@ const commands = {
           throw new ValidationError('Error: --sides must be a number greater than 3.');
         }
       }
-  
+
 
     },
     handler: (options) => {
@@ -94,6 +95,45 @@ const commands = {
       })
     }
 
+  },
+  banner: {
+    aliases: ['b'],
+    description: 'This command will generate ASCII art text banners',
+    usage: 'banner [options]',
+    options: [
+      '--text=<text> The text to render (A-Z, 0-9 only)',
+      '--output=<file> Optional file to save output',
+    ],
+    examples: [
+      'banner --text=HELLO',
+      'banner --text=CODE123',
+    ],
+    validator: (options) => {
+      const { flags } = options;
+
+      // Check if text is provided
+      if (!flags.text) {
+        throw new ValidationError('Error: --text is required. Please specify text to render.');
+      }
+
+      // Validate text contains only A-Z and 0-9
+      const validPattern = /^[A-Z0-9]+$/;
+      if (!validPattern.test(flags.text)) {
+        throw new ValidationError('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
+      }
+    },
+    handler: (options) => {
+      const { flags, positional } = options
+      console.log('these are the options', options)
+      console.log(`Hi there!`);
+
+      const append = !!positional.find(param => param === 'append')
+      TextGenerator.create({
+        text: flags.text,
+        output: flags.output,
+        append: !!append,
+      })
+    }
   },
 };
 

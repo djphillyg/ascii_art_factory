@@ -334,7 +334,7 @@ describe('CLI File Output Error Handling', () => {
       try {
         chmodSync(testDir, 0o755);
         rmSync(testDir, { recursive: true, force: true });
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -361,7 +361,7 @@ describe('CLI File Output Error Handling', () => {
       // Cleanup
       try {
         rmSync(testDir, { recursive: true, force: true });
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -381,7 +381,6 @@ describe('CLI File Output Error Handling', () => {
   });
 
   test('should successfully write to valid file path', async () => {
-    const { rmSync, existsSync } = await import('fs');
     const testFile = 'test_output_success';
 
     try {
@@ -412,7 +411,7 @@ describe('CLI File Output Error Handling', () => {
             rmSync(`generated_shapes/${file}`);
           }
         });
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -447,7 +446,7 @@ describe('CLI File Output Error Handling', () => {
       // Cleanup
       try {
         rmSync(testFile);
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -483,7 +482,7 @@ describe('CLI File Output Error Handling', () => {
       // Cleanup
       try {
         rmSync(testFile);
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }

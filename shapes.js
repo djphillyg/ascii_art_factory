@@ -1,7 +1,7 @@
 /**
  * Shapes module - handles shape generation logic
  */
-import {shapeArrayToString, exportShape } from './renderer.js' 
+import {gridOutputToString, exportShape } from './renderer.js' 
 
 const tolerance = Number(0.5)
 
@@ -201,7 +201,7 @@ export class ShapeGenerator {
       case 'rectangle': {
         const rectangle = generateRectangle(options)
 
-        const rectangleOutput = shapeArrayToString(rectangle)
+        const rectangleOutput = gridOutputToString(rectangle)
 
         // if it goes to a file send it out, if not just output it
         if (options.output) {
@@ -220,7 +220,7 @@ export class ShapeGenerator {
       case 'circle': {
         const circle = generateCircle(options)
 
-        const circleOutput = shapeArrayToString(circle)
+        const circleOutput = gridOutputToString(circle)
 
         // if it goes to a file send it out, if not just output it
         if (options.output) {
@@ -237,7 +237,7 @@ export class ShapeGenerator {
       case 'polygon': {
         const polygon = generatePolygon(options)
 
-        const polygonOutput = shapeArrayToString(polygon)
+        const polygonOutput = gridOutputToString(polygon)
 
         // if it goes to a file send it out, if not just output it
         if (options.output) {

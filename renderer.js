@@ -12,12 +12,12 @@ import {
   } from 'fs';
 import { IOError } from './errors.js';
 /**
- * Converts a 2D shape array to a string representation
- * @param {string[][]} shapeArray - 2D array representing the shape
- * @returns {string} String representation of the shape
+ * Converts a 2D grid array to a string representation
+ * @param {string[][]} gridArray - 2D array representing the grid (shape or text)
+ * @returns {string} String representation of the grid
  */
-export function shapeArrayToString(shapeArray) {
-  return shapeArray.map(line => line.join('')).join('\n');
+export function gridOutputToString(gridArray) {
+  return gridArray.map(line => line.join('')).join('\n');
 }
 
 /**
