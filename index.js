@@ -47,10 +47,10 @@ const commands = {
         }
       }
 
-      // If shape is circle, validate radius
-      if (flags.shape === 'circle') {
-        if (!flags.radius) {
-          throw new ValidationError('Error: --radius is required when drawing a circle.');
+      // if shape is circle or polygon, validate radius
+      if (flags.shape === 'circle' || flags.shape === 'polygon') {
+         if (!flags.radius) {
+          throw new ValidationError('Error: --radius is required when drawing a polygon or circle.');
         }
 
         const radius = Number(flags.radius);
@@ -59,6 +59,18 @@ const commands = {
           throw new ValidationError('Error: --radius must be a number greater than 0.');
         }
       }
+
+      //if a polygon, it must have a sides parameter > 3
+        if (!flags.sides) {
+          throw new ValidationError('Error: --sides is required when drawing a polygon.');
+        }
+
+        const sides = Number(flags.sides);
+
+        if (isNaN(sides) || sides < 3) {
+          throw new ValidationError('Error: --sides must be a number greater than 3.');
+        }
+  
 
     },
     handler: (options) => {

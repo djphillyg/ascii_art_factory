@@ -54,52 +54,91 @@ function generateCircle({
 }
 
 
-// function generatePolygon(sides, radius) {
-//     // Setup: calculate grid size
-    
-//     // Determine center point
-    
-//     // Create 2D array/grid filled with spaces
-    
-//     // Calculate all vertex positions
-//         // Loop from 0 to sides-1
-//             // Calculate angle for this vertex: (2 * PI * i) / sides
-            
-//             // Calculate vertex X: centerX + radius * cos(angle)
-            
-//             // Calculate vertex Y: centerY + radius * sin(angle)
-            
-//             // Store vertex in array
-    
-//     // Draw edges between consecutive vertices
-//         // Loop through vertices
-//             // Get current vertex and next vertex (wrap around at the end)
-            
-//             // Call helper function to draw line between vertices
-    
-//     // Convert grid to string output
-    
-//     // Return result
-// }
+function generatePolygon(sides, radius) {
+    // Setup: calculate grid size
+    // set up the diameter 
+    const gridSize = radius * 2 + 1
+    // Determine center point coordinates
+    // center point coordinates would be just (radius, radius)
 
-// function drawLine(grid, start, end) {
-//     // Round start and end coordinates to integers
+    const centerX = radius
+    const centerY = radius
     
-//     // Calculate number of steps needed (max of deltaX and deltaY)
+    // Create 2D array/grid filled with spaces
+    let grid = Array.from({ length: gridSize }, () => Array.from({length: gridSize}, () => ' '))
+
+    const vertexArray = []
+
+        // Calculate all vertex positions
+        // Loop from 0 to sides-1
+
+        for (let i = 0; i < sides; i+=1) {
+            // Calculate angle for this vertex: (2 * PI * i) / sides
+            const angle = (2 * Math.PI * i)/sides
+            
+            // Calculate vertex X: centerX + radius * cos(angle)
+            const vertexX = Math.round(centerX + radius * Math.cos(angle))
+            // Calculate vertex Y: centerY + radius * sin(angle)
+            const vertexY = Math.round(centerY + radius * Math.sin(angle))
+            // Store vertex in array
+            vertexArray.push([vertexX, vertexY])
+        }
+
+        for(let i = 0; i < vertexArray.length - 1; i +=1) {
+          grid = drawLine(grid, vertexArray[i], vertexArray[i+1])
+        }
+        // then connect the last one
+        grid = drawLine(
+          grid,
+          vertexArray[vertexArray.length - 1],
+          vertexArray[0]
+        )
+
+        return grid
+}
+
+function drawLine(grid, start, end) {
+    // Round start and end coordinates to integers
+    const [startX, startY] = start
+    const [endX, endY] = end
+    const startXNum = Math.round(startX)
+    const startYNum = Math.round(startY)
+    const endXNum = Math.round(endX)
+    const endYNum = Math.round(endY)
+    // Calculate number of steps needed (max of deltaX and deltaY)
+    const maxSteps = Math.max(
+      Math.abs(endYNum - startYNum),
+      Math.abs(endXNum - startXNum)
+    )
+
+    // Handle edge case: if steps is 0, just draw single point
+    if (maxSteps === 0) {
+      return
+    }
     
-//     // Handle edge case: if steps is 0, just draw single point
+    // Calculate increment per step for X and Y
+    const xIncrement = (endXNum - startXNum)/maxSteps
+    // Initialize current position to start point
+    const yIncrement = (endYNum - startYNum)/maxSteps
+
+    let xCurr = startXNum
+    let yCurr = startYNum
+    grid[xCurr][yCurr] = '*'
+    for (let i = 0; i<= maxSteps; i+=1) {
+      xCurr += xIncrement
+      yCurr += yIncrement
+      // round it and add 
+      grid[Math.round(xCurr)][Math.round(yCurr)] = '*'
+    }
     
-//     // Calculate increment per step for X and Y
-    
-//     // Initialize current position to start point
-    
-//     // Loop through steps
-//         // Mark current position on grid with '*'
+    return grid
+    // Loop through steps
+        // Mark current position on grid with '*'
         
-//         // Increment current X and Y by their respective increments
+        // Increment current X and Y by their respective increments
         
-//         // Round coordinates when setting grid positions
-// }
+        // Round coordinates when setting grid positions
+}
 
 /**
  * Generates a rectangle as a 2D array of characters
@@ -188,6 +227,23 @@ export class ShapeGenerator {
           console.log(circleOutput)
         }
         return circle
+      }
+      case 'polygon': {
+        const polygon = generatePolygon(options)
+
+        const polygonOutput = shapeArrayToString(polygon)
+
+        // if it goes to a file send it out, if not just output it
+        if (options.output) {
+          exportShape({
+            shapeOutput: polygonOutput,
+            fileName: options.output,
+            appendFile: options.append,
+          })
+        } else {
+          console.log(polygonOutput)
+        }
+        return polygonOutput
       }
       default:
         throw new Error(`Shape type "${shapeType}" is not implemented yet.`);
