@@ -2,17 +2,17 @@
   "name": "ai_mastery_challenge",
   "version": "1.0.0",
   "description": "AI Mastery Challenge project with modern Node.js and ES7+ features",
-  "main": "index.js",
+  "main": "cli/index.js",
   "bin": {
-    "mycli": "./index.js"
+    "mycli": "cli/index.js"
   },
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
+    "start": "node cli/index.js",
+    "dev": "node --watch cli/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
