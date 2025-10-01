@@ -36,6 +36,24 @@ function runCLI(args = []) {
   });
 }
 
+/**
+ * Helper function to clean up test files from generated_shapes directory
+ * @param {string} prefix - File name prefix to match for cleanup
+ */
+async function cleanupGeneratedFiles(prefix) {
+  try {
+    const { readdirSync, rmSync } = await import('fs');
+    const files = readdirSync('generated_shapes');
+    files.forEach(file => {
+      if (file.startsWith(prefix)) {
+        rmSync(`generated_shapes/${file}`);
+      }
+    });
+  } catch {
+    // Ignore cleanup errors
+  }
+}
+
 describe('CLI Draw Command Validation', () => {
   test('should require --shape parameter', async () => {
     const result = await runCLI(['draw']);
@@ -402,18 +420,7 @@ describe('CLI File Output Error Handling', () => {
       const createdFile = files.find(f => f.startsWith(testFile));
       expect(createdFile).toBeDefined();
     } finally {
-      // Cleanup - remove any files starting with testFile
-      try {
-        const { readdirSync, rmSync } = await import('fs');
-        const files = readdirSync('generated_shapes');
-        files.forEach(file => {
-          if (file.startsWith(testFile)) {
-            rmSync(`generated_shapes/${file}`);
-          }
-        });
-      } catch {
-        // Ignore cleanup errors
-      }
+      await cleanupGeneratedFiles(testFile);
     }
   });
 
@@ -478,6 +485,231 @@ describe('CLI File Output Error Handling', () => {
       const content = readFileSync(testFile, 'utf-8');
       expect(content).not.toContain('OLD CONTENT');
       expect(content).toContain('***');
+    } finally {
+      // Cleanup
+      try {
+        rmSync(testFile);
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  });
+});
+
+describe('CLI Banner Command Validation', () => {
+  test('should require --text parameter', async () => {
+    const result = await runCLI(['banner']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --text is required. Please specify text to render.');
+  });
+
+  test('should reject lowercase letters', async () => {
+    const result = await runCLI(['banner', '--text=hello']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
+  });
+
+  test('should reject special characters', async () => {
+    const result = await runCLI(['banner', '--text=HELLO!']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
+  });
+
+  test('should reject spaces in text', async () => {
+    const result = await runCLI(['banner', '--text=HELLO WORLD']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
+  });
+
+  test('should accept uppercase letters only', async () => {
+    const result = await runCLI(['banner', '--text=HELLO']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+
+  test('should accept numbers only', async () => {
+    const result = await runCLI(['banner', '--text=123']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+
+  test('should accept mixed letters and numbers', async () => {
+    const result = await runCLI(['banner', '--text=ABC123']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+
+  test('should accept single character', async () => {
+    const result = await runCLI(['banner', '--text=A']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Hi there!');
+    expect(result.stdout).toContain('*');
+  });
+});
+
+describe('CLI Banner Output', () => {
+  test('should generate ASCII art for HELLO', async () => {
+    const result = await runCLI(['banner', '--text=HELLO']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    // Should have ASCII art output
+    const asteriskCount = (result.stdout.match(/\*/g) || []).length;
+    expect(asteriskCount).toBeGreaterThan(10); // HELLO has many asterisks
+  });
+
+  test('should generate ASCII art for 123', async () => {
+    const result = await runCLI(['banner', '--text=123']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    const asteriskCount = (result.stdout.match(/\*/g) || []).length;
+    expect(asteriskCount).toBeGreaterThan(5); // 123 has asterisks
+  });
+
+  test('should generate ASCII art for ASCII123', async () => {
+    const result = await runCLI(['banner', '--text=ASCII123']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('*');
+    const asteriskCount = (result.stdout.match(/\*/g) || []).length;
+    expect(asteriskCount).toBeGreaterThan(20); // ASCII123 has many asterisks
+  });
+});
+
+describe('CLI Banner File Output', () => {
+  test('should write HELLO to file', async () => {
+    const testFile = 'test_banner_hello';
+
+    try {
+      const result = await runCLI([
+        'banner',
+        '--text=HELLO',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN SUCCESSFULLY WRITTEN/);
+
+      // Verify file was created in generated_shapes/
+      const files = await import('fs').then(fs =>
+        fs.readdirSync('generated_shapes')
+      );
+      const createdFile = files.find(f => f.startsWith(testFile));
+      expect(createdFile).toBeDefined();
+
+      // Verify file content has ASCII art
+      const { readFileSync } = await import('fs');
+      const filePath = `generated_shapes/${createdFile}`;
+      const content = readFileSync(filePath, 'utf-8');
+      expect(content).toContain('*');
+      const lines = content.split('\n').filter(l => l.includes('*'));
+      expect(lines.length).toBe(5);
+    } finally {
+      await cleanupGeneratedFiles(testFile);
+    }
+  });
+
+  test('should write 123 to file', async () => {
+    const testFile = 'test_banner_123';
+
+    try {
+      const result = await runCLI([
+        'banner',
+        '--text=123',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN SUCCESSFULLY WRITTEN/);
+
+      // Verify file was created
+      const files = await import('fs').then(fs =>
+        fs.readdirSync('generated_shapes')
+      );
+      const createdFile = files.find(f => f.startsWith(testFile));
+      expect(createdFile).toBeDefined();
+
+      // Verify file content
+      const { readFileSync } = await import('fs');
+      const filePath = `generated_shapes/${createdFile}`;
+      const content = readFileSync(filePath, 'utf-8');
+      expect(content).toContain('*');
+      const lines = content.split('\n').filter(l => l.includes('*'));
+      expect(lines.length).toBe(5);
+    } finally {
+      await cleanupGeneratedFiles(testFile);
+    }
+  });
+
+  test('should write ASCII123 to file', async () => {
+    const testFile = 'test_banner_ascii123';
+
+    try {
+      const result = await runCLI([
+        'banner',
+        '--text=ASCII123',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN SUCCESSFULLY WRITTEN/);
+
+      // Verify file was created
+      const files = await import('fs').then(fs =>
+        fs.readdirSync('generated_shapes')
+      );
+      const createdFile = files.find(f => f.startsWith(testFile));
+      expect(createdFile).toBeDefined();
+
+      // Verify file content
+      const { readFileSync } = await import('fs');
+      const filePath = `generated_shapes/${createdFile}`;
+      const content = readFileSync(filePath, 'utf-8');
+      expect(content).toContain('*');
+      const lines = content.split('\n').filter(l => l.includes('*'));
+      expect(lines.length).toBe(5);
+    } finally {
+      await cleanupGeneratedFiles(testFile);
+    }
+  });
+
+  test('should append banner to existing file', async () => {
+    const { writeFileSync, readFileSync, rmSync, mkdirSync } = await import('fs');
+    const testFile = 'generated_shapes/test_banner_append.txt';
+
+    try {
+      mkdirSync('generated_shapes', { recursive: true });
+
+      // Create initial file with content
+      writeFileSync(testFile, 'INITIAL CONTENT\n', 'utf-8');
+
+      // Append banner
+      const result = await runCLI([
+        'banner',
+        'append',
+        '--text=HI',
+        '--output', testFile
+      ]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toMatch(/FILE:.*HAS BEEN APPENDED/);
+
+      // Verify file contains both initial content and banner
+      const content = readFileSync(testFile, 'utf-8');
+      expect(content).toContain('INITIAL CONTENT');
+      expect(content).toContain('*');
     } finally {
       // Cleanup
       try {
