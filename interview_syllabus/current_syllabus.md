@@ -22,7 +22,8 @@
 
 **READ:** *"Your gradients need more BLENDING, honey—they're transitioning HARDER than your CLI to an API! Those patterns are CUTE but they need STRUCTURE. I see the VISION but where's the PRECISION? Remember: typography is about the SPACE between the letters, not just the letters themselves. Clean up those character maps and give me some KERNING realness! Now shantay forward to Day 2!"*
 
-**FEEDBACK:** [Intentionally blank]
+**FEEDBACK:** 
+
 
 ---
 
@@ -52,14 +53,14 @@
 ### DAY 3: JSON or Jail 📦
 **MOTIVATIONAL QUOTE:** *"An API is a promise—make yours clear, consistent, and unbreakable."* - Kevlin Henney
 
-**TAGLINE:** *"I serialize my problems—and my shapes."*
+**TAGLINE:** *"I serialize my problems—and my outputs."*
 
 **OBJECTIVES:**
-1. Refactor CLI to export `generateShape(type, options)` as reusable module - move from `index.js` to `src/generator.js` with clean exports
-2. Add `--format json` flag that outputs shape as JSON: `{type: 'rectangle', dimensions: {width: 5, height: 3}, grid: [...], metadata: {timestamp, version}}`
-3. Create `ShapeSerializer` class with methods: `toJSON()`, `toASCII()`, `toHTML()` - HTML wraps each character in `<span>` for styling
-4. Implement shape validation schema using Zod or Joi: validate all inputs before generation, return structured errors
-5. Test: Generate rectangle, circle, triangle in all three formats; intentionally pass invalid dimensions to verify error structure
+1. Create unified generator module: Refactor to `cli/generator.js` that exports `generate(type, options)` where `type = 'shape' | 'text'` - routes to appropriate generator function
+2. Add JSON output flag: Implement `--format json` that outputs: `{type: 'shape'|'text', input: {...options}, grid: [[...]], metadata: {timestamp, dimensions}}`
+3. Build `OutputSerializer` class: Create `cli/serializer.js` with methods `toJSON(grid, metadata)`, `toASCII(grid)`, `toHTML(grid)` - works for ANY grid regardless of source
+4. Implement validation schemas: Use Zod or Joi to validate shape inputs (`{type: 'rectangle', width, height}`) AND text inputs (`{type: 'text', text, fillPattern}`) - return structured errors
+5. Test both types in all formats: Generate rectangle JSON, circle ASCII, banner HTML; validate that serialization is consistent; test error cases
 
 **GIFT:** Order your favorite coffee/tea and enjoy it slowly while reviewing your code
 

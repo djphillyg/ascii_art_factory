@@ -109,7 +109,9 @@ const commands = {
       const fillPattern = flags.fillPattern || flags['fill-pattern'];
 
       // Pass all possible options - each shape extracts what it needs
-      ShapeGenerator.create(flags.shape, {
+      ShapeGenerator.create({
+        shapeType: flags.shape,
+        options: {
         width: Number(flags.width),
         height: Number(flags.height),
         radius: Number(flags.radius),
@@ -119,7 +121,7 @@ const commands = {
         direction: flags.direction || 'horizontal',
         output: flags.output,
         append,
-      })
+      }})
     }
 
   },

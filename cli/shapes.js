@@ -197,7 +197,7 @@ export class ShapeGenerator {
    * @returns {string[][]} 2D array representing the shape
    * @throws {Error} If shape type is not supported
    */
-  static create(shapeType, options) {
+  static create({shapeType, options}) {
     let shapeGrid;
 
     switch (shapeType.toLowerCase()) {
@@ -241,6 +241,9 @@ export class ShapeGenerator {
       console.log(shapeOutput)
     }
 
-    return shapeGrid
+    return {
+      grid: shapeGrid,
+      output: shapeOutput,
+    }
   }
 }

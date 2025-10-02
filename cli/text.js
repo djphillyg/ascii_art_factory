@@ -12,12 +12,6 @@ import { fillGrid } from './decorator.js'
  * @returns {string[][]} 2D array representing the text
  */
 function generateText({ text }) {
-  // TODO: Implement text generation logic
-  // Hint: Use charMap to get character patterns
-  // assumption: theres no word wrap feature
-  // Hint: Combine multiple characters horizontally
-  // Hint: Handle spaces between characters
-
   // turn text in array
   // validate proper regex text in validator
   const textArray = text.split('')
@@ -92,6 +86,9 @@ export class TextGenerator {
       console.log(textOutput)
     }
 
-    return textOutput
+    return {
+      grid: textGrid,
+      output: textOutput,
+    }
   }
 }

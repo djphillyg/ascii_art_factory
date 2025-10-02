@@ -1,4 +1,5 @@
 import express from 'express';
+import apiRoutes from './api/index'
 
 const app = express();
 const PORT = 3001;
@@ -11,6 +12,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
 });
+
+// api - post to create a shape
+app.use('/api', apiRoutes)
+
 
 // Start server
 app.listen(PORT, () => {

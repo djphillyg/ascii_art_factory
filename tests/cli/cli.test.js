@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const cliPath = join(__dirname, '..', 'cli', 'index.js');
+const cliPath = join(__dirname, '..', '..', 'cli', 'index.js');
 
 function runCLI(args = []) {
   return new Promise((resolve, reject) => {
