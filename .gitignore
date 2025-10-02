@@ -89,3 +89,9 @@ build/
 
 # Generated shapes output
 generated_shapes/
+
+# Project notes and development files
+.claude/
+interview_syllabus/
+gen_ideas/
+working_prompts/
