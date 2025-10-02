@@ -20,24 +20,24 @@ export const generateSchema = Joi.object({
     // rectangle validation
     if (type === 'rectangle') {
         if (!options.width || options.width <= 0) {
-            return helpers.error('any.invalid', { message: '-- width is required and must be > 0 for rectangle'})
+            return helpers.message('-- width is required and must be > 0 for rectangle')
         }
 
         if (!options.height || options.height <= 0) {
-            return helpers.error('any.invalid', { message: '-- height is required and must be > 0 for rectangle'})
+            return helpers.message('-- height is required and must be > 0 for rectangle')
         }
     }
 
     // circle/ polygon validation
     if (type === 'circle' || type === 'polygon') {
         if (!options.radius || options.radius <= 0) {
-        return helpers.error('any.invalid', { message: '--radius is required and must be > 0 for circles/polygons' });
+        return helpers.message('--radius is required and must be > 0 for circles/polygons');
       }
     }
 
     if (type === 'polygon') {
         if (!options.sides || options.sides <= 3) {
-            return helpers.error('any.invalid', { message: '--sides is required and must be > 3 for polygons' });
+            return helpers.message('--sides is required and must be > 3 for polygons');
         }
     }
 
@@ -46,20 +46,22 @@ export const generateSchema = Joi.object({
 
     if (options.fillPattern && options.fillPattern === 'gradient') {
         if (!options.direction) {
-            return helpers.error('any.invalid', {message: '--direction must be provided when having a gradient fill'})
+            return helpers.message('--direction must be provided when having a gradient fill')
         }
-        if (!options.width || !options.width <= 0 || !options.height || options.height <= 0) {
-            return helpers.error('any.invalid', {message: 'width and height required for gradient fill'})
+        if (!options.width || options.width <= 0 || !options.height || options.height <= 0) {
+            return helpers.message('width and height required for gradient fill')
         }
     }
 
     // text validation
     if (type === 'text') {
         if (!options.text) {
-            return helpers.error('any.invalid', {message: '--text is required for text banners' })
+            return helpers.message('--text is required for text banners')
         }
         if (!/^[A-Z0-9]+$/.test(options.text)) {
-            return helpers.error('any.invalid', { message: '--text must contain only A-Z and 0-9'})
+            return helpers.message('--text must contain only A-Z and 0-9')
         }
     }
+
+    return value
 })

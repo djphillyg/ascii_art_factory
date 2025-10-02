@@ -1,4 +1,4 @@
-import {gridOutputToString} from './renderer'
+import {gridOutputToString} from './renderer.js'
 
 export class OutputSerializer {
     constructor(grid, metadata) {

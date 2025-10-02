@@ -1,7 +1,7 @@
 import express from 'express'
-import {generateSchema} from './validation/schemas/generate'
-import {generate} from './api/generate'
-import {validate} from './middleware/validate'
+import {generateSchema} from '../validation/schemas/generate.js'
+import {validate} from '../middleware/validate.js'
+import {generate} from './generate.js'
 
 const router = express.Router()
 
