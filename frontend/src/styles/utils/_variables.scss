@@ -1,0 +1,117 @@
+// ===================================
+// COLOR VARIABLES
+// ===================================
+
+// Light Theme Colors
+$color-primary-light: #6366f1;    // Indigo
+$color-secondary-light: #8b5cf6;  // Purple
+$color-accent-light: #ec4899;     // Pink
+$color-bg-light: #ffffff;
+$color-surface-light: #f3f4f6;
+$color-text-light: #1f2937;
+$color-text-secondary-light: #6b7280;
+
+// Dark Theme Colors
+$color-primary-dark: #818cf8;
+$color-secondary-dark: #a78bfa;
+$color-accent-dark: #f472b6;
+$color-bg-dark: #111827;
+$color-surface-dark: #1f2937;
+$color-text-dark: #f9fafb;
+$color-text-secondary-dark: #9ca3af;
+
+// Default theme (light)
+$color-primary: $color-primary-light;
+$color-secondary: $color-secondary-light;
+$color-accent: $color-accent-light;
+$color-bg: $color-bg-light;
+$color-surface: $color-surface-light;
+$color-text: $color-text-light;
+$color-text-secondary: $color-text-secondary-light;
+
+// Status colors
+$color-success: #10b981;
+$color-warning: #f59e0b;
+$color-error: #ef4444;
+$color-info: #3b82f6;
+
+// ===================================
+// SPACING
+// ===================================
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.5rem;    // 24px
+$spacing-xl: 2rem;      // 32px
+$spacing-2xl: 3rem;     // 48px
+$spacing-3xl: 4rem;     // 64px
+
+// ===================================
+// TYPOGRAPHY
+// ===================================
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+$font-family-mono: 'Courier New', 'Courier', monospace;
+
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ===================================
+// BORDERS & RADIUS
+// ===================================
+$border-radius-sm: 0.25rem;   // 4px
+$border-radius-md: 0.5rem;    // 8px
+$border-radius-lg: 0.75rem;   // 12px
+$border-radius-xl: 1rem;      // 16px
+$border-radius-full: 9999px;  // Fully rounded
+
+$border-width: 1px;
+$border-width-thick: 2px;
+
+// ===================================
+// SHADOWS
+// ===================================
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+// ===================================
+// BREAKPOINTS
+// ===================================
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ===================================
+// Z-INDEX LAYERS
+// ===================================
+$z-index-dropdown: 1000;
+$z-index-modal: 2000;
+$z-index-popover: 3000;
+$z-index-tooltip: 4000;
+
+// ===================================
+// TRANSITIONS
+// ===================================
+$transition-fast: 150ms ease-in-out;
+$transition-base: 250ms ease-in-out;
+$transition-slow: 350ms ease-in-out;

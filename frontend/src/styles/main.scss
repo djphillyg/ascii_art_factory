@@ -1,0 +1,71 @@
+// ===================================
+// MAIN SCSS - 7-1 ARCHITECTURE
+// ===================================
+// This is the main SCSS file that imports all partials
+// Order matters! Variables and mixins must come first
+
+// 1. UTILS (Variables, Functions, Mixins)
+@import 'utils/variables';
+@import 'utils/mixins';
+
+// 2. BASE (Reset, Typography, Base styles)
+@import 'base/reset';
+
+// 3. LAYOUT (Header, Footer, Sidebar, etc.)
+// @import 'layout/header';
+// @import 'layout/sidebar';
+// @import 'layout/footer';
+
+// 4. COMPONENTS (Buttons, Cards, Forms, etc.)
+// @import 'components/button';
+// @import 'components/input';
+// @import 'components/card';
+
+// 5. PAGES (Page-specific styles)
+// @import 'pages/home';
+// @import 'pages/generator';
+
+// ===================================
+// GLOBAL BASE STYLES
+// ===================================
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $color-text;
+  background-color: $color-bg;
+}
+
+code, pre {
+  font-family: $font-family-mono;
+}
+
+// ===================================
+// UTILITY CLASSES
+// ===================================
+
+.container {
+  max-width: $breakpoint-xl;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+
+  @include respond-to('lg') {
+    padding: 0 $spacing-xl;
+  }
+}
+
+.sr-only {
+  @include sr-only;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-column {
+  @include flex-column;
+}

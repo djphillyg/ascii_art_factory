@@ -1,0 +1,45 @@
+@import '@/styles/utils/variables';
+@import '@/styles/utils/mixins';
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: white;
+  padding: $spacing-2xl $spacing-xl;
+  text-align: center;
+  box-shadow: $shadow-md;
+
+  h1 {
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-sm;
+
+    @include respond-to('md') {
+      font-size: 3rem;
+    }
+  }
+
+  p {
+    font-size: $font-size-lg;
+    opacity: 0.9;
+  }
+}
+
+.main {
+  flex: 1;
+  background-color: $color-bg;
+}
+
+.footer {
+  background-color: $color-surface;
+  padding: $spacing-lg;
+  text-align: center;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  border-top: $border-width solid rgba($color-text, 0.1);
+}
