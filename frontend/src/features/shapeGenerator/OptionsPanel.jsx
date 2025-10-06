@@ -5,12 +5,13 @@ import CircleOptions from './CircleOptions'
 import RectangleOptions from './RectangleOptions'
 import PolygonOptions from './PolygonOptions'
 import TextOptions from './TextOptions'
+import { terminalTheme } from '../../theme/terminal'
 
 /**
  * OptionsPanel Component
  *
  * Displays shape-specific options based on the selected shape type
- * All options are wrapped in a consistent Box for visual consistency
+ * Terminal-styled options panel
  */
 export default function OptionsPanel() {
     const currentShapeType = useSelector(selectCurrentShapeType)
@@ -27,19 +28,30 @@ export default function OptionsPanel() {
             case 'text':
                 return <TextOptions />
             default:
-                return <Text color="gray.600">Select a shape to see options</Text>
+                return (
+                    <Text
+                        color={terminalTheme.colors.gray[500]}
+                        fontFamily={terminalTheme.fonts.mono}
+                        fontSize="sm"
+                    >
+                        [ No shape selected - waiting for input... ]
+                    </Text>
+                )
         }
     }
 
     return (
-        <Box
-            bg="white"
-            p={{ base: 4, md: 6 }}
-            borderRadius="lg"
-            boxShadow="sm"
-            borderWidth="1px"
-            borderColor="gray.200"
-        >
+        <Box>
+            <Text
+                color={terminalTheme.colors.cyan[500]}
+                fontSize="sm"
+                fontWeight="bold"
+                mb={3}
+                textTransform="uppercase"
+                letterSpacing="wider"
+            >
+                &gt; Configuration
+            </Text>
             {renderOptions()}
         </Box>
     )

@@ -4,9 +4,11 @@ import {
   Box,
   NativeSelect,
   IconButton,
-  Field
+  Field,
+  Text
 } from '@chakra-ui/react'
 import { LuX } from 'react-icons/lu'
+import { terminalTheme } from '../../theme/terminal'
 import { fetchShapes, selectAvailableTypes, selectIsLoadingShapes } from '../shapes/shapesSlice'
 import {
   setShape,
@@ -41,21 +43,20 @@ export default function ShapeSelector() {
   const hasShapeSelected = (currentShapeType !== null)
 
   return (
-    <Box
-      bg="white"
-      p={{ base: 4, md: 6 }}
-      borderRadius="lg"
-      boxShadow="sm"
-      borderWidth="1px"
-      borderColor="gray.200"
-    >
-      <Field.Root>
-        <Field.Label
-          fontSize={{ base: 'sm', md: 'md' }}
-          fontWeight="medium"
+    <Box>
+      <Box>
+        <Text
+          color={terminalTheme.colors.green[500]}
+          fontSize="sm"
+          fontWeight="bold"
+          mb={2}
+          textTransform="uppercase"
+          letterSpacing="wider"
         >
-          Select Shape
-        </Field.Label>
+          &gt; Select Shape Type
+        </Text>
+
+        <Field.Root>
 
         <Box position="relative" width="70%">
           <NativeSelect.Root
@@ -94,12 +95,17 @@ export default function ShapeSelector() {
           )}
         </Box>
 
-        <Field.HelperText fontSize="sm" color="gray.600">
-          {isLoading
-            ? 'Loading available shapes...'
-            : `${availableTypes.length} shape${availableTypes.length !== 1 ? 's' : ''} available`}
-        </Field.HelperText>
-      </Field.Root>
+          <Field.HelperText
+            fontSize="xs"
+            color={terminalTheme.colors.gray[500]}
+            fontFamily={terminalTheme.fonts.mono}
+          >
+            {isLoading
+              ? '[ Loading shapes... ]'
+              : `[ ${availableTypes.length} shape${availableTypes.length !== 1 ? 's' : ''} loaded ]`}
+          </Field.HelperText>
+        </Field.Root>
+      </Box>
     </Box>
   )
 }

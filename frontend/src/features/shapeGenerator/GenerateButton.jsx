@@ -42,15 +42,32 @@ export default function GenerateButton({ socket, isConnected }) {
   }
 
   return (
-    <Box mt={4}>
+    <Box>
       <ButtonInput
         onClick={handleGenerate}
         disabled={!isValid}
-        colorPalette="blue"
+        colorPalette="green"
         size="lg"
         width="full"
+        bg="transparent"
+        border="2px solid"
+        borderColor="green.500"
+        color="green.500"
+        _hover={{
+          bg: 'green.500',
+          color: 'black',
+          boxShadow: '0 0 20px rgba(0, 255, 65, 0.8)'
+        }}
+        _disabled={{
+          opacity: 0.4,
+          cursor: 'not-allowed',
+        }}
+        fontFamily="monospace"
+        textTransform="uppercase"
+        letterSpacing="wider"
+        fontWeight="bold"
       >
-        Generate Shape
+        &gt; Run Generation
       </ButtonInput>
     </Box>
   )

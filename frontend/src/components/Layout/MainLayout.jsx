@@ -1,74 +1,82 @@
-import { Box, Container, Heading, Text } from '@chakra-ui/react'
+import { Box, Container, Text } from '@chakra-ui/react'
+import { terminalTheme } from '../../theme/terminal'
 
 /**
- * MainLayout - Responsive layout wrapper
+ * MainLayout - Terminal-themed layout wrapper
  *
- * Chakra's responsive props work with breakpoint syntax:
- * - base: mobile (default, 0px+)
- * - sm: 480px+
- * - md: 768px+
- * - lg: 992px+
- * - xl: 1280px+
- *
- * You can pass arrays or objects for responsive values:
- * - Array: [base, sm, md, lg, xl]
- * - Object: { base: value, md: value }
+ * Full terminal immersion with CRT-style header and dark background
  */
 export default function MainLayout({ children }) {
   return (
     <Box
       minH="100vh"
-      bg="gray.50"
+      bg={terminalTheme.colors.bg.primary}
+      fontFamily={terminalTheme.fonts.mono}
     >
-      {/* Header */}
+      {/* Terminal Header Bar */}
       <Box
         as="header"
-        bg="white"
-        borderBottom="1px"
-        borderColor="gray.200"
-        py={4}
+        bg={terminalTheme.colors.bg.secondary}
+        borderBottom="2px solid"
+        borderColor={terminalTheme.colors.green[500]}
+        boxShadow={terminalTheme.effects.glow.green}
+        py={3}
       >
         <Container maxW="container.xl">
-          <Heading
-            as="h1"
-            size={{ base: 'lg', md: 'xl' }}
-            mb={1}
-          >
-            ASCII Shape Generator
-          </Heading>
-          <Text
-            color="gray.600"
-            fontSize={{ base: 'sm', md: 'md' }}
-          >
-            Build beautiful ASCII art with React + Redux
-          </Text>
+          <Box display="flex" alignItems="center" gap={3}>
+            {/* Terminal window controls */}
+            <Box display="flex" gap={2}>
+              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.error} />
+              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.warning} />
+              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.success} />
+            </Box>
+
+            {/* Terminal prompt */}
+            <Text
+              color={terminalTheme.colors.green[500]}
+              fontSize={{ base: 'md', md: 'lg' }}
+              fontWeight="bold"
+              textShadow={terminalTheme.effects.textGlow.green}
+            >
+              user@ascii-generator:~$
+            </Text>
+
+            <Text
+              color={terminalTheme.colors.cyan[500]}
+              fontSize={{ base: 'sm', md: 'md' }}
+              ml="auto"
+            >
+              [CONNECTED]
+            </Text>
+          </Box>
         </Container>
       </Box>
 
-      {/* Main Content Area */}
+      {/* Main Terminal Content */}
       <Container
         maxW="container.xl"
-        py={{ base: 4, md: 8 }}
+        py={{ base: 4, md: 6 }}
       >
         {children}
       </Container>
 
-      {/* Footer */}
+      {/* Terminal Footer */}
       <Box
         as="footer"
-        bg="white"
-        borderTop="1px"
-        borderColor="gray.200"
-        py={4}
+        bg={terminalTheme.colors.bg.secondary}
+        borderTop="1px solid"
+        borderColor={terminalTheme.colors.green[900]}
+        py={3}
         mt="auto"
       >
         <Container maxW="container.xl">
           <Text
             textAlign="center"
-            color="gray.600"
-            fontSize="sm"
+            color={terminalTheme.colors.gray[500]}
+            fontSize="xs"
+            fontFamily={terminalTheme.fonts.mono}
           >
-            Built with Vite + React + Redux Toolkit + Chakra UI
+            &gt; SYSTEM READY | Vite + React + Redux + Socket.IO | Press CTRL+C to exit
           </Text>
         </Container>
       </Box>
