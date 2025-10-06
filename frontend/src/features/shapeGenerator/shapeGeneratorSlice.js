@@ -1,5 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
+export function gridOutputToString(gridArray) {
+  return gridArray.map(line => line.join('')).join('\n');
+}
 
 export const generateShapeAsync = createAsyncThunk(
     'shapeGenerator/generateShape',
@@ -33,6 +36,7 @@ const initialState = {
     isGenerating: false,
     error: null,
     generateError: null,
+    shapeOutput: null,
 }
 
 const shapeGeneratorSlice = createSlice({
@@ -49,6 +53,7 @@ const shapeGeneratorSlice = createSlice({
             state.currentShapeType = null
             state.currentShapeData = null
             state.options = {}
+            state.shapeOutput = null
         },
 
         updateOptions: (state, action) => {
@@ -70,6 +75,7 @@ const shapeGeneratorSlice = createSlice({
             console.log('this is the action btw', action)
             state.isGenerating = false
             state.currentShapeData = action.payload
+            state.shapeOutput = gridOutputToString(action.payload.grid)
         })
         .addCase(generateShapeAsync.rejected, (state, action) => {
             state.isGenerating = false
@@ -79,11 +85,11 @@ const shapeGeneratorSlice = createSlice({
 })
 
 export const selectCurrentShapeType = (state) => state.shapeGenerator.currentShapeType
-export const selectCurrentShape = (state) => state.shapeGenerator.currentShape
+export const selectCurrentShape = (state) => state.shapeGenerator?.currentShape
 export const selectOptions = (state) => state.shapeGenerator.options
 export const selectIsGenerating = (state) => state.shapeGenerator.isGenerating
 export const selectGenerateError = (state) => state.shapeGenerator.generateError
-
+export const selectShapeOutput = (state) => state.shapeGenerator.shapeOutput
 // export actions for use in components
 export const { updateOptions, clearCurrentShape, setShape } = shapeGeneratorSlice.actions
 // export reducer for store configuration

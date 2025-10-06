@@ -1,6 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import shapesReducer from '@/features/shapes/shapesSlice';
 import shapeGeneratorReducer from '@/features/shapeGenerator/shapeGeneratorSlice';
+import shapesHistoryReducer from '@/features/history/shapesHistorySlice'
+import uiReducer from '@/features/ui/uiSlice'
 // Import more slices here as you create them
 // import historyReducer from '@/features/history/historySlice';
 
@@ -14,6 +16,8 @@ export const store = configureStore({
      */
     shapes: shapesReducer,
     shapeGenerator: shapeGeneratorReducer,
+    shapesHistory: shapesHistoryReducer,
+    uiSlice: uiReducer,
     // Add more reducers here
     // history: historyReducer,
   },
