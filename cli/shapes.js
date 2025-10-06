@@ -160,7 +160,7 @@ export function generateRectangle({
   width,
   height,
   char = '*',
-  isFilled = false }) {
+  filled = false }) {
   const rectangleArray = [];
 
   for (let i = 0; i < height; i += 1) {
@@ -170,7 +170,7 @@ export function generateRectangle({
       rectangleArray.push(line);
     } else {
       const line = [];
-      if (isFilled) {
+      if (filled) {
         // Fill with character
         line.push(...new Array(width).fill(char));
       } else {

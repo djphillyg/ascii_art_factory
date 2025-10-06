@@ -116,7 +116,7 @@ const commands = {
         height: Number(flags.height),
         radius: Number(flags.radius),
         sides: Number(flags.sides),
-        isFilled: flags.filled,
+        filled: flags.filled,
         fillPattern,
         direction: flags.direction || 'horizontal',
         output: flags.output,

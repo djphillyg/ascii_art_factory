@@ -23,27 +23,27 @@ import AsciiDisplay from '../features/shapeGenerator/AsciiDisplay'
 function App() {
   return (
     <MainLayout>
-      <Grid
-        templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
-        gap={{ base: 4, md: 6 }}
-        px={{ base: '5px', md: 0 }}
-      >
-        {/* Left column: Shape selector and options */}
-        <GridItem display="flex" flexDirection="column" gap={{ base: 4, md: 6 }}>
-          <ShapeSelector />
-          <Box flex="1" overflowY="auto">
-            <OptionsPanel />
-          </Box>
-        </GridItem>
+  <Grid
+    templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+    templateRows="auto 1fr"
+    gap={{ base: 4, md: 6 }}
+  >
+    {/* Left column */}
+    <GridItem>
+      <ShapeSelector />
+      <OptionsPanel />
+    </GridItem>
 
-        {/* Right column: Preview and display */}
-        <GridItem display="flex" flexDirection="column" gap={{ base: 4, md: 6 }}>
-          <GenerateButton />
-          <Box flex="1" overflowY="auto">
-            <AsciiDisplay />
-          </Box>
-        </GridItem>
-      </Grid>
+    {/* Right column */}
+    <GridItem>
+      <GenerateButton />
+    </GridItem>
+
+    {/* Full width bottom row */}
+    <GridItem colSpan={{ base: 1, md: 2 }}>
+      <AsciiDisplay />
+    </GridItem>
+  </Grid>
     </MainLayout>
   )
 }

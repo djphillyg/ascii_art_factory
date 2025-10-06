@@ -35,8 +35,8 @@ export default function SharedOptions({ shapeType }) {
     <Stack gap={4} mt={4}>
       <CheckboxInput
         label="Filled"
-        checked={options.isFilled}
-        onChange={(val) => handleChange('isFilled', val)}
+        checked={options.filled}
+        onChange={(val) => handleChange('filled', val)}
       />
 
       <SelectInput
