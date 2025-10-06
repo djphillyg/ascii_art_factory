@@ -95,3 +95,9 @@ generated_shapes/
 interview_syllabus/
 gen_ideas/
 working_prompts/
+
+
+# env files 
+.env
+.env.local
+.env.*.local

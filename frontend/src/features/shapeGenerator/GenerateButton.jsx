@@ -10,27 +10,34 @@ import { useShapeValidation } from './validation/useShapeValidation'
  * Triggers shape generation based on current shape type and options
  * Always visible, validates before making API call
  */
-export default function GenerateButton() {
+export default function GenerateButton({ socket, isConnected }) {
   const dispatch = useDispatch()
   const currentShapeType = useSelector(selectCurrentShapeType)
   const currentShape = useSelector(selectCurrentShape)
   const options = useSelector(selectOptions)
   const { isValid } = useShapeValidation()
 
-  // TODO: Create handleGenerate function that:
-  // 1. Dispatches an async thunk (e.g., generateShape) that makes API call to backend
-  // 2. The API call should POST to /api/generate with { type: currentShapeType, options }
-  // 3. Handle loading state (button shows loading spinner during API call)
-  // 4. Handle success (store ASCII art result in Redux state)
-  // 5. Handle errors (show error message to user)
+  // TODO: WebSocket Implementation
+  // 1. Check if socket is connected (isConnected)
+  // 2. If connected, use WebSocket instead of HTTP:
+  //    - socket.emit('generateShape', { type: currentShapeType, options })
+  // 3. If not connected, fallback to existing HTTP:
+  //    - await dispatch(generateShapeAsync({ type, options }))
+  // 4. Add loading state (useState) to show spinner on button
+  // 5. Listen for WebSocket errors and fallback to HTTP if needed
 
   const handleGenerate = async () => {
     if (!isValid) return
 
-    // TODO: Dispatch generateShape async thunk
+    // TODO: Replace with WebSocket emit when connected
+    // Example:
+    // if (socket && isConnected) {
+    //   socket.emit('generateShape', { type: currentShapeType, options })
+    // } else {
+    //   await dispatch(generateShapeAsync({ type: currentShapeType, options }))
+    // }
+
     console.log('Generating shape:', { type: currentShapeType, options })
-    // dispatch the shape out as an action
-    // TODO: shouldnt this be async or some shit 
     await dispatch(generateShapeAsync({
         type: currentShapeType,
         options

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Test - ASCII Shape Generator</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #00ff00;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid #00ff00;
+      padding-bottom: 10px;
+    }
+    #status {
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 18px;
+    }
+    .connected {
+      background: #002200;
+      border: 2px solid #00ff00;
+      color: #00ff00;
+    }
+    .disconnected {
+      background: #220000;
+      border: 2px solid #ff0000;
+      color: #ff0000;
+    }
+    #messages {
+      border: 2px solid #00ff00;
+      padding: 15px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #000;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-left: 3px solid #00ff00;
+      background: #111;
+    }
+    .timestamp {
+      color: #888;
+      font-size: 12px;
+    }
+    .controls {
+      margin: 20px 0;
+    }
+    button {
+      background: #003300;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      padding: 10px 20px;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 14px;
+      border-radius: 3px;
+    }
+    button:hover {
+      background: #00ff00;
+      color: #000;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .info {
+      background: #001a1a;
+      border: 1px solid #00ff00;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔌 WebSocket Test Page</h1>
+
+  <div id="status" class="disconnected">
+    🔴 Connecting to WebSocket server...
+  </div>
+
+  <div class="info">
+    <strong>Socket ID:</strong> <span id="socketId">Not connected</span>
+  </div>
+
+  <div class="controls">
+    <button id="testBtn" disabled>Send Test Message</button>
+    <button id="clearBtn">Clear Messages</button>
+  </div>
+
+  <h3>📨 Messages:</h3>
+  <div id="messages">
+    <div class="message">
+      <span class="timestamp">[Waiting for connection...]</span>
+    </div>
+  </div>
+
+  <!-- Load Socket.IO client from CDN -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+    // Connect to the server
+    const socket = io('http://localhost:3000', {
+      transports: ['websocket', 'polling']
+    })
+
+    const statusEl = document.getElementById('status')
+    const socketIdEl = document.getElementById('socketId')
+    const messagesEl = document.getElementById('messages')
+    const testBtn = document.getElementById('testBtn')
+    const clearBtn = document.getElementById('clearBtn')
+
+    function addMessage(type, content) {
+      const timestamp = new Date().toLocaleTimeString()
+      const messageEl = document.createElement('div')
+      messageEl.className = 'message'
+      messageEl.innerHTML = `
+        <span class="timestamp">[${timestamp}]</span>
+        <strong>${type}:</strong> ${JSON.stringify(content, null, 2)}
+      `
+      messagesEl.appendChild(messageEl)
+      messagesEl.scrollTop = messagesEl.scrollHeight
+    }
+
+    // Connection established
+    socket.on('connect', () => {
+      console.log('✅ Connected:', socket.id)
+      statusEl.textContent = '🟢 WebSocket Connected'
+      statusEl.className = 'connected'
+      socketIdEl.textContent = socket.id
+      testBtn.disabled = false
+      addMessage('CONNECT', { socketId: socket.id, status: 'connected' })
+    })
+
+    // Disconnection
+    socket.on('disconnect', (reason) => {
+      console.log('❌ Disconnected:', reason)
+      statusEl.textContent = '🔴 WebSocket Disconnected: ' + reason
+      statusEl.className = 'disconnected'
+      socketIdEl.textContent = 'Not connected'
+      testBtn.disabled = true
+      addMessage('DISCONNECT', { reason })
+    })
+
+    // Connection error
+    socket.on('connect_error', (error) => {
+      console.error('🔴 Connection error:', error)
+      statusEl.textContent = '🔴 Connection Error: ' + error.message
+      statusEl.className = 'disconnected'
+      addMessage('ERROR', { message: error.message })
+    })
+
+    // Listen for any events (for testing)
+    socket.onAny((eventName, ...args) => {
+      console.log('📨 Event received:', eventName, args)
+      addMessage('EVENT: ' + eventName, args)
+    })
+
+    // Test button - send a test message
+    testBtn.addEventListener('click', () => {
+      const testData = {
+        type: 'test',
+        message: 'Hello from test page!',
+        timestamp: Date.now()
+      }
+      socket.emit('test', testData)
+      addMessage('SENT', testData)
+    })
+
+    // Clear messages
+    clearBtn.addEventListener('click', () => {
+      messagesEl.innerHTML = '<div class="message"><span class="timestamp">[Messages cleared]</span></div>'
+    })
+
+    // Test shape generation
+    window.testShapeGeneration = () => {
+      const testShape = {
+        type: 'circle',
+        options: { radius: 5 }
+      }
+      socket.emit('generateShape', testShape)
+      addMessage('GENERATE_SHAPE', testShape)
+    }
+
+    console.log('🔌 WebSocket test page loaded. Open console for detailed logs.')
+    console.log('💡 Try: testShapeGeneration() to test shape generation')
+  </script>
+</body>
+</html>

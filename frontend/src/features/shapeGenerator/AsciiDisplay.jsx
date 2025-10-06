@@ -1,9 +1,21 @@
   import { Box, Text } from '@chakra-ui/react'
-  import {useSelector } from 'react-redux'
-  import {selectShapeOutput} from './shapeGeneratorSlice'
+  import { useSelector } from 'react-redux'
+  import { selectShapeOutput } from './shapeGeneratorSlice'
+  // import { useEffect, useState } from 'react'
 
-  export default function AsciiDisplay() {
+  export default function AsciiDisplay({ socket }) {
     const shapeOutput = useSelector(selectShapeOutput)
+
+    // TODO: WebSocket Streaming Implementation
+    // 1. Add local state for streaming ASCII: useState('')
+    // 2. useEffect to listen for socket events:
+    //    - socket.on('shapeStream', (chunk) => append chunk to state)
+    //    - socket.on('shapeComplete', (data) => set final ASCII)
+    //    - socket.on('shapeError', (error) => show error message)
+    // 3. Cleanup: return () => socket.off('shapeStream', 'shapeComplete', 'shapeError')
+    // 4. Display streaming state OR Redux state (streaming takes precedence)
+    // 5. Optional: Add typewriter animation using setInterval for each character
+
     return (
       <Box
         bg="gray.900"
