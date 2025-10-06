@@ -12,6 +12,7 @@ export default function NumberInput({
   max = 100,
   helperText,
   error,
+  color = "rgb(240, 255, 255)",
   ...props
 }) {
   return (
@@ -22,6 +23,8 @@ export default function NumberInput({
         onValueChange={(details) => onChange(Number(details.value))}
         min={min}
         max={max}
+        color={color}
+        _placeholder={color}
         {...props}
       >
         <ChakraNumberInput.Control />

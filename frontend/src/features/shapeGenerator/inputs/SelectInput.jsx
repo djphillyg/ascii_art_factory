@@ -12,6 +12,7 @@ export default function SelectInput({
   placeholder = 'Select an option...',
   helperText,
   error,
+  color ="rgb(240, 255, 255)",
   ...props
 }) {
   return (
@@ -22,6 +23,9 @@ export default function SelectInput({
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          color={color}
+          _placeholder={color}
+
         >
           {options.map((option) => (
             <option key={option} value={option}>
@@ -32,7 +36,7 @@ export default function SelectInput({
         <NativeSelect.Indicator />
       </NativeSelect.Root>
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
-      {!error && helperText && <Field.HelperText>{helperText}</Field.HelperText>}
+      {!error && helperText && <Field.HelperText color={color}>{helperText}</Field.HelperText>}
     </Field.Root>
   )
 }

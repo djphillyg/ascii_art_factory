@@ -2,9 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Box,
-  NativeSelect,
   IconButton,
-  Field,
   Text
 } from '@chakra-ui/react'
 import { LuX } from 'react-icons/lu'
@@ -15,6 +13,7 @@ import {
   selectCurrentShapeType,
   clearCurrentShape,
 } from './shapeGeneratorSlice'
+import SelectInput from './inputs/SelectInput'
 
 /**
  * ShapeSelector Component
@@ -33,8 +32,7 @@ export default function ShapeSelector() {
     dispatch(fetchShapes())
   }, [dispatch])
 
-  const handleShapeChange = (event) => {
-    const selectedShape = event.target.value
+  const handleShapeChange = (selectedShape) => {
     if (selectedShape) {
       dispatch(setShape(selectedShape))
     }
@@ -56,28 +54,20 @@ export default function ShapeSelector() {
           &gt; Select Shape Type
         </Text>
 
-        <Field.Root>
-
         <Box position="relative" width="70%">
-          <NativeSelect.Root
+          <SelectInput
+            value={currentShapeType}
+            onChange={handleShapeChange}
+            options={availableTypes}
+            placeholder="Choose a shape..."
+            helperText={
+              isLoading
+                ? '[ Loading shapes... ]'
+                : `[ ${availableTypes.length} shape${availableTypes.length !== 1 ? 's' : ''} loaded ]`
+            }
             size={{ base: 'sm', md: 'md' }}
             disabled={isLoading}
-            width="100%"
-          >
-            <NativeSelect.Field
-              id="shape-select"
-              value={currentShapeType || ''}
-              onChange={handleShapeChange}
-              placeholder="Choose a shape..."
-            >
-              {availableTypes.map((shapeType) => (
-                <option key={shapeType} value={shapeType}>
-                  {shapeType.charAt(0).toUpperCase() + shapeType.slice(1)}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
+          />
 
           {hasShapeSelected && (
             <IconButton
@@ -94,17 +84,6 @@ export default function ShapeSelector() {
             </IconButton>
           )}
         </Box>
-
-          <Field.HelperText
-            fontSize="xs"
-            color={terminalTheme.colors.gray[500]}
-            fontFamily={terminalTheme.fonts.mono}
-          >
-            {isLoading
-              ? '[ Loading shapes... ]'
-              : `[ ${availableTypes.length} shape${availableTypes.length !== 1 ? 's' : ''} loaded ]`}
-          </Field.HelperText>
-        </Field.Root>
       </Box>
     </Box>
   )
