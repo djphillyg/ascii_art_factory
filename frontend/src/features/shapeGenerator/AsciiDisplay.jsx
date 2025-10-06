@@ -1,20 +1,58 @@
-  import { Box, Text } from '@chakra-ui/react'
-  import { useSelector } from 'react-redux'
-  import { selectShapeOutput } from './shapeGeneratorSlice'
-  // import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { Box, Text } from '@chakra-ui/react'
+import { selectShapeOutput } from './shapeGeneratorSlice'
 
   export default function AsciiDisplay({ socket }) {
     const shapeOutput = useSelector(selectShapeOutput)
 
+    const INITAL_STATE = {
+      output: '',
+      isStreaming: false,
+      error: null,
+      totalRows: null,
+    }
+
+    const [local, setLocal] = useState(INITAL_STATE)
+
+    const finalShapeOutput = shapeOutput || local.output
+
+    useEffect(() => {
+      if (!socket) return
+      socket.on('generateStart', ({ totalRows }) => {
+        setLocal({...INITAL_STATE, isStreaming: true, totalRows})
+      })
+
+      socket.on('generateRow', ({ data}) => {
+        // concat the joined row to the local
+        setLocal((prev) => ({...prev, output: prev.output + data+'\n'}))
+      })
+
+      socket.on('generateComplete', () => {
+        setLocal(prev => ({...prev, isStreaming: false}))
+      })
+      // clean up, remove when component unmounts
+      return () => {
+        socket.off('generateStart')
+        socket.off('generateRow')
+        socket.off('generateComplete')
+        socket.off('generateError')
+      }
+    }, [socket]) // rerun if socket changed
+
+
+
     // TODO: WebSocket Streaming Implementation
-    // 1. Add local state for streaming ASCII: useState('')
+    // 1. Add local state: useState({ rows: [], isStreaming: false, error: null })
     // 2. useEffect to listen for socket events:
-    //    - socket.on('shapeStream', (chunk) => append chunk to state)
-    //    - socket.on('shapeComplete', (data) => set final ASCII)
-    //    - socket.on('shapeError', (error) => show error message)
-    // 3. Cleanup: return () => socket.off('shapeStream', 'shapeComplete', 'shapeError')
-    // 4. Display streaming state OR Redux state (streaming takes precedence)
-    // 5. Optional: Add typewriter animation using setInterval for each character
+    //    - socket.on('generation-start', ({ totalRows }) => clear state, set isStreaming true)
+    //    - socket.on('shape-row', ({ rowIndex, data, progress }) => append row to state array)
+    //    - socket.on('generation-complete', () => set isStreaming false, optionally save to Redux)
+    //    - socket.on('generation-error', ({ message }) => set error state)
+        // if there is a socket, we will set up hooks for the socket
+    // 3. Cleanup: return () => socket.off('generation-start', 'shape-row', 'generation-complete', 'generation-error')
+    // 4. Display: streaming rows (join with '\n') OR Redux state (streaming takes precedence)
+    // 5. Show progress indicator using progress value from shape-row events
 
     return (
       <Box
@@ -47,7 +85,7 @@
           whiteSpace="pre"
           overflowX="auto"
         >
-          {shapeOutput || '> Waiting for shape generation...'}
+          {finalShapeOutput || '> Waiting for shape generation...'}
         </Box>
       </Box>
     )
