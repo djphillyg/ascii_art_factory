@@ -4,6 +4,9 @@ import { parseArgs } from './parser.js'
 import { ShapeGenerator } from './shapes.js'
 import { TextGenerator } from './text.js'
 import { ValidationError, CLIError, ParseError } from './errors.js'
+import { importShape } from './renderer.js'
+import Transformer from './transformer.js'
+import Grid from './grid.js'
 
 
 const commands = {
@@ -124,6 +127,146 @@ const commands = {
       }})
     }
 
+  },
+  transform: {
+    aliases: ['t'],
+    description: 'This command will transform existing ASCII art from a file',
+    usage: 'transform [options]',
+    options: [
+      '--input=<file> Path to input file containing ASCII art (required)',
+      '--rotate=<degrees> Rotate the shape (90, 180, or 270 degrees)',
+      '--mirror=<axis> Mirror the shape (horizontal or vertical)',
+      '--scale=<factor> Scale the shape (0.5 to shrink, 2 to enlarge)',
+      '--output=<file> Optional file to save output (prints to console if not specified)',
+      'Note: You can chain transformations - they will be applied in order: rotate → mirror → scale',
+    ],
+    examples: [
+      'transform --input=shape.txt --rotate=90',
+      'transform --input=shape.txt --mirror=horizontal --output=mirrored.txt',
+      'transform --input=shape.txt --rotate=90 --mirror=vertical --scale=2',
+      'transform --input=circle.txt --scale=0.5 --output=small-circle.txt',
+    ],
+    validator: (options) => {
+      const { flags } = options;
+
+      // Check if input file is provided
+      if (!flags.input) {
+        throw new ValidationError('Error: --input is required. Please specify an input file path.');
+      }
+
+      // At least one transformation must be specified
+      if (!flags.rotate && !flags.mirror && !flags.scale) {
+        throw new ValidationError('Error: At least one transformation is required. Use --rotate, --mirror, or --scale.');
+      }
+
+      // Validate rotate parameter if provided
+      if (flags.rotate) {
+        const rotate = Number(flags.rotate);
+        const validRotations = [90, 180, 270];
+
+        if (isNaN(rotate)) {
+          throw new ValidationError('Error: --rotate must be a number.');
+        }
+
+        if (!validRotations.includes(rotate)) {
+          throw new ValidationError('Error: --rotate must be one of: 90, 180, 270.');
+        }
+      }
+
+      // Validate mirror parameter if provided
+      if (flags.mirror) {
+        const validAxes = ['horizontal', 'vertical'];
+
+        if (!validAxes.includes(flags.mirror)) {
+          throw new ValidationError('Error: --mirror must be one of: horizontal, vertical.');
+        }
+      }
+
+      // Validate scale parameter if provided
+      if (flags.scale) {
+        const scale = Number(flags.scale);
+        const validScales = [0.5, 2];
+
+        if (isNaN(scale)) {
+          throw new ValidationError('Error: --scale must be a number.');
+        }
+
+        if (!validScales.includes(scale)) {
+          throw new ValidationError('Error: --scale must be one of: 0.5 (shrink), 2 (enlarge).');
+        }
+      }
+
+      // Validate output path if provided (basic check - not empty)
+      if (flags.output && flags.output.trim().length === 0) {
+        throw new ValidationError('Error: --output cannot be an empty string.');
+      }
+    },
+    handler: (options) => {
+      const { flags, positional } = options;
+
+      // TODO: Implement transformation pipeline
+      // 1. Read input file from flags.input using fs.readFileSync
+      // 2. Parse file content into Grid instance (Grid.fromString() or similar)
+      // 3. Apply transformations in order:
+      //    - If flags.rotate exists: grid = grid.rotate(Number(flags.rotate))
+      //    - If flags.mirror exists: grid = grid.mirror(flags.mirror)
+      //    - If flags.scale exists: grid = grid.scale(Number(flags.scale))
+      // 4. Convert final grid to string: output = grid.toString()
+      // 5. If flags.output exists:
+      //      - Write output to file using exportShape from renderer.js
+      //    Else:
+      //      - Print output to console
+      // 6. Handle errors:
+      //    - File not found
+      //    - Invalid file format
+      //    - Transformation errors
+
+      console.log('Transform command called with:', flags);
+      console.log('Input file:', flags.input);
+      console.log('Transformations to apply:');
+
+      if (flags.rotate) console.log('  - Rotate:', flags.rotate, 'degrees');
+      if (flags.mirror) console.log('  - Mirror:', flags.mirror);
+      if (flags.scale) console.log('  - Scale:', flags.scale);
+
+      // parse the file
+      const stringOutputFromFile = importShape(flags.input)
+      const newGrid = new Grid({content: stringOutputFromFile})
+
+      const transformArray = []
+      if (flags.rotate) {
+        transformArray.push({
+          type: 'rotate',
+          params: {
+            degrees: Number(flags.rotate)
+          }
+        })
+      }
+      if (flags.mirror) {
+        transformArray.push({
+          type: 'mirror',
+          params: {
+            axis: flags.mirror,
+          }
+        })
+      }
+      if (flags.scale) {
+        transformArray.push({
+          type: 'scale',
+          params: {
+            factor: Number(flags.scale),
+          }
+        })
+      }
+      Transformer.transform({
+        grid: newGrid,
+        transformations: transformArray,
+        options: {
+          output: flags.output,
+          append: !!positional.find(param => param === 'append')
+        }
+      })
+    }
   },
   banner: {
     aliases: ['b'],

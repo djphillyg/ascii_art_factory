@@ -8,48 +8,48 @@ const tolerance = Number(0.5)
 
 function generateCircle({
   radius,
-  isFilled,
+  filled,
 }) {
     // Setup: calculate grid size (diameter + 1)
     const gridSize = Number(radius)*2 +1
     // Determine center point coordinates
     // center point coordinates would be just (radius, radius)
 
-    const centerX = radius
-    const centerY = radius
+    const centerCol = radius
+    const centerRow = radius
 
     const radiusSq = radius * radius
-    
+
     // Create 2D array/grid filled with spaces
     const grid = Array.from({ length: gridSize }, () => Array.from({length: gridSize}, () => ' '))
-    
-    // Iterate through every point in the grid (nested loops for x and y)
-    for (let xCor = 0; xCor < gridSize; xCor++) {
-      for (let yCor = 0; yCor < gridSize; yCor++) {
+
+    // Iterate through every point in the grid (nested loops for row and col)
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
         // Calculate distance from current point to center using distance formula
-        // Hint: deltaX = x - centerX, deltaY = y - centerY
+        // col represents x-coordinate, row represents y-coordinate
 
         // Calculate distanceSquared and radiusSquared (avoid sqrt for performance)
-        const deltaX = xCor - centerX
-        const deltaY = yCor - centerY
-        const xSq = deltaX * deltaX
-        const ySq = deltaY * deltaY
-        
+        const deltaCol = col - centerCol
+        const deltaRow = row - centerRow
+        const colSq = deltaCol * deltaCol
+        const rowSq = deltaRow * deltaRow
+
         // Check if point is on the circle edge (within tolerance)
         // when you add these up, if they get within 0.5 of 0?
-        const sum = xSq + ySq
+        const sum = colSq + rowSq
         const diff = sum - radiusSq
         if (Math.abs(diff) < tolerance) {
-          grid[xCor][yCor] = '*'
+          grid[row][col] = '*'
         }
 
-        if (isFilled && (diff < 0)) {
-          grid[xCor][yCor] = '*'
+        if (filled && (diff < 0)) {
+          grid[row][col] = '*'
         }
       }
     }
-    
-    
+
+
     // Convert 2D grid to string output (rows joined by newlines)
     return grid
 }
@@ -99,52 +99,47 @@ function generatePolygon({ sides, radius }) {
 }
 
 function drawLine(grid, start, end) {
-    // Round start and end coordinates to integers
-    const [startX, startY] = start
-    const [endX, endY] = end
-    const startXNum = Math.round(startX)
-    const startYNum = Math.round(startY)
-    const endXNum = Math.round(endX)
-    const endYNum = Math.round(endY)
-    // Calculate number of steps needed (max of deltaX and deltaY)
+    // start and end are [x, y] coordinates from the polygon vertices
+    const [startCol, startRow] = start
+    const [endCol, endRow] = end
+    const startColNum = Math.round(startCol)
+    const startRowNum = Math.round(startRow)
+    const endColNum = Math.round(endCol)
+    const endRowNum = Math.round(endRow)
+
+    // Calculate number of steps needed (max of deltaCol and deltaRow)
     const maxSteps = Math.max(
-      Math.abs(endYNum - startYNum),
-      Math.abs(endXNum - startXNum)
+      Math.abs(endRowNum - startRowNum),
+      Math.abs(endColNum - startColNum)
     )
 
     // Handle edge case: if steps is 0, just draw single point
     if (maxSteps === 0) {
-      return
+      return grid
     }
-    
-    // Calculate increment per step for X and Y
-    const xIncrement = (endXNum - startXNum)/maxSteps
+
+    // Calculate increment per step for col and row
+    const colIncrement = (endColNum - startColNum) / maxSteps
+    const rowIncrement = (endRowNum - startRowNum) / maxSteps
+
     // Initialize current position to start point
-    const yIncrement = (endYNum - startYNum)/maxSteps
+    let currCol = startColNum
+    let currRow = startRowNum
 
-    let xCurr = startXNum
-    let yCurr = startYNum
+    for (let i = 0; i <= maxSteps; i += 1) {
+      const roundedCol = Math.round(currCol)
+      const roundedRow = Math.round(currRow)
 
-    for (let i = 0; i<= maxSteps; i+=1) {
-      const roundedX = Math.round(xCurr)
-      const roundedY = Math.round(yCurr)
-
-      // Only set if within grid bounds
-      if (grid[roundedX] && grid[roundedX][roundedY] !== undefined) {
-        grid[roundedX][roundedY] = '*'
+      // Only set if within grid bounds (grid[row][col] = grid[y][x])
+      if (grid[roundedRow] && grid[roundedRow][roundedCol] !== undefined) {
+        grid[roundedRow][roundedCol] = '*'
       }
 
-      xCurr += xIncrement
-      yCurr += yIncrement
+      currCol += colIncrement
+      currRow += rowIncrement
     }
-    
+
     return grid
-    // Loop through steps
-        // Mark current position on grid with '*'
-        
-        // Increment current X and Y by their respective increments
-        
-        // Round coordinates when setting grid positions
 }
 
 /**

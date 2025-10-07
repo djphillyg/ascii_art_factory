@@ -70,6 +70,7 @@ const shapeGeneratorSlice = createSlice({
         .addCase(generateShapeAsync.pending, (state) => {
             state.isGenerating = true
             state.generateError = null
+            state.shapeOutput = null
         })
         .addCase(generateShapeAsync.fulfilled, (state, action) => {
             console.log('this is the action btw', action)
