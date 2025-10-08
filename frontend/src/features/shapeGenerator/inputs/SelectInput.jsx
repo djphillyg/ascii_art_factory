@@ -1,4 +1,5 @@
 import { NativeSelect, Field } from '@chakra-ui/react'
+import { terminalTheme } from '../../../theme/terminal'
 
 /**
  * Reusable SelectInput component
@@ -12,20 +13,27 @@ export default function SelectInput({
   placeholder = 'Select an option...',
   helperText,
   error,
-  color ="rgb(240, 255, 255)",
+  color = terminalTheme.colors.text.primary,
   ...props
 }) {
   return (
     <Field.Root invalid={!!error}>
-      <Field.Label>{label}</Field.Label>
+      <Field.Label
+        color={color}
+        fontSize={terminalTheme.fontSizes.label}
+      >
+        {label}
+      </Field.Label>
       <NativeSelect.Root {...props}>
         <NativeSelect.Field
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           color={color}
-          _placeholder={color}
-
+          _placeholder={{ color }}
+          fontSize={terminalTheme.fontSizes.input}
+          paddingLeft={terminalTheme.spacing.inputPadding}
+          paddingRight={terminalTheme.spacing.inputPadding}
         >
           {options.map((option) => (
             <option key={option} value={option}>
@@ -36,7 +44,14 @@ export default function SelectInput({
         <NativeSelect.Indicator />
       </NativeSelect.Root>
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
-      {!error && helperText && <Field.HelperText color={color}>{helperText}</Field.HelperText>}
+      {!error && helperText && (
+        <Field.HelperText
+          color={color}
+          fontSize={terminalTheme.fontSizes.helper}
+        >
+          {helperText}
+        </Field.HelperText>
+      )}
     </Field.Root>
   )
 }

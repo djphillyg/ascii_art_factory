@@ -6,6 +6,7 @@ export const shapeHandler = (socket) => {
 
             // use existing function
             const { output: shapeOutput} = generateShape(type, options)
+
             const rows = shapeOutput.split('\n').filter(r => r)
 
             socket.emit('generateStart', {
@@ -19,11 +20,13 @@ export const shapeHandler = (socket) => {
                     data: rows[i],
                     progress: ((i + 1)/rows.length * 100)
                 })
+                await new Promise(resolve => setTimeout(resolve, 50))
             }
-
+            console.log('🏁 Server emitting generateComplete to socket:', socket.id)
             socket.emit('generateComplete', {
                 totalRows: rows.length
             })
+            console.log('✅ generateComplete emitted successfully')
         } catch (error) {
             socket.emit('generateError', {
                 message: error.message

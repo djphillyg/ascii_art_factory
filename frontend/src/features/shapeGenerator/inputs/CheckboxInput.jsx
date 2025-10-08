@@ -1,4 +1,5 @@
 import { Checkbox } from '@chakra-ui/react'
+import { terminalTheme } from '../../../theme/terminal'
 
 /**
  * Reusable CheckboxInput component
@@ -8,6 +9,7 @@ export default function CheckboxInput({
   label,
   checked,
   onChange,
+  color = terminalTheme.colors.text.primary,
   ...props
 }) {
   return (
@@ -18,7 +20,12 @@ export default function CheckboxInput({
     >
       <Checkbox.HiddenInput />
       <Checkbox.Control />
-      <Checkbox.Label>{label}</Checkbox.Label>
+      <Checkbox.Label
+        color={color}
+        fontSize={terminalTheme.fontSizes.label}
+      >
+        {label}
+      </Checkbox.Label>
     </Checkbox.Root>
   )
 }

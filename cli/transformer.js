@@ -23,12 +23,12 @@ class Transformer {
    *   { type: 'scale', params: { factor: 2.0 } }
    * ]);
    */
-  static transform({grid, transformations, options}) {
+  static transform({grid, transformations, options = {}}) {
     const transformedGrid = transformations.reduce((currentGrid, transform) => {
       return this.applyTransformation(currentGrid, transform)
     }, grid)
     const stringOutput = transformedGrid.toString()
-        // if it goes to a file send it out, if not just output it
+    // if it goes to a file send it out, if not just output it
     if (options.output) {
         exportShape({
           shapeOutput: stringOutput,

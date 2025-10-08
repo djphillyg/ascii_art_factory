@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { Box } from '@chakra-ui/react'
 import ButtonInput from './inputs/ButtonInput'
-import { generateShapeAsync, selectCurrentShape, selectCurrentShapeType, selectOptions } from './shapeGeneratorSlice'
+import { generateShapeAsync, selectCurrentShapeType, selectOptions } from './shapeGeneratorSlice'
 import { useShapeValidation } from './validation/useShapeValidation'
 
 /**
@@ -13,7 +13,6 @@ import { useShapeValidation } from './validation/useShapeValidation'
 export default function GenerateButton({ socket, isConnected }) {
   const dispatch = useDispatch()
   const currentShapeType = useSelector(selectCurrentShapeType)
-  const currentShape = useSelector(selectCurrentShape)
   const options = useSelector(selectOptions)
   const { isValid } = useShapeValidation()
 
@@ -38,7 +37,6 @@ export default function GenerateButton({ socket, isConnected }) {
         options
       }))
     }
-    console.log('did that work ? haha',currentShape)
   }
 
   return (

@@ -1,9 +1,18 @@
-import { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+
+import { useState, useEffect, useRef } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { Box, Text } from '@chakra-ui/react'
-import { selectShapeOutput } from './shapeGeneratorSlice'
+import {
+  selectShapeOutput,
+  setGenerating,
+  setShapeOutput,
+  setGenerateError,
+  setTransforming,
+  setTransformError,
+} from './shapeGeneratorSlice'
 
   export default function AsciiDisplay({ socket }) {
+    const dispatch = useDispatch()
     const shapeOutput = useSelector(selectShapeOutput)
 
     const INITAL_STATE = {
@@ -13,30 +22,88 @@ import { selectShapeOutput } from './shapeGeneratorSlice'
       totalRows: null,
     }
 
+    const outputRef = useRef('')
+
     const [local, setLocal] = useState(INITAL_STATE)
 
     const finalShapeOutput = shapeOutput || local.output
 
     useEffect(() => {
       if (!socket) return
+
+      console.log('🎧 Setting up socket listeners...')
+
       socket.on('generateStart', ({ totalRows }) => {
-        setLocal({...INITAL_STATE, isStreaming: true, totalRows})
+        console.log('🟢 generateStart received:', totalRows)
+        setLocal({...INITAL_STATE, isStreaming: true, totalRows, output: ''})
+        outputRef.current = ''
+        // we need to sync the state to the async thunk
+        dispatch(setGenerating(true))
+        dispatch(setShapeOutput(''))
       })
 
       socket.on('generateRow', ({ data}) => {
+        console.log('📊 generateRow received:', data.substring(0, 20))
         // concat the joined row to the local
-        setLocal((prev) => ({...prev, output: prev.output + data+'\n'}))
+        setLocal((prev) => ({...prev, output: prev.output + data +'\n'}))
+        outputRef.current += `${data}\n`
       })
 
-      socket.on('generateComplete', () => {
-        setLocal(prev => ({...prev, isStreaming: false}))
+      socket.on('generateComplete', (data) => {
+        console.log('🏁 generateComplete received:', data)
+        setLocal(prev => {
+          return {...prev, isStreaming: false}
+        })
+          dispatch(setShapeOutput(outputRef.current))
+          dispatch(setGenerating(false))
       })
+
+      socket.on('generateError', (error) => {
+        setLocal(prev => ({...prev, isStreaming: false}))
+        dispatch(setGenerateError(error))
+      })
+
+      // Transform WebSocket events (same pattern as generate)
+      socket.on('transformStart', ({ totalRows }) => {
+        console.log('🔄 transformStart received:', totalRows)
+        setLocal({...INITAL_STATE, isStreaming: true, totalRows, output: ''})
+        outputRef.current = ''
+        dispatch(setTransforming(true))
+        dispatch(setShapeOutput(''))
+      })
+
+      socket.on('transformRow', ({ data }) => {
+        console.log('🔀 transformRow received:', data.substring(0, 20))
+        setLocal((prev) => ({...prev, output: prev.output + data + '\n'}))
+        outputRef.current += `${data}\n`
+      })
+
+      socket.on('transformComplete', (data) => {
+        console.log('✅ transformComplete received:', data)
+        setLocal(prev => {
+          return {...prev, isStreaming: false}
+        })
+        dispatch(setShapeOutput(outputRef.current))
+        dispatch(setTransforming(false))
+      })
+
+      socket.on('transformError', (error) => {
+        console.log('❌ transformError received:', error)
+        setLocal(prev => ({...prev, isStreaming: false}))
+        dispatch(setTransformError(error))
+        dispatch(setTransforming(false))
+      })
+
       // clean up, remove when component unmounts
       return () => {
         socket.off('generateStart')
         socket.off('generateRow')
         socket.off('generateComplete')
         socket.off('generateError')
+        socket.off('transformStart')
+        socket.off('transformRow')
+        socket.off('transformComplete')
+        socket.off('transformError')
       }
     }, [socket]) // rerun if socket changed
 

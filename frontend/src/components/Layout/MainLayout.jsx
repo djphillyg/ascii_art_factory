@@ -23,7 +23,7 @@ export default function MainLayout({ children }) {
         py={3}
       >
         <Container maxW="container.xl">
-          <Box display="flex" alignItems="center" gap={3}>
+          <Box display="flex" alignItems="center" gap={3} pl={{ base: 4, md: 6 }}>
             {/* Terminal window controls */}
             <Box display="flex" gap={2}>
               <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.error} />

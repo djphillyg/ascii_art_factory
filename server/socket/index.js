@@ -1,5 +1,6 @@
 // const shapeHandler = require('./handlers/shapeHandler');
 import {shapeHandler} from './handlers/shapeHandler.js'
+import {transformHandler} from './handlers/transformHandler.js'
 // const textHandler = require('./handlers/textHandler');
 import {Server} from 'socket.io'
 
@@ -19,6 +20,7 @@ io = new Server(server, {
 
     // Register handlers
     shapeHandler(socket);
+    transformHandler(socket)
     // textHandler(socket);
 
     socket.on('disconnect', () => {

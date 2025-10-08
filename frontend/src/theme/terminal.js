@@ -56,10 +56,33 @@ export const terminalTheme = {
       400: '#9ca3af',
     },
 
+    // Magenta/Pink accent
+    magenta: {
+      400: '#ff79c6',
+      500: '#ff6ac1',
+      700: '#cc5599',
+      900: '#661144',
+    },
+
+    // Yellow accent
+    yellow: {
+      400: '#f1fa8c',
+      500: '#f1fa8c',
+      700: '#c1ca6c',
+      900: '#60653a',
+    },
+
     // Status colors
     error: '#ff4757',
     warning: '#ffa502',
     success: '#00ff41',
+
+    // Text colors
+    text: {
+      primary: 'rgb(240, 255, 255)',    // Light cyan-white for readable text
+      secondary: '#b3f3ff',              // Softer cyan
+      muted: '#6b7280',                  // Muted gray
+    },
   },
 
   effects: {
@@ -79,5 +102,17 @@ export const terminalTheme = {
 
   fonts: {
     mono: '"Courier New", "Courier", "Monaco", "Menlo", monospace',
+  },
+
+  // Font sizes for inputs and labels (15% larger than base)
+  fontSizes: {
+    label: '0.92rem',        // ~14.7px (base ~sm increased by 15%)
+    input: '1.035rem',       // ~16.6px (base md increased by 15%)
+    helper: '0.805rem',      // ~12.9px (base xs increased by 15%)
+  },
+
+  // Spacing for inputs
+  spacing: {
+    inputPadding: '0.75rem',  // Left/right padding for input fields
   },
 }

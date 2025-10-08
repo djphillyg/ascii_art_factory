@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
+const WS_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+
 /**
  * Custom hook for managing WebSocket connection with Socket.IO
  *
- * @param {string} url - The WebSocket server URL (default: http://localhost:3001)
+ * @param {string} url - The WebSocket server URL (uses VITE_BACKEND_URL env var by default)
  * @returns {Object} - { socket, isConnected }
  *
  * Usage:
@@ -20,7 +22,7 @@ import { io } from 'socket.io-client'
  * // Emit events
  * socket?.emit('eventName', data)
  */
-export function useWebSocket(url = 'http://localhost:3001') {
+export function useWebSocket(url = WS_URL) {
   const [socket, setSocket] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
 

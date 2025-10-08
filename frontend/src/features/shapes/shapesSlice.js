@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+
 // ===================================
 // ASYNC THUNKS
 // ===================================
@@ -14,7 +16,7 @@ export const fetchShapes = createAsyncThunk(
   'shapes/fetchShapes', // Action type prefix
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:3001/api/shapes');
+      const response = await fetch(`${API_URL}/api/shapes`);
       if (!response.ok) {
         throw new Error('Failed to fetch shapes');
       }
@@ -33,7 +35,7 @@ export const generateShape = createAsyncThunk(
   'shapes/generateShape',
   async (shapeData, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:3001/api/generate', {
+      const response = await fetch(`${API_URL}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
