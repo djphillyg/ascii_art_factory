@@ -1,8 +1,10 @@
 /**
  * Shapes module - handles shape generation logic
  */
-import {gridOutputToString, exportShape } from './renderer.js'
+import { exportShape } from './renderer.js'
 import { fillGrid } from './decorator.js' 
+import Grid from './grid.js'
+
 
 const tolerance = Number(0.5)
 
@@ -14,6 +16,7 @@ function generateCircle({
     const gridSize = Number(radius)*2 +1
     // Determine center point coordinates
     // center point coordinates would be just (radius, radius)
+    const newGrid = new Grid({ width: gridSize, height: gridSize})
 
     const centerCol = radius
     const centerRow = radius
@@ -41,17 +44,20 @@ function generateCircle({
         const diff = sum - radiusSq
         if (Math.abs(diff) < tolerance) {
           grid[row][col] = '*'
+          // unfortunately its backwards for the grid
+          newGrid.set(row, col, '*')
         }
 
         if (filled && (diff < 0)) {
           grid[row][col] = '*'
+          newGrid.set(row, col, '*')
         }
       }
     }
 
 
     // Convert 2D grid to string output (rows joined by newlines)
-    return grid
+    return newGrid
 }
 
 
@@ -67,7 +73,7 @@ function generatePolygon({ sides, radius }) {
     
     // Create 2D array/grid filled with spaces
     let grid = Array.from({ length: gridSize }, () => Array.from({length: gridSize}, () => ' '))
-
+    const newGrid = new Grid({ width: gridSize, height: gridSize })
     const vertexArray = []
 
         // Calculate all vertex positions
@@ -86,17 +92,18 @@ function generatePolygon({ sides, radius }) {
         }
 
         for(let i = 0; i < vertexArray.length - 1; i +=1) {
+          newGrid.drawLine(vertexArray[i], vertexArray[i + 1])
           grid = drawLine(grid, vertexArray[i], vertexArray[i+1])
         }
         // then connect the last one
-        grid = drawLine(
-          grid,
+         newGrid.drawLine(
           vertexArray[vertexArray.length - 1],
           vertexArray[0]
         )
 
-        return grid
+        return newGrid
 }
+
 
 function drawLine(grid, start, end) {
     // start and end are [x, y] coordinates from the polygon vertices
@@ -156,29 +163,35 @@ export function generateRectangle({
   height,
   char = '*',
   filled = false }) {
-  const rectangleArray = [];
+  const rectangleArray = []
+  // create new grid class
+  const newGrid = new Grid({width, height})
 
   for (let i = 0; i < height; i += 1) {
     // If it's the first or last row, fully fill the array
     if (i === 0 || i === height - 1) {
       const line = new Array(width).fill(char);
       rectangleArray.push(line);
+      newGrid.setRow(i, char)
     } else {
       const line = [];
       if (filled) {
         // Fill with character
         line.push(...new Array(width).fill(char));
+        newGrid.setRow(i, char)
       } else {
         // Fill with space
         line.push(...new Array(width).fill(' '));
+        newGrid.setRow(i, ' ')
         // Assign the first and last to characters, rest will stay empty
         line[0] = line[line.length - 1] = char;
+        newGrid.set(i, 0, char)
+        newGrid.set(i, width - 1, char)
       }
       rectangleArray.push(line);
     }
   }
-
-  return rectangleArray;
+  return newGrid
 }
 
 /**
@@ -193,19 +206,19 @@ export class ShapeGenerator {
    * @throws {Error} If shape type is not supported
    */
   static create({shapeType, options}) {
-    let shapeGrid;
+    let grid;
 
     switch (shapeType.toLowerCase()) {
       case 'rectangle': {
-        shapeGrid = generateRectangle(options)
+      grid = generateRectangle(options)
         break;
       }
       case 'circle': {
-        shapeGrid = generateCircle(options)
+        grid = generateCircle(options)
         break;
       }
       case 'polygon': {
-        shapeGrid = generatePolygon(options)
+        grid = generatePolygon(options)
         break;
       }
       default:
@@ -214,16 +227,16 @@ export class ShapeGenerator {
 
     // Apply fill pattern if specified
     if (options.fillPattern) {
-      shapeGrid = fillGrid({
-        grid: shapeGrid,
+      grid = fillGrid({
+        grid,
         fillPattern: options.fillPattern,
-        width: options.width || shapeGrid[0]?.length,
-        height: options.height || shapeGrid.length,
+        width: options.width || grid.width(),
+        height: options.height || grid.height(),
         direction: options.direction || 'horizontal',
       })
     }
 
-    const shapeOutput = gridOutputToString(shapeGrid)
+    const shapeOutput = grid.toString()
 
     // if it goes to a file send it out, if not just output it
     if (options.output) {
@@ -237,7 +250,7 @@ export class ShapeGenerator {
     }
 
     return {
-      grid: shapeGrid,
+      grid,
       output: shapeOutput,
     }
   }

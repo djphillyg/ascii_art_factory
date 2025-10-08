@@ -24,7 +24,8 @@ A full-stack ASCII art generation system with CLI tool, Express backend server, 
 This project is a comprehensive ASCII art generation system that allows users to:
 - Generate ASCII art shapes (rectangles, circles, polygons) via CLI or web interface
 - Create ASCII text banners with customizable fill patterns
-- View real-time shape generation through WebSocket connections
+- Transform shapes with rotate, mirror, and scale operations
+- View real-time shape generation and transformation through WebSocket connections
 - Manage shape history and persistence
 - Export shapes to files
 
@@ -51,7 +52,8 @@ ai_mastery_challenge/
 │   ├── renderer.js            # Output rendering & file I/O
 │   ├── generator.js           # Unified generation interface
 │   ├── serializer.js          # Output format serialization
-│   ├── grid.js                # Grid data structure
+│   ├── grid.js                # Grid data structure with transformations
+│   ├── transformer.js         # Transformation pipeline processor
 │   ├── errors.js              # Custom error classes
 │   └── README.md              # CLI documentation
 │
@@ -203,14 +205,28 @@ Implements four fill pattern types:
 
 #### **grid.js** - Grid Data Structure
 - 2D grid abstraction for character storage
-- Methods:
-  - `constructor(width, height)`: Initialize grid
+- Initialization:
+  - `constructor({ width, height })`: Initialize empty grid
+  - `constructor({ content })`: Initialize from string content
+- Accessors:
   - `set(x, y, char)`: Set character at position
   - `get(x, y)`: Get character at position
   - `toArray()`: Convert to 2D array
   - `toString()`: Convert to string
+- Transformations:
   - `rotate(degrees)`: Rotate grid (90°, 180°, 270°)
+  - `mirror(axis)`: Mirror horizontally or vertically
+  - `scale(factor)`: Scale by 0.5x or 2x
 - Bounds checking for safe operations
+
+#### **transformer.js** - Transformation Pipeline
+- `Transformer.transform({ grid, transformations, options })`: Apply transformation pipeline
+- Supports chaining multiple transformations:
+  - **Rotate**: 90°, 180°, 270° clockwise rotation
+  - **Mirror**: Horizontal or vertical reflection
+  - **Scale**: 0.5x (shrink) or 2x (enlarge)
+- Pipeline execution with reducer pattern
+- File output support for transformed shapes
 
 #### **errors.js** - Error Handling
 Custom error classes for better debugging:
@@ -257,19 +273,24 @@ Express.js server with Socket.IO for real-time ASCII art generation and streamin
 
 **WebSocket Events:**
 - `connection`: Client connection handling
-- `generate-shape`: Receives shape requests from frontend
+- `generate-shape`: Receives shape generation requests
 - `shape-chunk`: Streams shape output row-by-row
 - `shape-complete`: Signals generation completion
-- `shape-error`: Error handling
+- `shape-error`: Generation error handling
+- `transform-shape`: Receives transformation requests
+- `transform-chunk`: Streams transformed output row-by-row
+- `transform-complete`: Signals transformation completion
+- `transform-error`: Transformation error handling
 
-**Shape Generation:**
-- Imports CLI generator module for reuse
+**Shape Generation & Transformation:**
+- Imports CLI generator and transformer modules for reuse
 - Streams output to frontend in real-time
 - Supports all CLI shape types and options
+- Applies transformations (rotate, mirror, scale) to existing shapes
 
 **API Endpoints:**
+- `/api/transform`: REST endpoint for shape transformations
 - Health check endpoint (future expansion)
-- RESTful shape generation (future expansion)
 
 ### Server Configuration
 - **Port**: 3001
@@ -300,6 +321,7 @@ React components and Redux slice for shape generation UI.
 - `TextOptions.jsx`: Text input with validation
 - `GenerateButton.jsx`: Generation trigger
 - `AsciiDisplay.jsx`: Real-time ASCII output display
+- `TransformPanel.jsx`: Shape transformation controls (rotate, mirror, scale)
 
 **Input Components** (`inputs/`):
 - `NumberInput.jsx`: Number input with validation
@@ -317,6 +339,7 @@ React components and Redux slice for shape generation UI.
 ```javascript
 State: {
   currentShapeType: string | null,
+  shapeOutput: string,
   options: {
     rectangle: { width, height, filled, fillPattern },
     circle: { radius, filled, fillPattern },
@@ -324,7 +347,9 @@ State: {
     text: { text, fillPattern, width, height }
   },
   isGenerating: boolean,
-  error: string | null
+  isTransforming: boolean,
+  error: string | null,
+  transformError: string | null
 }
 
 Actions:
@@ -334,6 +359,12 @@ Actions:
 - generateShape()
 - generationComplete()
 - generationError(error)
+- transformShapeAsync({ transformations })
+- transformComplete()
+- transformError(error)
+- syncTransformStart()
+- syncTransformChunk(chunk)
+- syncTransformComplete(output)
 ```
 
 #### **Shapes Management** (`features/shapes/`)

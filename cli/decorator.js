@@ -23,10 +23,10 @@ export function fillGrid({
 }) {
   if (fillPattern === 'dots') {
     // if its dots, you just put a dot everywhere there is a space
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        if (grid[i][j] === ' ') {
-          grid[i][j] = '.'
+    for (let i = 0; i < grid.height; i++) {
+      for (let j = 0; j < grid.width; j++) {
+        if (grid.get(i, j) === ' ') {
+          grid.set(i, j, '.')
         }
       }
     }
@@ -34,15 +34,15 @@ export function fillGrid({
 
   if (fillPattern === 'gradient') {
     // if gradient, calculate position ratios on each empty grid space
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        if (grid[i][j] === ' ') {
+    for (let i = 0; i < grid.height; i++) {
+      for (let j = 0; j < grid.width; j++) {
+        if (grid.get(i, j) === ' ') {
           const xRatio = j / (width - 1)
           const yRatio = i / (height - 1)
           if (direction === 'horizontal') {
-            grid[i][j] = densityString[Math.round(10 * xRatio)]
+            grid.set(i, j, densityString[Math.round(10 * xRatio)])
           } else if (direction === 'vertical') {
-            grid[i][j] = densityString[Math.round(10 * yRatio)]
+            grid.set(i, j, densityString[Math.round(10 * yRatio)])
           }
         }
       }
@@ -51,19 +51,19 @@ export function fillGrid({
 
   if (fillPattern === 'diagonal') {
     // fill it with alternating forward slashes
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        if (grid[i][j] === ' ') {
+    for (let i = 0; i < grid.height; i++) {
+      for (let j = 0; j < grid.width; j++) {
+        if (grid.get(i, j) === ' ') {
           // if odd row do 1, 3, 5
           // if even row do 2, 4, 6
           // for now programtically write it mods and see what happens
           /**
-           * for val we check if its a mod 0 ? (0, 2, 4) and 
+           * for val we check if its a mod 0 ? (0, 2, 4) and
            */
           const rowEven = i%2
           const colEven = j%2
 
-          grid[i][j] = ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : ' '
+          grid.set(i, j, ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : ' ')
         }
       }
     }
@@ -71,19 +71,19 @@ export function fillGrid({
 
   if (fillPattern=== 'crosshatch') {
         // fill it with alternating forward slashes
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        if (grid[i][j] === ' ') {
+    for (let i = 0; i < grid.height; i++) {
+      for (let j = 0; j < grid.width; j++) {
+        if (grid.get(i, j) === ' ') {
           // if odd row do 1, 3, 5
           // if even row do 2, 4, 6
           // for now programtically write it mods and see what happens
           /**
-           * for val we check if its a mod 0 ? (0, 2, 4) and 
+           * for val we check if its a mod 0 ? (0, 2, 4) and
            */
           const rowEven = i%2
           const colEven = j%2
 
-          grid[i][j] = ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : '\\'
+          grid.set(i,j, ((rowEven && !colEven) || (!rowEven && colEven)) ? '/' : '\\')
         }
       }
     }

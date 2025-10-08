@@ -9,7 +9,7 @@ class Grid {
    * @param {number} [options.height] - The height of the grid (required if content is empty)
    * @param {string} [options.content=''] - Optional string content to parse (newline-separated)
    */
-  constructor({ width, height, content = '' }) {
+  constructor({ width, height, content = ''}) {
     // If content is provided and not empty, initialize from string
     if (content && content.trim().length > 0) {
       this.initFromString(content)
@@ -57,29 +57,89 @@ class Grid {
 
   /**
    * Set a character at the specified position
-   * @param {number} x - The x coordinate
-   * @param {number} y - The y coordinate
+   * @param {number} row - The row coordinate (vertical position)
+   * @param {number} col - The column coordinate (horizontal position)
    * @param {string} char - The character to set
    */
-  set(x, y, char) {
+  set(row, col, char) {
     // Check if coordinates are within grid bounds
-    if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-      // Set character at position [y][x] (row, col)
-      this.grid[y][x] = char
+    if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
+      // Set character at position [row][col]
+      this.grid[row][col] = char
+    }
+  }
+  /**
+   * Set an entire row to a specific character
+   * @param {number} row - The row index to set
+   * @param {string} char - The character to fill the row with
+   */
+  setRow(row, char) {
+    // check if in the grid bounds
+    if (row >= 0 && row < this.height) {
+      const fillArr = new Array(this.width).fill(char)
+      // reset original 2d array by setting length
+      this.grid[row].length = 0
+      this.grid[row].push(...fillArr)
+    }
+  }
+
+  hasRow(row) {
+    return !!this.grid[row]
+  }
+
+  drawLine(start, end) {
+        // start and end are [x, y] coordinates from the polygon vertices
+    const [startCol, startRow] = start
+    const [endCol, endRow] = end
+    const startColNum = Math.round(startCol)
+    const startRowNum = Math.round(startRow)
+    const endColNum = Math.round(endCol)
+    const endRowNum = Math.round(endRow)
+
+    // Calculate number of steps needed (max of deltaCol and deltaRow)
+    const maxSteps = Math.max(
+      Math.abs(endRowNum - startRowNum),
+      Math.abs(endColNum - startColNum)
+    )
+
+    // Handle edge case: if steps is 0, just draw single point
+    if (maxSteps === 0) {
+      return
+    }
+
+    // Calculate increment per step for col and row
+    const colIncrement = (endColNum - startColNum) / maxSteps
+    const rowIncrement = (endRowNum - startRowNum) / maxSteps
+
+    // Initialize current position to start point
+    let currCol = startColNum
+    let currRow = startRowNum
+
+    for (let i = 0; i <= maxSteps; i += 1) {
+      const roundedCol = Math.round(currCol)
+      const roundedRow = Math.round(currRow)
+
+      // Only set if within grid bounds (grid[row][col])
+      if (this.hasRow(roundedRow) && this.get(roundedRow, roundedCol) !== undefined) {
+        this.set(roundedRow, roundedCol, '*')
+      }
+
+      currCol += colIncrement
+      currRow += rowIncrement
     }
   }
 
   /**
    * Get the character at the specified position
-   * @param {number} x - The x coordinate
-   * @param {number} y - The y coordinate
+   * @param {number} row - The row coordinate (vertical position)
+   * @param {number} col - The column coordinate (horizontal position)
    * @returns {string} The character at the position
    */
-  get(x, y) {
+  get(row, col) {
     // Check if coordinates are within grid bounds
-    if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-      // Return character at position [y][x] (row, col)
-      return this.grid[y][x]
+    if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
+      // Return character at position [row][col]
+      return this.grid[row][col]
     }
     // Return null if out of bounds
     return null
