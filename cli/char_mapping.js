@@ -1,5 +1,6 @@
+import Grid from './grid.js'
 // 5x5 ASCII-style character mapping for A-Z and 0-9
-const charMap = {
+export const charMap = {
   'A': [
     ' *** ',
     '*   *',
@@ -254,4 +255,16 @@ const charMap = {
   ]
 };
 
-export default charMap;
+// Lazy initialization to avoid circular dependency
+let _gridCharMap = null
+
+export function getGridCharMap() {
+  if (!_gridCharMap) {
+    _gridCharMap = Object.keys(charMap).reduce((acc, key) => {
+      acc[key] = new Grid({ content: charMap[key].join('\n') })
+      return acc
+    }, {})
+  }
+  return _gridCharMap
+}
+

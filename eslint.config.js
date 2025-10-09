@@ -24,6 +24,7 @@ export default [
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': 'warn',
+      'no-invalid-this': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
       'object-shorthand': 'error',
