@@ -534,6 +534,37 @@ class Grid extends EventEmitter {
         throw new Error(`Unknown transformation type: ${type}`)
     }
   }
+
+  /**
+   * Overlay another grid on top of this grid at specified position
+   * @param {Grid} sourceGrid - The grid to overlay
+   * @param {Object} options - Placement options
+   * @param {number} options.row - Row offset for placement
+   * @param {number} options.col - Column offset for placement
+   * @param {string} [options.char] - Optional char to override source chars
+   * @param {boolean} [options.transparent=true] - If true, skip spaces from source
+   * @returns {Grid} this (for chaining)
+   */
+  overlay(sourceGrid, { row, col, char = '*', transparent = true }) {
+    // loop through source grid dimensons
+    for (let srcRow = 0; srcRow < sourceGrid.height; srcRow++) {
+      for (let srcCol = 0; srcCol < sourceGrid.width; srcCol++) {
+        //calculate target position ingrid
+        const targetRow = srcRow + row
+        const targetCol = srcCol + col
+        // if transparent, do not set if the space in the grid is a space
+        const charAtSpace = this.get(targetRow, targetCol)
+        // if its not null, its in bounds
+        if (charAtSpace) {
+          // if transparent and the char at space is a space, only fill with space
+          const charToFill = transparent && charAtSpace === ' ' ? ' ' : char
+          this.set(targetRow, targetCol, charToFill)
+        }
+        // set in target grid
+      }
+    }
+    return this // to enable chaining
+  }
 }
 
 export default Grid
