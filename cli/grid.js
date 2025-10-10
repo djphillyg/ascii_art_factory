@@ -565,6 +565,103 @@ class Grid extends EventEmitter {
     }
     return this // to enable chaining
   }
+
+  /**
+   * Alias for overlay() - more semantic for positioning
+   * allows for us to use the static methods and chain things together
+   * @param {Grid} grid - Grid to place
+   * @param {Object} position - Position options
+   * @returns {Grid} this (for chaining)
+   */
+  placeAt(grid, position) {
+    return this.overlay(grid, position)
+  }
+
+  /**
+   * Clip/crop the grid to a specific region
+   * @param {Object} bounds - Clipping bounds
+   * @param {number} bounds.startRow - Starting row (inclusive)
+   * @param {number} bounds.endRow - Ending row (exclusive)
+   * @param {number} bounds.startCol - Starting column (inclusive)
+   * @param {number} bounds.endCol - Ending column (exclusive)
+   * @returns {Grid} New clipped grid
+   */
+  clip({ startRow, endRow, startCol, endCol }) {
+    // Validate and clamp bounds
+    // to validate, we grab
+    const bStartRow = Math.max(startRow, 0)
+    const bEndRow = Math.min(endRow, this.height)
+    const bStartCol = Math.max(startCol, 0)
+    const bEndCol = Math.mind(endCol, this.width)
+    // Calculate new dimensions
+    // since beginning is inclusive
+    // end row 4, start row 2, that means we only do 2 and 3
+    const newHeight = bEndRow - bStartRow
+    const newWidth = bEndCol - bStartCol
+    const clippedGrid = new Grid({ width: newWidth, height: newHeight })
+    // Create new grid
+    // Copy region
+    for (let row = bStartRow; row < bEndRow; row++) {
+      for (let col = bStartCol; col < bEndCol; col++) {
+        // in case we are out of bounds on original, we will set it to blank on clipped
+        clippedGrid.set(
+          row - bStartRow,
+          col - bStartCol,
+          this.get(row, col) || ' '
+        )
+      }
+    }
+    return clippedGrid
+  }
+
+  getBounds() {
+    return {
+      width: this.width,
+      height: this.height,
+    }
+  }
+  /**
+   *
+   * @returns [row, col] rounded
+   */
+  getCenterPoint() {
+    return {
+      row: Math.floor(this.height / 2),
+      col: Math.floor(this.width / 2),
+    }
+  }
+
+  /**
+   * Get the actual content bounds (non-space characters)
+   * @returns {Object} { minRow, maxRow, minCol, maxCol, width, height }
+   */
+  getContentBounds() {
+    let minRow = this.height
+    let maxRow = -1
+    let minCol = this.width
+    let maxCol = -1
+
+    // iterate through the grid
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        // find the character at that space
+        const charAtSpace = this.get(row, col)
+        // if the character is a non-space character
+        if (charAtSpace !== ' ') {
+          minRow = Math.min(minRow, row)
+          maxRow = Math.max(maxRow, row)
+          minCol = Math.min(minCol, col)
+          maxCol = Math.max(maxCol, col)
+        }
+      }
+    }
+    return {
+      minRow,
+      maxRow,
+      width: this.width,
+      height: this.height,
+    }
+  }
 }
 
 export default Grid
