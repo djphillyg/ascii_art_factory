@@ -3,12 +3,13 @@ import { useSelector } from 'react-redux'
 import MainLayout from '../components/Layout/MainLayout'
 import ShapeSelector from '../features/shapeGenerator/ShapeSelector'
 import OptionsPanel from '../features/shapeGenerator/OptionsPanel'
+import SharedOptionsPanel from '../features/shapeGenerator/SharedOptionsPanel'
 import GenerateButton from '../features/shapeGenerator/GenerateButton'
 import AsciiDisplay from '../features/shapeGenerator/AsciiDisplay'
 import TransformPanel from '../features/shapeGenerator/TransformPanel'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { terminalTheme } from '../theme/terminal'
-import { selectShapeOutput, selectIsGenerating, selectIsTransforming } from '../features/shapeGenerator/shapeGeneratorSlice'
+import { selectShapeOutput, selectIsGenerating, selectIsTransforming, selectCurrentShapeType } from '../features/shapeGenerator/shapeGeneratorSlice'
 
 /**
  * Main App Component - Terminal Style
@@ -22,6 +23,7 @@ function App() {
   const shapeOutput = useSelector(selectShapeOutput)
   const isGenerating = useSelector(selectIsGenerating)
   const isTransforming = useSelector(selectIsTransforming)
+  const currentShapeType = useSelector(selectCurrentShapeType)
 
   return (
     <MainLayout>
@@ -36,22 +38,26 @@ function App() {
           p={6}
         >
           <Stack gap={6}>
-            {/* Shape Selector and Transform Panel - side by side */}
+            {/* Shape Selector and Configuration on same row */}
             <Flex gap={6} alignItems="flex-start">
               <Box flex="1">
                 <ShapeSelector />
               </Box>
-              {/* Transform Panel - Only appears after shape generation */}
-              {
-                (shapeOutput || isTransforming) && !isGenerating && (
-                  <Box flex="1">
-                    <TransformPanel socket={socket} isConnected={isConnected} />
-                  </Box>
-                )
-              }
+              <Box flex="1">
+                <OptionsPanel />
+              </Box>
             </Flex>
 
-            <OptionsPanel />
+            {/* Shared Options (filled, fillPattern) - appears below config when shape is selected */}
+            {currentShapeType && <SharedOptionsPanel />}
+
+            {/* Transform Panel - Only appears after shape generation */}
+            {
+              (shapeOutput || isTransforming) && !isGenerating && (
+                <TransformPanel socket={socket} isConnected={isConnected} />
+              )
+            }
+
             <GenerateButton socket={socket} isConnected={isConnected} />
           </Stack>
         </Box>

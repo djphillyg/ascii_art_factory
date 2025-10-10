@@ -8,7 +8,7 @@ export const shapeHandler = (socket) => {
       // Get the Grid instance (events haven't fired yet)
       const grid = generateV2(type, options)
 
-      // Attach event listeners BEFORE calling streamRowsV1()
+      // Attach event listeners BEFORE calling streamRowsWithDelay()
       grid.on('rowCompleted', ({ rowIndex, data, total }) => {
         socket.emit('generateRow', {
           rowIndex,
@@ -31,8 +31,8 @@ export const shapeHandler = (socket) => {
         shape: type,
       })
 
-      // NOW trigger the events
-      grid.streamRowsV1()
+      // NOW trigger the events with delay for animation (50ms between rows)
+      await grid.streamRowsWithDelay(50)
     } catch (error) {
       socket.emit('generateError', {
         message: error.message,

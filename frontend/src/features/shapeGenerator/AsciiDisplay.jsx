@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Box, Text } from '@chakra-ui/react'
+import { keyframes } from '@emotion/react'
 import {
   selectShapeOutput,
   setGenerating,
@@ -10,6 +11,18 @@ import {
   setTransforming,
   setTransformError,
 } from './shapeGeneratorSlice'
+
+// Keyframe animation for row fade-in
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
 
   export default function AsciiDisplay({ socket }) {
     const dispatch = useDispatch()
@@ -27,6 +40,17 @@ import {
     const [local, setLocal] = useState(INITAL_STATE)
 
     const finalShapeOutput = shapeOutput || local.output
+
+    // Calculate dynamic font size based on content width
+    const maxLineLength = finalShapeOutput
+      ? Math.max(...finalShapeOutput.split('\n').map(line => line.length))
+      : 0
+
+    const getFontSize = () => {
+      if (maxLineLength > 120) return 'xs'
+      if (maxLineLength > 80) return 'sm'
+      return 'md'
+    }
 
     useEffect(() => {
       if (!socket) return
@@ -144,15 +168,30 @@ import {
 
         {/* ASCII output */}
         <Box
-          as="pre"
           fontFamily="'Courier New', 'Courier', monospace"
           color="green.400"
-          fontSize={{ base: 'xs', md: 'sm' }}
+          fontSize={getFontSize()}
           lineHeight="1.2"
-          whiteSpace="pre"
           overflowX="auto"
         >
-          {finalShapeOutput || '> Waiting for shape generation...'}
+          {local.isStreaming ? (
+            // During streaming: show each row with fade-in animation
+            local.output.split('\n').map((row, index) => (
+              <Box
+                key={index}
+                as="div"
+                animation={`${fadeIn} 0.3s ease-out`}
+                whiteSpace="pre"
+              >
+                {row || '\u00A0'} {/* Non-breaking space for empty lines */}
+              </Box>
+            ))
+          ) : (
+            // After streaming complete or no streaming: show full output
+            <Box as="pre" whiteSpace="pre">
+              {finalShapeOutput || '> Waiting for shape generation...'}
+            </Box>
+          )}
         </Box>
       </Box>
     )

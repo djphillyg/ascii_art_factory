@@ -11,22 +11,22 @@ import { terminalTheme } from '../../theme/terminal'
  * OptionsPanel Component
  *
  * Displays shape-specific options based on the selected shape type
- * Terminal-styled options panel
+ * Terminal-styled options panel - shows only shape-specific inputs (not shared options)
  */
-export default function OptionsPanel() {
+export default function OptionsPanel({ showSharedOptions = false }) {
     const currentShapeType = useSelector(selectCurrentShapeType)
 
     // Helper function to render the correct options component
     const renderOptions = () => {
         switch (currentShapeType) {
             case 'circle':
-                return <CircleOptions />
+                return <CircleOptions showSharedOptions={showSharedOptions} />
             case 'rectangle':
-                return <RectangleOptions />
+                return <RectangleOptions showSharedOptions={showSharedOptions} />
             case 'polygon':
-                return <PolygonOptions />
+                return <PolygonOptions showSharedOptions={showSharedOptions} />
             case 'text':
-                return <TextOptions />
+                return <TextOptions showSharedOptions={showSharedOptions} />
             default:
                 return (
                     <Text

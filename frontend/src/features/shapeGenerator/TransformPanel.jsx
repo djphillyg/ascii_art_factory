@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { Box, Stack, Text, Flex } from '@chakra-ui/react'
+import { Box, Stack, Text, Flex, HStack } from '@chakra-ui/react'
 import { terminalTheme } from '../../theme/terminal'
 import ButtonInput from './inputs/ButtonInput'
 import {
@@ -80,96 +80,99 @@ export default function TransformPanel({ socket, isConnected }) {
       </Text>
 
       <Stack gap={4}>
-        {/* Rotate Controls */}
-        <Box>
-          <Text
-            color={terminalTheme.colors.gray[400]}
-            fontSize="xs"
-            mb={2}
-            fontFamily={terminalTheme.fonts.mono}
-          >
-            [ ROTATE ]
-          </Text>
-          <Flex gap={2}>
-            <TransformButton
-              onClick={() => handleTransform('rotate', { degrees: 90 })}
-              disabled={isTransforming}
-              colorTheme="cyan"
+        {/* All Transform Controls on One Row */}
+        <HStack gap={4} alignItems="flex-start" wrap="wrap">
+          {/* Rotate Controls */}
+          <Box>
+            <Text
+              color={terminalTheme.colors.gray[400]}
+              fontSize="xs"
+              mb={2}
+              fontFamily={terminalTheme.fonts.mono}
             >
-              90°
-            </TransformButton>
-            <TransformButton
-              onClick={() => handleTransform('rotate', { degrees: 180 })}
-              disabled={isTransforming}
-              colorTheme="cyan"
-            >
-              180°
-            </TransformButton>
-            <TransformButton
-              onClick={() => handleTransform('rotate', { degrees: 270 })}
-              disabled={isTransforming}
-              colorTheme="cyan"
-            >
-              270°
-            </TransformButton>
-          </Flex>
-        </Box>
+              [ ROTATE ]
+            </Text>
+            <Flex gap={2}>
+              <TransformButton
+                onClick={() => handleTransform('rotate', { degrees: 90 })}
+                disabled={isTransforming}
+                colorTheme="cyan"
+              >
+                90°
+              </TransformButton>
+              <TransformButton
+                onClick={() => handleTransform('rotate', { degrees: 180 })}
+                disabled={isTransforming}
+                colorTheme="cyan"
+              >
+                180°
+              </TransformButton>
+              <TransformButton
+                onClick={() => handleTransform('rotate', { degrees: 270 })}
+                disabled={isTransforming}
+                colorTheme="cyan"
+              >
+                270°
+              </TransformButton>
+            </Flex>
+          </Box>
 
-        {/* Mirror Controls */}
-        <Box>
-          <Text
-            color={terminalTheme.colors.gray[400]}
-            fontSize="xs"
-            mb={2}
-            fontFamily={terminalTheme.fonts.mono}
-          >
-            [ MIRROR ]
-          </Text>
-          <Flex gap={2}>
-            <TransformButton
-              onClick={() => handleTransform('mirror', { axis: 'horizontal' })}
-              disabled={isTransforming}
-              colorTheme="magenta"
+          {/* Mirror Controls */}
+          <Box>
+            <Text
+              color={terminalTheme.colors.gray[400]}
+              fontSize="xs"
+              mb={2}
+              fontFamily={terminalTheme.fonts.mono}
             >
-              Horizontal
-            </TransformButton>
-            <TransformButton
-              onClick={() => handleTransform('mirror', { axis: 'vertical' })}
-              disabled={isTransforming}
-              colorTheme="magenta"
-            >
-              Vertical
-            </TransformButton>
-          </Flex>
-        </Box>
+              [ MIRROR ]
+            </Text>
+            <Flex gap={2}>
+              <TransformButton
+                onClick={() => handleTransform('mirror', { axis: 'horizontal' })}
+                disabled={isTransforming}
+                colorTheme="magenta"
+              >
+                Horizontal
+              </TransformButton>
+              <TransformButton
+                onClick={() => handleTransform('mirror', { axis: 'vertical' })}
+                disabled={isTransforming}
+                colorTheme="magenta"
+              >
+                Vertical
+              </TransformButton>
+            </Flex>
+          </Box>
 
-        {/* Scale Controls */}
-        <Box>
-          <Text
-            color={terminalTheme.colors.gray[400]}
-            fontSize="xs"
-            mb={2}
-            fontFamily={terminalTheme.fonts.mono}
-          >
-            [ SCALE ]
-          </Text>
-          <Flex gap={2}>
-            <TransformButton
-              onClick={() => handleTransform('scale', { factor: 0.5 })}
-              disabled={isTransforming}
-              colorTheme="yellow"
+          {/* Scale Controls */}
+          <Box>
+            <Text
+              color={terminalTheme.colors.gray[400]}
+              fontSize="xs"
+              mb={2}
+              fontFamily={terminalTheme.fonts.mono}
             >
-              0.5x
-            </TransformButton>
-            <TransformButton
-              onClick={() => handleTransform('scale', { factor: 2 })}
-              disabled={isTransforming}
-              colorTheme="yellow"
-            >
-              2x
-            </TransformButton>
-          </Flex>
-        </Box>
+              [ SCALE ]
+            </Text>
+            <Flex gap={2}>
+              <TransformButton
+                onClick={() => handleTransform('scale', { factor: 0.5 })}
+                disabled={isTransforming}
+                colorTheme="yellow"
+              >
+                0.5x
+              </TransformButton>
+              <TransformButton
+                onClick={() => handleTransform('scale', { factor: 2 })}
+                disabled={isTransforming}
+                colorTheme="yellow"
+              >
+                2x
+              </TransformButton>
+            </Flex>
+          </Box>
+        </HStack>
 
         {/* Status Messages */}
         {isTransforming && (

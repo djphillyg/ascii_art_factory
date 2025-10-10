@@ -243,6 +243,25 @@ class Grid extends EventEmitter {
     this.emit('complete', { total: this.height })
   }
 
+  /**
+   * Stream rows with delay for visual effect (async version)
+   * @param {number} delayMs - Delay in milliseconds between rows (default 50ms)
+   */
+  async streamRowsWithDelay(delayMs = 50) {
+    for (let row = 0; row < this.height; row++) {
+      this.emit('rowCompleted', {
+        rowIndex: row,
+        data: this.getRowStr(row),
+        total: this.height,
+      })
+      // Add delay between rows for animation effect
+      if (row < this.height - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+      }
+    }
+    this.emit('complete', { total: this.height })
+  }
+
   // this function will create a new grid by appending another grid
   rightAppend(gridToAppend) {
     // Convert both grids to string arrays (split by lines)

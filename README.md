@@ -272,19 +272,51 @@ Express.js server with Socket.IO for real-time ASCII art generation and streamin
 ### Key Features
 
 **WebSocket Events:**
-- `connection`: Client connection handling
-- `generate-shape`: Receives shape generation requests
-- `shape-chunk`: Streams shape output row-by-row
-- `shape-complete`: Signals generation completion
-- `shape-error`: Generation error handling
-- `transform-shape`: Receives transformation requests
-- `transform-chunk`: Streams transformed output row-by-row
-- `transform-complete`: Signals transformation completion
-- `transform-error`: Transformation error handling
+
+*Client → Server:*
+- `generateShape`: Request shape generation with `{ type, options }`
+- `transformShape`: Request shape transformation with `{ shape, transformation }`
+- `cancel-generation`: Cancel ongoing generation
+
+*Server → Client (Generation):*
+- `generateStart`: Signals generation start with `{ totalRows, shape }`
+- `generateRow`: Streams each row with `{ rowIndex, data, progress }`
+- `generateComplete`: Signals completion with `{ totalRows }`
+- `generateError`: Reports errors with `{ message }`
+
+*Server → Client (Transformation):*
+- `transformRow`: Streams transformed output row-by-row
+- `transformComplete`: Signals transformation completion
+- `transformError`: Reports transformation errors
+
+**Real-time Streaming Architecture:**
+
+The server implements row-by-row streaming for real-time visualization:
+
+1. **Grid Event System**: The `Grid` class extends `EventEmitter` to emit events during generation
+   - `rowCompleted`: Emitted for each completed row with `{ rowIndex, data, total }`
+   - `complete`: Emitted when all rows are generated
+
+2. **Streaming Flow**:
+   ```javascript
+   // Server-side streaming
+   grid.on('rowCompleted', ({ rowIndex, data, total }) => {
+     socket.emit('generateRow', {
+       rowIndex,
+       data,
+       progress: ((rowIndex + 1) / total) * 100
+     })
+   })
+   grid.streamRowsV1() // Triggers row-by-row emission
+   ```
+
+3. **Frontend Reception**:
+   - Listens for `generateRow` events
+   - Progressively builds the shape display
+   - Updates progress indicators in real-time
 
 **Shape Generation & Transformation:**
 - Imports CLI generator and transformer modules for reuse
-- Streams output to frontend in real-time
 - Supports all CLI shape types and options
 - Applies transformations (rotate, mirror, scale) to existing shapes
 

@@ -32,7 +32,7 @@ export default function SharedOptions({ shapeType }) {
   const isTextShape = shapeType === 'text'
 
   return (
-    <Stack gap={4} mt={4}>
+    <Stack gap={4}>
       <CheckboxInput
         label="Filled"
         checked={options.filled}

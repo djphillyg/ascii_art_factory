@@ -5,7 +5,7 @@ import TextInput from './inputs/TextInput'
 import SharedOptions from './inputs/SharedOptions'
 import { useShapeValidation } from './validation/useShapeValidation'
 
-export default function TextOptions() {
+export default function TextOptions({ showSharedOptions = false }) {
   const dispatch = useDispatch()
   const options = useSelector(selectOptions)
   const { errors } = useShapeValidation()
@@ -24,7 +24,7 @@ export default function TextOptions() {
         helperText="Only uppercase letters (A-Z) and numbers (0-9)"
         error={errors.text}
       />
-      <SharedOptions shapeType="text" />
+      {showSharedOptions && <SharedOptions shapeType="text" />}
     </Stack>
   )
 }
