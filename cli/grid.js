@@ -75,7 +75,6 @@ class Grid extends EventEmitter {
       }
     }
 
-    newGrid.streamRowsV1()
     return newGrid
   }
 
@@ -114,7 +113,6 @@ class Grid extends EventEmitter {
     // then connect the last one
     newGrid.drawLine(vertexArray[vertexArray.length - 1], vertexArray[0])
 
-    newGrid.streamRowsV1()
     return newGrid
   }
 
@@ -138,7 +136,6 @@ class Grid extends EventEmitter {
       }
     }
 
-    newGrid.streamRowsV1()
     return newGrid
   }
 
@@ -158,7 +155,6 @@ class Grid extends EventEmitter {
       textGrid = textGrid.rightAppend(charMapArray[i])
     }
 
-    textGrid.streamRowsV1()
     return textGrid
   }
 
@@ -364,7 +360,6 @@ class Grid extends EventEmitter {
           newGrid.set(y, this.width - 1 - x, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
 
@@ -380,7 +375,6 @@ class Grid extends EventEmitter {
           newGrid.set(this.width - 1 - x, this.height - 1 - y, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
     // 270 degrees -> neg y and neg x
@@ -395,7 +389,6 @@ class Grid extends EventEmitter {
           newGrid.set(this.height - 1 - y, x, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
   }
@@ -427,7 +420,6 @@ class Grid extends EventEmitter {
           newGrid.set(x, this.height - 1 - y, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
 
@@ -442,7 +434,6 @@ class Grid extends EventEmitter {
           newGrid.set(this.width - 1 - x, y, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
   }
@@ -485,7 +476,6 @@ class Grid extends EventEmitter {
           })
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
     if (factor === 0.5) {
@@ -500,7 +490,6 @@ class Grid extends EventEmitter {
           newGrid.set(x / 2, y / 2, this.get(x, y))
         }
       }
-      newGrid.streamRowsV1()
       return newGrid
     }
   }
