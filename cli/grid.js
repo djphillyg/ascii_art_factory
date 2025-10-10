@@ -31,11 +31,14 @@ class Grid extends EventEmitter {
     }
   }
 
-  /*** SHAPES ****************/
+  // -------- Static Factory Methods --------
+
   /**
-   * generate circle - statically generates a circle
-   * @param {*} param0
-   * @returns a new grid class instance with the circle filled in
+   * Generate a circle grid
+   * @param {Object} options - Circle options
+   * @param {number} options.radius - Radius of the circle
+   * @param {boolean} options.filled - Whether the circle should be filled
+   * @returns {Grid} New grid instance with the circle drawn
    */
   static generateCircle({ radius, filled }) {
     // Setup: calculate grid size (diameter + 1)
@@ -78,6 +81,13 @@ class Grid extends EventEmitter {
     return newGrid
   }
 
+  /**
+   * Generate a polygon grid
+   * @param {Object} options - Polygon options
+   * @param {number} options.sides - Number of sides for the polygon
+   * @param {number} options.radius - Radius of the polygon
+   * @returns {Grid} New grid instance with the polygon drawn
+   */
   static generatePolygon({ sides, radius }) {
     // Setup: calculate grid size
     // set up the diameter
@@ -116,6 +126,15 @@ class Grid extends EventEmitter {
     return newGrid
   }
 
+  /**
+   * Generate a rectangle grid
+   * @param {Object} options - Rectangle options
+   * @param {number} options.width - Width of the rectangle
+   * @param {number} options.height - Height of the rectangle
+   * @param {string} [options.char='*'] - Character to use for drawing
+   * @param {boolean} [options.filled=false] - Whether the rectangle should be filled
+   * @returns {Grid} New grid instance with the rectangle drawn
+   */
   static generateRectangle({ width, height, char = '*', filled = false }) {
     // create new grid class
     const newGrid = new Grid({ width, height })
@@ -139,6 +158,12 @@ class Grid extends EventEmitter {
     return newGrid
   }
 
+  /**
+   * Create a text grid from a string
+   * @param {Object} options - Text options
+   * @param {string} options.text - Text string to render (A-Z, 0-9)
+   * @returns {Grid} New grid instance with the text drawn
+   */
   static createText({ text }) {
     // turn text in array
     // validate proper regex text in validator
@@ -156,6 +181,35 @@ class Grid extends EventEmitter {
     }
 
     return textGrid
+  }
+
+  /**
+   * Apply a single transformation to a grid
+   * @param {Grid} grid - The grid to transform
+   * @param {Object} transform - The transformation to apply
+   * @param {string} transform.type - Type of transformation ('rotate', 'mirror', 'scale')
+   * @param {Object} transform.params - Parameters for the transformation
+   * @returns {Grid} The transformed grid
+   * @static
+   */
+  static applyTransformation(grid, transform) {
+    const { type, params } = transform
+    console.log('type', type)
+    console.log(params, 'params')
+
+    switch (type) {
+      case 'rotate':
+        return grid.rotate(params.degrees)
+
+      case 'mirror':
+        return grid.mirror(params.axis)
+
+      case 'scale':
+        return grid.scale(params.factor)
+
+      default:
+        throw new Error(`Unknown transformation type: ${type}`)
+    }
   }
 
   /**
@@ -219,10 +273,20 @@ class Grid extends EventEmitter {
     }
   }
 
+  /**
+   * Check if a row exists in the grid
+   * @param {number} row - The row index to check
+   * @returns {boolean} True if the row exists, false otherwise
+   */
   hasRow(row) {
     return !!this.grid[row]
   }
 
+  /**
+   * Get a row as a string
+   * @param {number} row - The row index
+   * @returns {string} The row as a joined string
+   */
   getRowStr(row) {
     return this.grid[row].join('')
   }
@@ -281,7 +345,11 @@ class Grid extends EventEmitter {
     this.emit('complete', { total: this.height })
   }
 
-  // this function will create a new grid by appending another grid
+  /**
+   * Create a new grid by appending another grid horizontally
+   * @param {Grid} gridToAppend - The grid to append to the right
+   * @returns {Grid} New grid with both grids side by side
+   */
   rightAppend(gridToAppend) {
     // Convert both grids to string arrays (split by lines)
     const thisRows = this.toString().split('\n')
@@ -294,6 +362,12 @@ class Grid extends EventEmitter {
     return new Grid({ content: mergedRows.join('\n') })
   }
 
+  /**
+   * Draw a line between two points using linear interpolation
+   * @param {Array<number>} start - Starting point [col, row]
+   * @param {Array<number>} end - Ending point [col, row]
+   * @private
+   */
   drawLine(start, end) {
     // start and end are [x, y] coordinates from the polygon vertices
     const [startCol, startRow] = start
@@ -376,9 +450,9 @@ class Grid extends EventEmitter {
   static allowed_degrees = [90, 180, 270]
 
   /**
-   * Rotate the grid by specified degrees
-   * @param {*} degrees The degrees allowed for rotation (90, 180, 270)
-   * this function will return a completely rotated new grid
+   * Rotate the grid by specified degrees clockwise
+   * @param {number} degrees - Degrees to rotate (90, 180, or 270)
+   * @returns {Grid} New rotated grid instance
    */
   rotate(degrees) {
     if (!Grid.allowed_degrees.includes(degrees)) {
@@ -427,7 +501,8 @@ class Grid extends EventEmitter {
 
   /**
    * Mirror the grid along specified axis
-   * @param {*} axis - 'horizontal' or 'vertical'
+   * @param {string} axis - Axis to mirror along ('horizontal' or 'vertical')
+   * @returns {Grid} New mirrored grid instance
    */
   mirror(axis) {
     if (!Grid.allowed_axis.includes(axis)) {
@@ -462,7 +537,8 @@ class Grid extends EventEmitter {
 
   /**
    * Scale the grid by specified factor
-   * @param {*} factor - 0.5 or 2.0
+   * @param {number} factor - Scale factor (0.5 to shrink, 2.0 to enlarge)
+   * @returns {Grid} New scaled grid instance
    */
   scale(factor) {
     if (!Grid.allowed_factor.includes(factor)) {
@@ -505,33 +581,6 @@ class Grid extends EventEmitter {
         }
       }
       return newGrid
-    }
-  }
-
-  /**
-   * Apply a single transformation to a grid
-   * @param {Grid} grid - The grid to transform
-   * @param {Object} transform - The transformation to apply
-   * @returns {Grid} The transformed grid
-   * @private
-   */
-  static applyTransformation(grid, transform) {
-    const { type, params } = transform
-    console.log('type', type)
-    console.log(params, 'params')
-
-    switch (type) {
-      case 'rotate':
-        return grid.rotate(params.degrees)
-
-      case 'mirror':
-        return grid.mirror(params.axis)
-
-      case 'scale':
-        return grid.scale(params.factor)
-
-      default:
-        throw new Error(`Unknown transformation type: ${type}`)
     }
   }
 
@@ -614,15 +663,20 @@ class Grid extends EventEmitter {
     return clippedGrid
   }
 
+  /**
+   * Get the bounding box dimensions of the grid
+   * @returns {Object} Object with width and height properties
+   */
   getBounds() {
     return {
       width: this.width,
       height: this.height,
     }
   }
+
   /**
-   *
-   * @returns [row, col] rounded
+   * Get the center point coordinates of the grid
+   * @returns {Object} Object with row and col properties (floored)
    */
   getCenterPoint() {
     return {
