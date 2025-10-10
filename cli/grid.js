@@ -194,8 +194,6 @@ class Grid extends EventEmitter {
    */
   static applyTransformation(grid, transform) {
     const { type, params } = transform
-    console.log('type', type)
-    console.log(params, 'params')
 
     switch (type) {
       case 'rotate':
@@ -595,21 +593,29 @@ class Grid extends EventEmitter {
    * @returns {Grid} this (for chaining)
    */
   overlay(sourceGrid, { row, col, char = '*', transparent = true }) {
-    // loop through source grid dimensons
+    // loop through source grid dimensions
     for (let srcRow = 0; srcRow < sourceGrid.height; srcRow++) {
       for (let srcCol = 0; srcCol < sourceGrid.width; srcCol++) {
-        //calculate target position ingrid
+        // calculate target position in grid
         const targetRow = srcRow + row
         const targetCol = srcCol + col
-        // if transparent, do not set if the space in the grid is a space
-        const charAtSpace = this.get(targetRow, targetCol)
-        // if its not null, its in bounds
-        if (charAtSpace) {
-          // if transparent and the char at space is a space, only fill with space
-          const charToFill = transparent && charAtSpace === ' ' ? ' ' : char
-          this.set(targetRow, targetCol, charToFill)
+
+        // get character from source grid
+        const sourceChar = sourceGrid.get(srcRow, srcCol)
+
+        // skip if target is out of bounds
+        if (this.get(targetRow, targetCol) === null) {
+          continue
         }
-        // set in target grid
+
+        // if transparent mode, skip spaces from source
+        if (transparent && sourceChar === ' ') {
+          continue
+        }
+
+        // set character (use custom char if provided, otherwise use source char)
+        const charToPlace = char || sourceChar
+        this.set(targetRow, targetCol, charToPlace)
       }
     }
     return this // to enable chaining
@@ -641,7 +647,7 @@ class Grid extends EventEmitter {
     const bStartRow = Math.max(startRow, 0)
     const bEndRow = Math.min(endRow, this.height)
     const bStartCol = Math.max(startCol, 0)
-    const bEndCol = Math.mind(endCol, this.width)
+    const bEndCol = Math.min(endCol, this.width)
     // Calculate new dimensions
     // since beginning is inclusive
     // end row 4, start row 2, that means we only do 2 and 3
@@ -712,6 +718,8 @@ class Grid extends EventEmitter {
     return {
       minRow,
       maxRow,
+      minCol,
+      maxCol,
       width: this.width,
       height: this.height,
     }
