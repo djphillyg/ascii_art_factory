@@ -6,11 +6,23 @@
 
 export const terminalTheme = {
   colors: {
+    // Retro Mac colors
+    retro: {
+      panelBg: '#d4d4d4', // Light gray panel background
+      contentBg: '#e8e8e8', // Slightly lighter content area
+      titleBar: '#ffffff', // White title bar
+      border: '#000000', // Black borders
+      text: '#000000', // Black text
+      buttonRed: '#ff5f56', // Red window button
+      buttonYellow: '#ffbd2e', // Yellow window button
+      buttonGreen: '#00ff41',
+    },
+
     // Background layers
     bg: {
-      primary: '#0a0e27',      // Deep dark blue-black
-      secondary: '#1a1d2e',    // Slightly lighter panel bg
-      tertiary: '#252836',     // Input/card backgrounds
+      primary: '#D3B4A8', // Deep dark blue-black
+      secondary: '##E0C9BE', // Slightly lighter panel bg
+      tertiary: '#252836', // Input/card backgrounds
     },
 
     // Terminal green (Matrix style)
@@ -20,7 +32,7 @@ export const terminalTheme = {
       200: '#80ffbd',
       300: '#4dffa3',
       400: '#1aff8a',
-      500: '#00ff41',          // Primary terminal green
+      500: '#00ff41', // Primary terminal green
       600: '#00cc34',
       700: '#009926',
       800: '#006619',
@@ -34,7 +46,7 @@ export const terminalTheme = {
       200: '#80ebff',
       300: '#4de3ff',
       400: '#1adbff',
-      500: '#00d9ff',          // Primary neon cyan
+      500: '#00d9ff', // Primary neon cyan
       600: '#00aecc',
       700: '#008299',
       800: '#005766',
@@ -79,9 +91,9 @@ export const terminalTheme = {
 
     // Text colors
     text: {
-      primary: 'rgb(240, 255, 255)',    // Light cyan-white for readable text
-      secondary: '#b3f3ff',              // Softer cyan
-      muted: '#6b7280',                  // Muted gray
+      primary: '#1A1A1A', // dark black to be able to see it
+      secondary: '#b3f3ff', // Softer cyan
+      muted: '#6b7280', // Muted gray
     },
   },
 
@@ -102,17 +114,22 @@ export const terminalTheme = {
 
   fonts: {
     mono: '"Courier New", "Courier", "Monaco", "Menlo", monospace',
+    retro: '"Courier Prime", "Courier New", "Courier", monospace',
   },
 
   // Font sizes for inputs and labels (15% larger than base)
   fontSizes: {
-    label: '0.92rem',        // ~14.7px (base ~sm increased by 15%)
-    input: '1.035rem',       // ~16.6px (base md increased by 15%)
-    helper: '0.805rem',      // ~12.9px (base xs increased by 15%)
+    label: '0.92rem', // ~14.7px (base ~sm increased by 15%)
+    input: '1.035rem', // ~16.6px (base md increased by 15%)
+    helper: '0.805rem', // ~12.9px (base xs increased by 15%)
+  },
+
+  fontWeights: {
+    standard: '400', // we will have this one be the standard fro all inputs and
   },
 
   // Spacing for inputs
   spacing: {
-    inputPadding: '0.75rem',  // Left/right padding for input fields
+    inputPadding: '0.75rem', // Left/right padding for input fields
   },
 }

@@ -10,6 +10,7 @@ export default function CheckboxInput({
   checked,
   onChange,
   color = terminalTheme.colors.text.primary,
+  fontWeight = terminalTheme.fontWeights.standard,
   ...props
 }) {
   return (
@@ -23,6 +24,7 @@ export default function CheckboxInput({
       <Checkbox.Label
         color={color}
         fontSize={terminalTheme.fontSizes.label}
+        fontWeight={fontWeight}
       >
         {label}
       </Checkbox.Label>

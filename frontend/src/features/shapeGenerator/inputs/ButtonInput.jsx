@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react'
+import { terminalTheme } from '../../../theme/terminal'
 
 /**
  * Reusable ButtonInput component
@@ -13,6 +14,7 @@ export default function ButtonInput({
   variant = 'solid',
   size = 'md',
   width,
+  fontWeight = terminalTheme.fontWeights.standard,
   ...props
 }) {
   return (
@@ -24,6 +26,7 @@ export default function ButtonInput({
       variant={variant}
       size={size}
       width={width}
+      fontWeight={fontWeight}
       {...props}
     >
       {children}

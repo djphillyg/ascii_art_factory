@@ -14,14 +14,12 @@ export default function SelectInput({
   helperText,
   error,
   color = terminalTheme.colors.text.primary,
+  fontWeight = terminalTheme.fontWeights.standard,
   ...props
 }) {
   return (
     <Field.Root invalid={!!error}>
-      <Field.Label
-        color={color}
-        fontSize={terminalTheme.fontSizes.label}
-      >
+      <Field.Label color={color} fontSize={terminalTheme.fontSizes.label} fontWeight={fontWeight}>
         {label}
       </Field.Label>
       <NativeSelect.Root {...props}>
@@ -31,6 +29,7 @@ export default function SelectInput({
           placeholder={placeholder}
           color={color}
           _placeholder={{ color }}
+          fontWeight={fontWeight}
           fontSize={terminalTheme.fontSizes.input}
           paddingLeft={terminalTheme.spacing.inputPadding}
           paddingRight={terminalTheme.spacing.inputPadding}
@@ -45,10 +44,7 @@ export default function SelectInput({
       </NativeSelect.Root>
       {error && <Field.ErrorText>{error}</Field.ErrorText>}
       {!error && helperText && (
-        <Field.HelperText
-          color={color}
-          fontSize={terminalTheme.fontSizes.helper}
-        >
+        <Field.HelperText color={color} fontSize={terminalTheme.fontSizes.helper}>
           {helperText}
         </Field.HelperText>
       )}

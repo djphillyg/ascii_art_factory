@@ -262,6 +262,25 @@ class Grid extends EventEmitter {
     this.emit('complete', { total: this.height })
   }
 
+  /**
+   * Stream rows with delay for visual effect (async version)
+   * @param {number} delayMs - Delay in milliseconds between rows (default 50ms)
+   */
+  async streamTransformedRowsWithDelay(delayMs = 50) {
+    for (let row = 0; row < this.height; row++) {
+      this.emit('rowCompleted', {
+        rowIndex: row,
+        data: this.getRowStr(row),
+        total: this.height,
+      })
+      // Add delay between rows for animation effect
+      if (row < this.height - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+      }
+    }
+    this.emit('complete', { total: this.height })
+  }
+
   // this function will create a new grid by appending another grid
   rightAppend(gridToAppend) {
     // Convert both grids to string arrays (split by lines)
@@ -355,57 +374,49 @@ class Grid extends EventEmitter {
   }
 
   static allowed_degrees = [90, 180, 270]
+
   /**
-   *
+   * Rotate the grid by specified degrees
    * @param {*} degrees The degrees allowed for rotation (90, 180, 270)
    * this function will return a completely rotated new grid
    */
   rotate(degrees) {
-    // check if the degrees are in the allowed range o
     if (!Grid.allowed_degrees.includes(degrees)) {
       throw new Error('Improper degree amount specified')
     }
 
-    // it is the proper amount, so lets remember what each one would do
-    /**
-     * 90 degrees ->
-     * newX = oldY
-     * newY = width - 1 - oldX
-     */
     if (degrees === 90) {
       const newGrid = new Grid({ width: this.height, height: this.width })
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          newGrid.set(y, this.width - 1 - x, this.get(x, y))
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          // 90 degrees clockwise: new_row = col, new_col = height - 1 - row
+          newGrid.set(col, this.height - 1 - row, this.get(row, col))
         }
       }
       return newGrid
     }
 
-    /**
-     * 180 degrees -> neg x and then y
-     * newX = width - 1 - oldX
-     * newY = height - 1 - oldY
-     */
     if (degrees === 180) {
       const newGrid = new Grid({ width: this.width, height: this.height })
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          newGrid.set(this.width - 1 - x, this.height - 1 - y, this.get(x, y))
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          // 180 degrees: new_row = height - 1 - row, new_col = width - 1 - col
+          newGrid.set(
+            this.height - 1 - row,
+            this.width - 1 - col,
+            this.get(row, col)
+          )
         }
       }
       return newGrid
     }
-    // 270 degrees -> neg y and neg x
-    /**
-     * newX = height - 1 - oldY
-     * newY = oldX
-     */
+
     if (degrees === 270) {
       const newGrid = new Grid({ width: this.height, height: this.width })
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          newGrid.set(this.height - 1 - y, x, this.get(x, y))
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          // 270 degrees clockwise: new_row = width - 1 - col, new_col = row
+          newGrid.set(this.width - 1 - col, row, this.get(row, col))
         }
       }
       return newGrid
@@ -415,101 +426,112 @@ class Grid extends EventEmitter {
   static allowed_axis = ['horizontal', 'vertical']
 
   /**
-   *
-   * @param {*} _axis
+   * Mirror the grid along specified axis
+   * @param {*} axis - 'horizontal' or 'vertical'
    */
   mirror(axis) {
-    /**
-     * implemnetation
-     * - go through one side and just do the other
-     * - horizontal, flipping on the x axis
-     */
     if (!Grid.allowed_axis.includes(axis)) {
       throw new Error('Axis not allowed - can only be vertical or horizontal')
     }
 
     if (axis === 'vertical') {
+      // Vertical flip: flip upside down
       const newGrid = new Grid({ width: this.width, height: this.height })
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          /**
-           * newY = (height - 1 - y)
-           * newX = oldX
-           */
-          newGrid.set(x, this.height - 1 - y, this.get(x, y))
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          // new_row = height - 1 - row, new_col = col
+          newGrid.set(this.height - 1 - row, col, this.get(row, col))
         }
       }
       return newGrid
     }
 
     if (axis === 'horizontal') {
+      // Horizontal flip: flip left to right
       const newGrid = new Grid({ width: this.width, height: this.height })
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          /**
-           * newY = oldY
-           * newX = (width - 1 - x)
-           */
-          newGrid.set(this.width - 1 - x, y, this.get(x, y))
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          // new_row = row, new_col = width - 1 - col
+          newGrid.set(row, this.width - 1 - col, this.get(row, col))
         }
       }
       return newGrid
     }
   }
   static allowed_factor = [0.5, 2.0]
+
   /**
-   * right now, this only works on well-formed structures
-   * @param {*} factor
-   * @returns
+   * Scale the grid by specified factor
+   * @param {*} factor - 0.5 or 2.0
    */
   scale(factor) {
     if (!Grid.allowed_factor.includes(factor)) {
       throw new Error('factor to scale is not included in here')
     }
-    /**
-     * blows everything up to a 2x2 grid if the scale is 2
-     *
-     * samples a pixel in the 2x2 grid and shrinks it down if it is 0.5
-     */
+
     if (factor === 2) {
-      // create a new grid 2x the size
+      // Scale up: each cell becomes a 2x2 block
       const newGrid = new Grid({
         width: this.width * 2,
         height: this.height * 2,
       })
-      // iterate through the old grid
-      for (let x = 0; x < this.width; x++) {
-        for (let y = 0; y < this.height; y++) {
-          const xAnchor = x * 2
-          const yAnchor = y * 2
-          // for every single grid item, you must input 4 times now
-          const newEntryPairs = [
-            [xAnchor, yAnchor],
-            [xAnchor + 1, yAnchor],
-            [xAnchor, yAnchor + 1],
-            [xAnchor + 1, yAnchor + 1],
-          ]
-          // and then go through and set them
-          newEntryPairs.forEach(pair => {
-            newGrid.set(pair[0], pair[1], this.get(x, y))
-          })
+
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          const char = this.get(row, col)
+          const newRow = row * 2
+          const newCol = col * 2
+
+          // Set all 4 cells in the 2x2 block
+          newGrid.set(newRow, newCol, char)
+          newGrid.set(newRow, newCol + 1, char)
+          newGrid.set(newRow + 1, newCol, char)
+          newGrid.set(newRow + 1, newCol + 1, char)
         }
       }
       return newGrid
     }
+
     if (factor === 0.5) {
+      // Scale down: sample every other cell
       const newWidth = Math.ceil(this.width / 2)
       const newHeight = Math.ceil(this.height / 2)
       const newGrid = new Grid({ width: newWidth, height: newHeight })
-      for (let x = 0; x < this.width; x += 2) {
-        for (let y = 0; y < this.height; y += 2) {
-          // we are merely going through the grid
-          // assuming that it is a scaled 2x2 block and just
-          // placing in the smaller grid
-          newGrid.set(x / 2, y / 2, this.get(x, y))
+
+      for (let row = 0; row < this.height; row += 2) {
+        for (let col = 0; col < this.width; col += 2) {
+          const char = this.get(row, col)
+          newGrid.set(row / 2, col / 2, char)
         }
       }
       return newGrid
+    }
+  }
+
+  /**
+   * Apply a single transformation to a grid
+   * @param {Grid} grid - The grid to transform
+   * @param {Object} transform - The transformation to apply
+   * @returns {Grid} The transformed grid
+   * @private
+   */
+  static applyTransformation(grid, transform) {
+    const { type, params } = transform
+    console.log('type', type)
+    console.log(params, 'params')
+
+    switch (type) {
+      case 'rotate':
+        return grid.rotate(params.degrees)
+
+      case 'mirror':
+        return grid.mirror(params.axis)
+
+      case 'scale':
+        return grid.scale(params.factor)
+
+      default:
+        throw new Error(`Unknown transformation type: ${type}`)
     }
   }
 }

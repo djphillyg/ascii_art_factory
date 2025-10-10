@@ -13,6 +13,7 @@ export default function TextInput({
   helperText,
   error,
   color = terminalTheme.colors.text.primary,
+  fontWeight = terminalTheme.fontWeights.standard,
   ...props
 }) {
   return (
@@ -20,6 +21,7 @@ export default function TextInput({
       <Field.Label
         color={color}
         fontSize={terminalTheme.fontSizes.label}
+        fontWeight={fontWeight}
       >
         {label}
       </Field.Label>
@@ -30,6 +32,7 @@ export default function TextInput({
         color={color}
         _placeholder={{ color }}
         fontSize={terminalTheme.fontSizes.input}
+        fontWeight={fontWeight}
         paddingLeft={terminalTheme.spacing.inputPadding}
         paddingRight={terminalTheme.spacing.inputPadding}
         {...props}
@@ -39,6 +42,7 @@ export default function TextInput({
         <Field.HelperText
           color={color}
           fontSize={terminalTheme.fontSizes.helper}
+          fontWeight={fontWeight}
         >
           {helperText}
         </Field.HelperText>

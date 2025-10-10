@@ -56,6 +56,9 @@ export default function MainLayout({ children }) {
       <Container
         maxW="container.xl"
         py={{ base: 4, md: 6 }}
+        px={{ base: 4, md: 6 }}
+        pt={{ base: 4, md: 6 }}
+        pl={{ base: 4, md: 6 }}
       >
         {children}
       </Container>
