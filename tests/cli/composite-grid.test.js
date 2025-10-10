@@ -10,7 +10,9 @@ describe('CompositeGrid Core Functionality', () => {
     expect(composite.width).toBe(50)
     expect(composite.height).toBe(40)
     expect(composite.layers).toEqual([])
-    expect(composite.toString()).toBe(' '.repeat(50) + '\n' + (' '.repeat(50) + '\n').repeat(38) + ' '.repeat(50))
+    expect(composite.toString()).toBe(
+      `${' '.repeat(50)}\n${`${' '.repeat(50)}\n`.repeat(38)}${' '.repeat(50)}`
+    )
   })
 
   test('should add shape at default center anchor', () => {
@@ -50,7 +52,11 @@ describe('CompositeGrid Core Functionality', () => {
 
     // Note: bottomRight is not implemented in the actual code, this test will fail
     // This is intentional to show what's missing
-    composite.addShape(shape, { anchor: 'bottomRight', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'bottomRight',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // If it were implemented, shape would be at bottom-right
     // expect(composite.get(17, 17)).toBe('*')
@@ -73,7 +79,11 @@ describe('CompositeGrid Core Functionality', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 2, height: 2, filled: true })
 
-    composite.addShape(shape, { anchor: 'bottomLeft', offsetRow: -1, offsetCol: -2 })
+    composite.addShape(shape, {
+      anchor: 'bottomLeft',
+      offsetRow: -1,
+      offsetCol: -2,
+    })
 
     // bottomLeft calculation: targetRow = 20 - 2 - (-1) = 19
     // Negative offsetRow means subtract a negative, so shape moves down
@@ -106,7 +116,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'topRight', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'topRight',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // topRight: row=0, col=20-3=17
     expect(composite.get(0, 17)).toBe('*')
@@ -118,7 +132,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'bottomLeft', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'bottomLeft',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // bottomLeft: row=20-3=17, col=0
     expect(composite.get(17, 0)).toBe('*')
@@ -131,7 +149,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'middleLeft', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'middleLeft',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // If implemented, would be at row=10-1, col=0
     // expect(composite.get(9, 0)).toBe('*')
@@ -143,7 +165,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'middleRight', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'middleRight',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // If implemented, would be at row=10-1, col=20-3=17
     // expect(composite.get(9, 17)).toBe('*')
@@ -155,7 +181,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'topCenter', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'topCenter',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // If implemented, would be at row=0, col=10-1=9
     // expect(composite.get(0, 9)).toBe('*')
@@ -167,7 +197,11 @@ describe('CompositeGrid Anchor Points', () => {
     const composite = new CompositeGrid({ width: 20, height: 20 })
     const shape = Grid.generateRectangle({ width: 3, height: 3, filled: true })
 
-    composite.addShape(shape, { anchor: 'bottomCenter', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'bottomCenter',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // If implemented, would be at row=20-3=17, col=10-1=9
     // expect(composite.get(17, 9)).toBe('*')
@@ -185,19 +219,19 @@ describe('CompositeGrid Recipe Building', () => {
         {
           type: 'circle',
           params: { radius: 15, filled: false },
-          placement: { anchor: 'center' }
+          placement: { anchor: 'center' },
         },
         {
           type: 'circle',
           params: { radius: 2, filled: true },
-          placement: { anchor: 'center', offsetRow: -5, offsetCol: -5 }
+          placement: { anchor: 'center', offsetRow: -5, offsetCol: -5 },
         },
         {
           type: 'circle',
           params: { radius: 2, filled: true },
-          placement: { anchor: 'center', offsetRow: -5, offsetCol: 5 }
-        }
-      ]
+          placement: { anchor: 'center', offsetRow: -5, offsetCol: 5 },
+        },
+      ],
     }
 
     const smiley = CompositeGrid.fromRecipe(smileyRecipe)
@@ -218,24 +252,24 @@ describe('CompositeGrid Recipe Building', () => {
         {
           type: 'rectangle',
           params: { width: 30, height: 20, filled: false },
-          placement: { anchor: 'center', offsetRow: 5 }
+          placement: { anchor: 'center', offsetRow: 5 },
         },
         {
           type: 'polygon',
           params: { sides: 4, radius: 15 },
-          placement: { anchor: 'center', offsetRow: -10 }
+          placement: { anchor: 'center', offsetRow: -10 },
         },
         {
           type: 'rectangle',
           params: { width: 5, height: 8, filled: false },
-          placement: { anchor: 'center', offsetRow: 10, offsetCol: -8 }
+          placement: { anchor: 'center', offsetRow: 10, offsetCol: -8 },
         },
         {
           type: 'rectangle',
           params: { width: 5, height: 8, filled: false },
-          placement: { anchor: 'center', offsetRow: 10, offsetCol: 8 }
-        }
-      ]
+          placement: { anchor: 'center', offsetRow: 10, offsetCol: 8 },
+        },
+      ],
     }
 
     const house = CompositeGrid.fromRecipe(houseRecipe)
@@ -253,13 +287,37 @@ describe('CompositeGrid Recipe Building', () => {
       width: 40,
       height: 60,
       shapes: [
-        { type: 'rectangle', params: { width: 15, height: 20, filled: false }, placement: { anchor: 'center', offsetRow: 5 } }, // body
-        { type: 'rectangle', params: { width: 10, height: 10, filled: false }, placement: { anchor: 'center', offsetRow: -10 } }, // head
-        { type: 'rectangle', params: { width: 3, height: 12, filled: false }, placement: { anchor: 'center', offsetRow: 5, offsetCol: -10 } }, // left arm
-        { type: 'rectangle', params: { width: 3, height: 12, filled: false }, placement: { anchor: 'center', offsetRow: 5, offsetCol: 10 } }, // right arm
-        { type: 'rectangle', params: { width: 4, height: 15, filled: false }, placement: { anchor: 'center', offsetRow: 20, offsetCol: -4 } }, // left leg
-        { type: 'rectangle', params: { width: 4, height: 15, filled: false }, placement: { anchor: 'center', offsetRow: 20, offsetCol: 4 } } // right leg
-      ]
+        {
+          type: 'rectangle',
+          params: { width: 15, height: 20, filled: false },
+          placement: { anchor: 'center', offsetRow: 5 },
+        }, // body
+        {
+          type: 'rectangle',
+          params: { width: 10, height: 10, filled: false },
+          placement: { anchor: 'center', offsetRow: -10 },
+        }, // head
+        {
+          type: 'rectangle',
+          params: { width: 3, height: 12, filled: false },
+          placement: { anchor: 'center', offsetRow: 5, offsetCol: -10 },
+        }, // left arm
+        {
+          type: 'rectangle',
+          params: { width: 3, height: 12, filled: false },
+          placement: { anchor: 'center', offsetRow: 5, offsetCol: 10 },
+        }, // right arm
+        {
+          type: 'rectangle',
+          params: { width: 4, height: 15, filled: false },
+          placement: { anchor: 'center', offsetRow: 20, offsetCol: -4 },
+        }, // left leg
+        {
+          type: 'rectangle',
+          params: { width: 4, height: 15, filled: false },
+          placement: { anchor: 'center', offsetRow: 20, offsetCol: 4 },
+        }, // right leg
+      ],
     }
 
     const robot = CompositeGrid.fromRecipe(robotRecipe)
@@ -277,9 +335,17 @@ describe('CompositeGrid Recipe Building', () => {
       width: 30,
       height: 40,
       shapes: [
-        { type: 'circle', params: { radius: 8, filled: false }, placement: { anchor: 'center', offsetRow: -10 } }, // leaves
-        { type: 'rectangle', params: { width: 4, height: 15, filled: false }, placement: { anchor: 'center', offsetRow: 8 } } // trunk
-      ]
+        {
+          type: 'circle',
+          params: { radius: 8, filled: false },
+          placement: { anchor: 'center', offsetRow: -10 },
+        }, // leaves
+        {
+          type: 'rectangle',
+          params: { width: 4, height: 15, filled: false },
+          placement: { anchor: 'center', offsetRow: 8 },
+        }, // trunk
+      ],
     }
 
     const tree = CompositeGrid.fromRecipe(treeRecipe)
@@ -310,8 +376,18 @@ describe('CompositeGrid Edge Cases', () => {
   test('should handle overlapping shapes (layering)', () => {
     // Tests z-order: later shapes overlay earlier ones
     const composite = new CompositeGrid({ width: 20, height: 20 })
-    const rect1 = Grid.generateRectangle({ width: 10, height: 10, filled: true, char: 'A' })
-    const rect2 = Grid.generateRectangle({ width: 6, height: 6, filled: true, char: 'B' })
+    const rect1 = Grid.generateRectangle({
+      width: 10,
+      height: 10,
+      filled: true,
+      char: 'A',
+    })
+    const rect2 = Grid.generateRectangle({
+      width: 6,
+      height: 6,
+      filled: true,
+      char: 'B',
+    })
 
     composite.addShape(rect1, { anchor: 'topLeft', offsetRow: 2, offsetCol: 2 })
     composite.addShape(rect2, { anchor: 'topLeft', offsetRow: 5, offsetCol: 5 })
@@ -332,7 +408,11 @@ describe('CompositeGrid Edge Cases', () => {
 
     // Note: Current implementation doesn't validate anchors, just returns undefined positions
     // This test documents the current behavior
-    composite.addShape(shape, { anchor: 'invalidAnchor', offsetRow: 0, offsetCol: 0 })
+    composite.addShape(shape, {
+      anchor: 'invalidAnchor',
+      offsetRow: 0,
+      offsetCol: 0,
+    })
 
     // targetRow and targetCol will be undefined, causing overlay to place at (NaN, NaN)
     // The current implementation doesn't throw an error for invalid anchors
