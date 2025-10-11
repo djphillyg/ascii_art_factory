@@ -38,9 +38,10 @@ class Grid extends EventEmitter {
    * @param {Object} options - Circle options
    * @param {number} options.radius - Radius of the circle
    * @param {boolean} options.filled - Whether the circle should be filled
+   * @param {string} [options.char='*'] - Character to use for drawing
    * @returns {Grid} New grid instance with the circle drawn
    */
-  static generateCircle({ radius, filled }) {
+  static generateCircle({ radius, filled, char = '*' }) {
     // Setup: calculate grid size (diameter + 1)
     const gridSize = Number(radius) * 2 + 1
     // Determine center point coordinates
@@ -69,11 +70,11 @@ class Grid extends EventEmitter {
         const diff = sum - radiusSq
         if (Math.abs(diff) < this.tolerance) {
           // unfortunately its backwards for the grid
-          newGrid.set(row, col, '*')
+          newGrid.set(row, col, char)
         }
 
         if (filled && diff < 0) {
-          newGrid.set(row, col, '*')
+          newGrid.set(row, col, char)
         }
       }
     }
@@ -88,7 +89,7 @@ class Grid extends EventEmitter {
    * @param {number} options.radius - Radius of the polygon
    * @returns {Grid} New grid instance with the polygon drawn
    */
-  static generatePolygon({ sides, radius }) {
+  static generatePolygon({ sides, radius, filled = false, char = '*' }) {
     // Setup: calculate grid size
     // set up the diameter
     const gridSize = radius * 2 + 1
@@ -118,12 +119,57 @@ class Grid extends EventEmitter {
     }
 
     for (let i = 0; i < vertexArray.length - 1; i += 1) {
-      newGrid.drawLine(vertexArray[i], vertexArray[i + 1])
+      newGrid.drawLine(vertexArray[i], vertexArray[i + 1], char)
     }
     // then connect the last one
-    newGrid.drawLine(vertexArray[vertexArray.length - 1], vertexArray[0])
+    newGrid.drawLine(vertexArray[vertexArray.length - 1], vertexArray[0], char)
 
+    if (filled) {
+      this.fillPolygonInterior(newGrid, vertexArray, char)
+    }
     return newGrid
+  }
+
+  /**
+   * Fill polygon interior using scanline algorithm
+   * @param {Grid} grid - Grid to fill
+   * @param {Array} vertices - Polygon vertices [{row, col}, ...]
+   * @param {string} char - Fill character
+   */
+  fillPolygonInterior(grid, vertices, char) {
+    // For each row in grid
+    for (let row = 0; row < grid.height; row++) {
+      // Find all edge intersections at this row
+      const intersections = []
+
+      for (let i = 0; i < vertices.length; i++) {
+        const v1 = vertices[i]
+        const v2 = vertices[(i + 1) % vertices.length]
+
+        // Check if edge crosses this row
+        const minRow = Math.min(v1.row, v2.row)
+        const maxRow = Math.max(v1.row, v2.row)
+
+        if (row >= minRow && row <= maxRow && v1.row !== v2.row) {
+          // Calculate intersection column
+          const t = (row - v1.row) / (v2.row - v1.row)
+          const col = Math.round(v1.col + t * (v2.col - v1.col))
+          intersections.push(col)
+        }
+      }
+
+      // Sort intersections
+      intersections.sort((a, b) => a - b)
+
+      // Fill between pairs of intersections
+      for (let i = 0; i < intersections.length; i += 2) {
+        if (i + 1 < intersections.length) {
+          for (let col = intersections[i]; col <= intersections[i + 1]; col++) {
+            grid.set(row, col, char)
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -364,9 +410,10 @@ class Grid extends EventEmitter {
    * Draw a line between two points using linear interpolation
    * @param {Array<number>} start - Starting point [col, row]
    * @param {Array<number>} end - Ending point [col, row]
+   * @param {string} [char='*'] - Character to use for drawing
    * @private
    */
-  drawLine(start, end) {
+  drawLine(start, end, char = '*') {
     // start and end are [x, y] coordinates from the polygon vertices
     const [startCol, startRow] = start
     const [endCol, endRow] = end
@@ -403,7 +450,7 @@ class Grid extends EventEmitter {
         this.hasRow(roundedRow) &&
         this.get(roundedRow, roundedCol) !== undefined
       ) {
-        this.set(roundedRow, roundedCol, '*')
+        this.set(roundedRow, roundedCol, char)
       }
 
       currCol += colIncrement
