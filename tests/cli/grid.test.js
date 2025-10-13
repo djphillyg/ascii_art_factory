@@ -507,6 +507,250 @@ describe('Grid Event Emitter', () => {
   })
 })
 
+describe('Grid Vertical Composition Methods', () => {
+  describe('topAppend', () => {
+    test('should append grid of equal width above', () => {
+      // Create two grids with same width and verify the appended grid appears on top
+      const bottomGrid = new Grid({ content: '***\n***' })
+      const topGrid = new Grid({ content: '###\n###' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.width).toBe(3)
+      expect(result.height).toBe(4)
+      expect(result.toString()).toBe('###\n###\n***\n***')
+    })
+
+    test('should append narrower grid above and pad with spaces', () => {
+      // Append a 3-width grid above a 5-width grid and verify the narrower grid is padded to match
+      const bottomGrid = new Grid({ content: '*****\n*****' })
+      const topGrid = new Grid({ content: '###' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.width).toBe(5)
+      expect(result.height).toBe(3)
+      expect(result.toString()).toBe('###  \n*****\n*****')
+    })
+
+    test('should append wider grid above and pad bottom grid with spaces', () => {
+      // Append a 7-width grid above a 4-width grid and verify the bottom grid is padded to match
+      const bottomGrid = new Grid({ content: '****\n****' })
+      const topGrid = new Grid({ content: '#######' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.width).toBe(7)
+      expect(result.height).toBe(3)
+      expect(result.toString()).toBe('#######\n****   \n****   ')
+    })
+
+    test('should preserve content of both grids after appending', () => {
+      // Verify that content from both original grids is intact in the result
+      const bottomGrid = new Grid({ content: 'ABC\nDEF' })
+      const topGrid = new Grid({ content: '123' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.toString()).toContain('123')
+      expect(result.toString()).toContain('ABC')
+      expect(result.toString()).toContain('DEF')
+      expect(result.getRowStr(0)).toBe('123')
+      expect(result.getRowStr(1)).toBe('ABC')
+      expect(result.getRowStr(2)).toBe('DEF')
+    })
+
+    test('should handle single-row grid appended above', () => {
+      // Append a single-row grid above a multi-row grid and verify correct height
+      const bottomGrid = new Grid({ content: '***\n***\n***' })
+      const topGrid = new Grid({ content: '###' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.height).toBe(4)
+      expect(result.width).toBe(3)
+      expect(result.getRowStr(0)).toBe('###')
+      expect(result.getRowStr(1)).toBe('***')
+    })
+
+    test('should handle appending above single-row grid', () => {
+      // Append a multi-row grid above a single-row grid and verify correct positioning
+      const bottomGrid = new Grid({ content: '***' })
+      const topGrid = new Grid({ content: '###\n###\n###' })
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      expect(result.height).toBe(4)
+      expect(result.width).toBe(3)
+      expect(result.getRowStr(0)).toBe('###')
+      expect(result.getRowStr(3)).toBe('***')
+    })
+
+    test('should create new grid instance without modifying originals', () => {
+      // Verify that topAppend returns a new Grid and doesn't mutate the original grids
+      const bottomGrid = new Grid({ content: '***\n***' })
+      const topGrid = new Grid({ content: '###' })
+
+      const originalBottomStr = bottomGrid.toString()
+      const originalTopStr = topGrid.toString()
+
+      const result = bottomGrid.topAppend(topGrid)
+
+      // Original grids should be unchanged
+      expect(bottomGrid.toString()).toBe(originalBottomStr)
+      expect(topGrid.toString()).toBe(originalTopStr)
+
+      // Result should be a different instance
+      expect(result).not.toBe(bottomGrid)
+      expect(result).not.toBe(topGrid)
+    })
+  })
+
+  describe('bottomAppend', () => {
+    test('should append grid of equal width below', () => {
+      // Create two grids with same width and verify the appended grid appears on bottom
+      const topGrid = new Grid({ content: '###\n###' })
+      const bottomGrid = new Grid({ content: '***\n***' })
+
+      const result = topGrid.bottomAppend(bottomGrid)
+
+      expect(result.width).toBe(3)
+      expect(result.height).toBe(4)
+      expect(result.toString()).toBe('###\n###\n***\n***')
+    })
+
+    test('should append narrower grid below and pad with spaces', () => {
+      // Append a 3-width grid below a 5-width grid and verify the narrower grid is padded to match
+      const topGrid = new Grid({ content: '*****\n*****' })
+      const bottomGrid = new Grid({ content: '###' })
+
+      const result = topGrid.bottomAppend(bottomGrid)
+
+      expect(result.width).toBe(5)
+      expect(result.height).toBe(3)
+      expect(result.toString()).toBe('*****\n*****\n###  ')
+    })
+
+    test('should append wider grid below and pad top grid with spaces', () => {
+      // Append a 7-width grid below a 4-width grid and verify the top grid is padded to match
+      const topGrid = new Grid({ content: '****\n****' })
+      const bottomGrid = new Grid({ content: '#######' })
+
+      const result = topGrid.bottomAppend(bottomGrid)
+
+      expect(result.width).toBe(7)
+      expect(result.height).toBe(3)
+      expect(result.toString()).toBe('****   \n****   \n#######')
+    })
+
+    test('should preserve content of both grids after appending', () => {
+      // Verify that content from both original grids is intact in the result
+      const topGrid = new Grid({ content: '123' })
+      const bottomGrid = new Grid({ content: 'ABC\nDEF' })
+
+      const result = topGrid.bottomAppend(bottomGrid)
+
+      expect(result.toString()).toContain('123')
+      expect(result.toString()).toContain('ABC')
+      expect(result.toString()).toContain('DEF')
+      expect(result.getRowStr(0)).toBe('123')
+      expect(result.getRowStr(1)).toBe('ABC')
+      expect(result.getRowStr(2)).toBe('DEF')
+    })
+
+    test('should create new grid instance without modifying originals', () => {
+      // Verify that bottomAppend returns a new Grid and doesn't mutate the original grids
+      const topGrid = new Grid({ content: '###' })
+      const bottomGrid = new Grid({ content: '***\n***' })
+
+      const originalTopStr = topGrid.toString()
+      const originalBottomStr = bottomGrid.toString()
+
+      const result = topGrid.bottomAppend(bottomGrid)
+
+      // Original grids should be unchanged
+      expect(topGrid.toString()).toBe(originalTopStr)
+      expect(bottomGrid.toString()).toBe(originalBottomStr)
+
+      // Result should be a different instance
+      expect(result).not.toBe(topGrid)
+      expect(result).not.toBe(bottomGrid)
+    })
+  })
+
+  describe('centerHorizontally', () => {
+    test('should center grid in wider target width with even padding', () => {
+      // Center a 4-width grid in 10-width target and verify 3 spaces on each side
+      const grid = new Grid({ content: '****' })
+
+      const result = grid.centerHorizontally(10)
+
+      expect(result.width).toBe(10)
+      expect(result.height).toBe(1)
+      expect(result.toString()).toBe('   ****   ')
+      // 3 spaces on left, 4 chars, 3 spaces on right
+    })
+
+    test('should center grid in wider target width with odd padding difference', () => {
+      // Center a 5-width grid in 12-width target and verify left padding is 3, right padding is 4
+      const grid = new Grid({ content: '*****' })
+
+      const result = grid.centerHorizontally(12)
+
+      expect(result.width).toBe(12)
+      expect(result.height).toBe(1)
+      expect(result.toString()).toBe('   *****    ')
+      // 3 spaces on left (floored), 5 chars, 4 spaces on right
+    })
+
+    test('should return same grid when target width equals grid width', () => {
+      // Pass target width equal to grid width and verify no changes
+      const grid = new Grid({ content: '***' })
+
+      const result = grid.centerHorizontally(3)
+
+      expect(result).toBe(grid)
+      expect(result.toString()).toBe('***')
+    })
+
+    test('should return same grid when target width is smaller than grid width', () => {
+      // Pass target width smaller than grid width and verify grid is returned as-is
+      const grid = new Grid({ content: '*****' })
+
+      const result = grid.centerHorizontally(3)
+
+      expect(result).toBe(grid)
+      expect(result.toString()).toBe('*****')
+    })
+
+    test('should handle single-column grid centered in target width', () => {
+      // Center a 1-width grid in 11-width target and verify equal padding on both sides
+      const grid = new Grid({ content: '*' })
+
+      const result = grid.centerHorizontally(11)
+
+      expect(result.width).toBe(11)
+      expect(result.height).toBe(1)
+      expect(result.toString()).toBe('     *     ')
+      // 5 spaces on each side
+    })
+
+    test('should preserve grid content when centering', () => {
+      // Verify that all original content characters remain in the centered result
+      const grid = new Grid({ content: 'ABC\nDEF' })
+
+      const result = grid.centerHorizontally(9)
+
+      expect(result.width).toBe(9)
+      expect(result.height).toBe(2)
+      expect(result.toString()).toContain('ABC')
+      expect(result.toString()).toContain('DEF')
+      expect(result.getRowStr(0)).toBe('   ABC   ')
+      expect(result.getRowStr(1)).toBe('   DEF   ')
+    })
+  })
+})
+
 describe('Grid Edge Cases', () => {
   test('should handle empty content string', () => {
     const grid = new Grid({ width: 3, height: 3, content: '' })

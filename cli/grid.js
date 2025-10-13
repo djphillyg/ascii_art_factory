@@ -407,6 +407,82 @@ class Grid extends EventEmitter {
   }
 
   /**
+   * Create a new grid by appending another grid vertically above this one
+   * @param {Grid} gridToAppend - The grid to append above
+   * @returns {Grid} New grid with gridToAppend on top, this grid on bottom
+   */
+  topAppend(gridToAppend) {
+    // Determine new dimensions (max width, sum of heights)
+    const newWidth = Math.max(this.width, gridToAppend.width)
+
+    // Helper to pad a line to target width
+    const padLine = (line, targetWidth) => {
+      return line.padEnd(targetWidth, ' ')
+    }
+
+    // Get content from both grids
+    const topContent = gridToAppend.toString()
+    const bottomContent = this.toString()
+
+    // Split into lines and pad to match width
+    const topLines = topContent.split('\n').map(line => padLine(line, newWidth))
+    const bottomLines = bottomContent.split('\n').map(line => padLine(line, newWidth))
+
+    // Combine top grid above bottom grid
+    const combined = [...topLines, ...bottomLines].join('\n')
+    return new Grid({ content: combined })
+  }
+
+  /**
+   * Create a new grid by appending another grid vertically below this one
+   * @param {Grid} gridToAppend - The grid to append below
+   * @returns {Grid} New grid with this grid on top, gridToAppend on bottom
+   */
+  bottomAppend(gridToAppend) {
+    // Determine new dimensions (max width, sum of heights)
+    const newWidth = Math.max(this.width, gridToAppend.width)
+
+    // Helper to pad a line to target width
+    const padLine = (line, targetWidth) => {
+      return line.padEnd(targetWidth, ' ')
+    }
+
+    // Get content from both grids
+    const topContent = this.toString()
+    const bottomContent = gridToAppend.toString()
+
+    // Split into lines and pad to match width
+    const topLines = topContent.split('\n').map(line => padLine(line, newWidth))
+    const bottomLines = bottomContent.split('\n').map(line => padLine(line, newWidth))
+
+    // Combine this grid above the appended grid
+    const combined = [...topLines, ...bottomLines].join('\n')
+    return new Grid({ content: combined })
+  }
+
+  /**
+   * Center a grid horizontally within a target width
+   * @param {number} targetWidth - Desired width
+   * @returns {Grid} New centered grid
+   */
+  centerHorizontally(targetWidth) {
+    if (targetWidth <= this.width) {
+      return this // Already wider or equal, return as is
+    }
+
+    const leftPadding = Math.floor((targetWidth - this.width) / 2)
+    const rightPadding = targetWidth - this.width - leftPadding
+
+    const lines = this.toString().split('\n')
+
+    const centeredLines = lines.map(line => {
+      return ' '.repeat(leftPadding) + line + ' '.repeat(rightPadding)
+    })
+
+    return new Grid({ content: centeredLines.join('\n') })
+  }
+
+  /**
    * Draw a line between two points using linear interpolation
    * @param {Array<number>} start - Starting point [col, row]
    * @param {Array<number>} end - Ending point [col, row]
