@@ -9,6 +9,7 @@ A full-stack ASCII art generation system with CLI tool, Express backend server, 
 - [Overview](#overview)
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
+- [AI-Powered Features](#ai-powered-features)
 - [CLI Tool](#cli-tool)
 - [Backend Server](#backend-server)
 - [Frontend Application](#frontend-application)
@@ -22,14 +23,18 @@ A full-stack ASCII art generation system with CLI tool, Express backend server, 
 ## 🎯 Overview
 
 This project is a comprehensive ASCII art generation system that allows users to:
+- **🤖 AI-Powered Natural Language Generation**: Describe ASCII art in plain English and let Claude AI create it
 - Generate ASCII art shapes (rectangles, circles, polygons) via CLI or web interface
 - Create ASCII text banners with customizable fill patterns
 - Transform shapes with rotate, mirror, and scale operations
 - View real-time shape generation and transformation through WebSocket connections
+- Compose complex multi-shape scenes using AI-driven recipes
 - Manage shape history and persistence
 - Export shapes to files
 
 The project demonstrates modern JavaScript development practices including:
+- **AI Integration**: Anthropic Claude API for natural language processing
+- **Recipe Execution System**: Multi-step shape composition and transformations
 - ES Modules (import/export)
 - Redux state management
 - WebSocket real-time communication
@@ -59,6 +64,21 @@ ai_mastery_challenge/
 │
 ├── server/                     # Express backend server
 │   ├── index.js               # Server entry point & WebSocket setup
+│   ├── ai/                    # AI integration modules
+│   │   ├── claudeService.js   # Anthropic Claude API integration
+│   │   ├── recipeExecutor.js  # Recipe execution engine
+│   │   ├── ascii_prompt.md    # System prompt for Claude
+│   │   ├── promptCache.js     # Prompt caching utility
+│   │   └── index.js           # AI API routes
+│   ├── socket/                # WebSocket handlers
+│   │   ├── index.js           # Socket.IO setup
+│   │   └── handlers/          # Event handlers
+│   │       ├── shapeHandler.js      # Manual shape generation
+│   │       ├── transformHandler.js  # Shape transformations
+│   │       └── aiHandler.js         # AI-powered generation
+│   ├── validation/            # Joi validation schemas
+│   │   └── schemas/
+│   │       └── recipe.js      # Recipe validation schema
 │   └── package.json           # Server dependencies
 │
 ├── frontend/                   # React frontend application
@@ -68,6 +88,8 @@ ai_mastery_challenge/
 │   │   │   ├── shapeGenerator/   # Shape generation UI
 │   │   │   ├── shapes/          # Shape list & management
 │   │   │   ├── history/         # Shape history tracking
+│   │   │   ├── mode/            # Manual/AI mode toggle
+│   │   │   ├── aiInput/         # AI natural language input
 │   │   │   └── ui/              # UI state management
 │   │   ├── components/        # Shared UI components
 │   │   ├── hooks/             # Custom React hooks
@@ -111,9 +133,215 @@ ai_mastery_challenge/
 ### Data Flow
 
 1. **CLI Mode**: Direct command → Parser → Validator → Generator → Renderer → Output
-2. **Web Mode**:
+2. **Web Mode (Manual)**:
    - User Input → React Component → Redux Action → WebSocket Message
    - Server → Shape Generator → Stream Results → WebSocket → Redux Store → UI Update
+3. **Web Mode (AI)**:
+   - Natural Language Prompt → Claude API → Recipe JSON → Recipe Executor → Grid Composition → Stream Results → UI
+
+---
+
+## 🤖 AI-Powered Features
+
+### Overview
+
+The AI-powered generation mode allows users to describe ASCII art in plain English and have Claude AI automatically create complex compositions. This feature demonstrates advanced AI integration with real-time streaming and multi-step shape composition.
+
+### Key Components
+
+#### **1. Claude Service** (`server/ai/claudeService.js`)
+
+Integrates with Anthropic's Claude API to parse natural language prompts into structured recipes.
+
+```javascript
+class ClaudeService {
+  async parseShapePrompt(userPrompt) {
+    // Sends prompt to Claude API with specialized system prompt
+    // Returns structured recipe JSON for execution
+  }
+}
+```
+
+**Features:**
+- Prompt caching for improved performance and reduced costs
+- Specialized system prompt that teaches Claude the recipe format
+- Error handling with user-friendly suggestions
+- Support for complex multi-shape compositions
+
+#### **2. Recipe Executor** (`server/ai/recipeExecutor.js`)
+
+Executes AI-generated recipes to create ASCII art compositions.
+
+**Supported Operations:**
+
+1. **generate**: Create base shapes
+   ```json
+   {
+     "operation": "generate",
+     "shape": "circle",
+     "params": { "radius": 5, "filled": true },
+     "storeAs": "myCircle"
+   }
+   ```
+
+2. **overlay**: Combine shapes by overlaying one on top of another
+   ```json
+   {
+     "operation": "overlay",
+     "target": "canvas",
+     "source": "shape1",
+     "position": { "row": 5, "col": 10 },
+     "transparent": true,
+     "storeAs": "result"
+   }
+   ```
+
+3. **transform**: Apply transformations (rotate, mirror, scale)
+   ```json
+   {
+     "operation": "transform",
+     "source": "myShape",
+     "type": "rotate",
+     "params": { "degrees": 90 },
+     "storeAs": "rotated"
+   }
+   ```
+
+4. **clip**: Extract a region from a grid
+   ```json
+   {
+     "operation": "clip",
+     "source": "bigShape",
+     "bounds": { "startRow": 0, "endRow": 10, "startCol": 0, "endCol": 20 },
+     "storeAs": "clipped"
+   }
+   ```
+
+5. **topAppend/bottomAppend**: Vertically stack shapes
+6. **centerHorizontally**: Center a shape within a target width
+
+**Recipe Validation:**
+- Joi schema validation for all operations
+- Type checking and bounds validation
+- Ensures referenced grids exist before use
+
+#### **3. AI Handler** (`server/socket/handlers/aiHandler.js`)
+
+WebSocket handler for AI generation with real-time streaming.
+
+**Event Flow:**
+```
+Client sends 'generateAIShape' with { prompt }
+  ↓
+Server emits 'aiGenerateStart' (status: "Thinking...")
+  ↓
+Claude API parses prompt → recipe JSON
+  ↓
+Server emits 'aiGenerateStart' (status: "Generating...", recipe)
+  ↓
+Recipe Executor creates Grid instances
+  ↓
+Server streams 'aiGenerateRow' events (progressive rendering)
+  ↓
+Server emits 'aiGenerateComplete' (final metadata)
+```
+
+#### **4. Mode Toggle** (`frontend/features/mode/`)
+
+UI component for switching between Manual and AI modes.
+
+**Components:**
+- `ModeToggle.jsx`: Toggle button with retro Mac styling
+- `modeSlice.js`: Redux state management for mode selection
+
+**Features:**
+- Smooth transition between modes
+- Preserves state when switching
+- Visual indication of active mode
+
+#### **5. AI Input Panel** (`frontend/features/aiInput/`)
+
+Natural language input interface for AI generation.
+
+**Components:**
+- `AIInputPanel.jsx`: Textarea for prompt input with generate button
+- `aiInputSlice.js`: State management for AI generation
+
+**Features:**
+- Multi-line prompt input
+- Real-time status updates ("Thinking...", "Generating...")
+- Error handling with suggestions
+- Integration with WebSocket for streaming results
+
+### Example AI Prompts
+
+**Simple Shapes:**
+```
+"Create a large filled circle"
+"Draw a pentagon with radius 8"
+"Make a 15x8 rectangle"
+```
+
+**Compositions:**
+```
+"Create a house with a rectangle for the body and a triangle roof"
+"Draw a snowman using three circles of different sizes stacked vertically"
+"Create a face using a circle for the head, two small circles for eyes, and a curved line for a smile"
+```
+
+**With Transformations:**
+```
+"Create a square and rotate it 45 degrees"
+"Make a heart shape and mirror it horizontally"
+"Draw a star and scale it to twice its size"
+```
+
+### Technical Implementation
+
+#### Recipe Format
+
+Recipes are JSON structures with three main parts:
+
+```json
+{
+  "recipe": [
+    { "operation": "generate", ... },
+    { "operation": "overlay", ... },
+    { "operation": "transform", ... }
+  ],
+  "output": "finalGridName",
+  "description": "Human-readable description"
+}
+```
+
+#### Grid Store
+
+The Recipe Executor maintains a `gridStore` (Map) to track intermediate grids:
+- Each operation can reference grids by name
+- Operations store results with `storeAs` parameter
+- Final output grid is specified in recipe's `output` field
+
+#### Streaming Integration
+
+AI-generated shapes use the same streaming system as manual generation:
+- Grid class emits `rowCompleted` events
+- Server relays events to client via WebSocket
+- Frontend progressively renders with animations
+- Consistent UX across manual and AI modes
+
+### Environment Setup
+
+**Required Environment Variables:**
+```bash
+ANTHROPIC_API_KEY=your_api_key_here
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+ANTHROPIC_MAX_TOKENS=4096
+```
+
+**Prompt Caching:**
+- System prompt is cached to reduce API costs
+- Cache automatically invalidates after 5 minutes
+- Saves ~90% of tokens on repeated requests
 
 ---
 
@@ -276,6 +504,7 @@ Express.js server with Socket.IO for real-time ASCII art generation and streamin
 *Client → Server:*
 - `generateShape`: Request shape generation with `{ type, options }`
 - `transformShape`: Request shape transformation with `{ shape, transformation }`
+- `generateAIShape`: Request AI-powered generation with `{ prompt }`
 - `cancel-generation`: Cancel ongoing generation
 
 *Server → Client (Generation):*
@@ -283,6 +512,12 @@ Express.js server with Socket.IO for real-time ASCII art generation and streamin
 - `generateRow`: Streams each row with `{ rowIndex, data, progress }`
 - `generateComplete`: Signals completion with `{ totalRows }`
 - `generateError`: Reports errors with `{ message }`
+
+*Server → Client (AI Generation):*
+- `aiGenerateStart`: Signals AI generation start with `{ status, recipe }`
+- `aiGenerateRow`: Streams each row with `{ rowIndex, data, progress }`
+- `aiGenerateComplete`: Signals completion with `{ totalRows, recipe }`
+- `aiGenerateError`: Reports errors with `{ message, suggestion }`
 
 *Server → Client (Transformation):*
 - `transformRow`: Streams transformed output row-by-row
@@ -515,7 +750,17 @@ npm install
 cd ..
 ```
 
-5. **Link CLI tool globally** (optional)
+5. **Set up environment variables** (for AI features)
+```bash
+# Create server/.env file
+cd server
+echo "ANTHROPIC_API_KEY=your_api_key_here" > .env
+echo "ANTHROPIC_MODEL=claude-3-5-sonnet-20241022" >> .env
+echo "ANTHROPIC_MAX_TOKENS=4096" >> .env
+cd ..
+```
+
+6. **Link CLI tool globally** (optional)
 ```bash
 npm link
 ```
@@ -614,6 +859,8 @@ npm run test:server:integration  # Server integration tests
 - **Express.js**: Web server framework
 - **Socket.IO**: WebSocket server
 - **CORS**: Cross-origin resource sharing
+- **Anthropic SDK**: Claude AI API integration
+- **Joi**: Schema validation for recipes and inputs
 
 ### CLI
 - **Custom argument parser**: Hand-built CLI argument handling

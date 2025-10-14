@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { API_URL } from '../../utils/apiConfig'
 
 /**
  * AI Input Slice
@@ -13,8 +14,6 @@ const initialState = {
   isGenerating: false,
   error: null,
 }
-
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
 
 export const generateShapeAISync = createAsyncThunk('aiInput/generateShape', async ({ prompt }) => {
   const response = await fetch(`${API_URL}/api/ai/generate`, {

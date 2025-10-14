@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const WS_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+// In production, use same origin. In development, use env var or localhost
+const WS_URL = import.meta.env.VITE_BACKEND_URL ||
+  (import.meta.env.PROD ? window.location.origin : 'http://localhost:3001')
 
 /**
  * Custom hook for managing WebSocket connection with Socket.IO

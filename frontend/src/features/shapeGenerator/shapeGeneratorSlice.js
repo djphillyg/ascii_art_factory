@@ -1,10 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { API_URL } from '../../utils/apiConfig'
 
 export function gridOutputToString(gridArray) {
   return gridArray.map((line) => line.join('')).join('\n')
 }
-
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
 
 export const transformShapeAsync = createAsyncThunk(
   'shapeGenerator/transformShape',
