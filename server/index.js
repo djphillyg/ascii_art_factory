@@ -24,13 +24,15 @@ initSocket(server, PORT)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// CORS - Allow frontend URL in development, or same origin in production
-app.use(
-  cors({
-    origin: NODE_ENV === 'production' ? true : FRONTEND_URL,
-    credentials: true,
-  })
-)
+// CORS - Only needed in development when frontend is on different port
+if (NODE_ENV !== 'production') {
+  app.use(
+    cors({
+      origin: FRONTEND_URL,
+      credentials: true,
+    })
+  )
+}
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
