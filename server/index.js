@@ -52,7 +52,7 @@ if (NODE_ENV === 'production') {
 
   // Catch-all route - serve index.html for client-side routing
   // Express 5 requires /* instead of * for wildcards
-  app.get('/*', (_req, res) => {
+  app.get('/^\\/.*$/', (_req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'))
   })
 } else {
