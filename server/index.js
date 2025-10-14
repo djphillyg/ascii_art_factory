@@ -49,12 +49,13 @@ if (NODE_ENV === 'production') {
   app.use(express.static(frontendPath))
 
   // Catch-all route - serve index.html for client-side routing
-  app.get('*', (req, res) => {
+  // Express 5 requires /* instead of * for wildcards
+  app.get('/*', (_req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'))
   })
 } else {
   // Development mode - just API endpoint
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.json({ message: 'Server is running in development mode' })
   })
 }
