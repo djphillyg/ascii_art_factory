@@ -98,6 +98,9 @@ working_prompts/
 faq/
 FAQ.md
 
+# Git worktrees
+.worktrees/
+
 
 # env files 
 .env
