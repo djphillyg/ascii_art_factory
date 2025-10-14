@@ -101,73 +101,111 @@ SIZING GUIDELINES:
 COMPOSITION GUIDELINES:
 
 **When to use topAppend/bottomAppend:**
+
 - Vertical stacking (house roof + body, tree leaves + trunk, snowman circles)
 - No need to calculate positions - automatic alignment
 - Handles width differences automatically
 
 **When to use centerHorizontally:**
+
 - Before topAppend/bottomAppend when shapes have different widths
 - Example: centering a narrow roof (21 width) on a wide house body (20 width)
 
 **When to use overlay:**
+
 - Precise positioning needed (eyes on a face, windows on a building)
 - Overlapping shapes that aren't simply stacked
 - Use transparent: true to preserve underlying characters where source has spaces
 
 **Operation workflow examples:**
+
 1. Simple vertical stack: generate → generate → topAppend/bottomAppend
 2. Centered vertical stack: generate → centerHorizontally → generate → topAppend
 3. Complex composition: generate → clip → centerHorizontally → topAppend → overlay details
 
 COMMON PATTERNS:
 
-- Smiley face: Large circle (face) + overlay 2 small filled circles (eyes) + overlay clipped circle (mouth)
+- Smiley face: Large circle (face) + overlay 2 small filled circles (eyes) + overlay clipped filled circle (mouth)
 - House: Generate roof + centerHorizontally to match body width + topAppend onto rectangle body
 - Robot: Generate head + bottomAppend body + bottomAppend legs (use topAppend/bottomAppend for vertical stacking)
 - Star: Polygon with 5 or 6 sides
 - Tree: Generate triangle (leaves) + generate rectangle (trunk) + centerHorizontally trunk to match leaves + bottomAppend trunk to leaves
-- Snowman: Generate 3 circles of decreasing size, stack with topAppend/bottomAppend
+- Snowman: Generate 3 empty circles of decreasing size, stack with topAppend/bottomAppend, and have a smiley face in the top smallest circle
 
 RULES:
 
 1. Output ONLY valid JSON, no explanations or markdown
-2. Use descriptive variable names (e.g., "face", "leftEye", "roofCentered", "houseComplete")
-3. Always specify "storeAs" for these operations: generate, clip, transform, topAppend, bottomAppend, centerHorizontally
-4. The "output" field must reference a variable that was stored with "storeAs"
-5. Prefer topAppend/bottomAppend over overlay for vertical composition - they're simpler and more intuitive
-6. Use centerHorizontally before topAppend/bottomAppend when shapes have different widths
-7. Be creative but practical with dimensions - consider character density for terminal display
+2. Minimum height for the drawings is at 50x50 and can extend up to 150x150
+3. Use descriptive variable names (e.g., "face", "leftEye", "roofCentered", "houseComplete")
+4. Always specify "storeAs" for these operations: generate, clip, transform, topAppend, bottomAppend, centerHorizontally
+5. The "output" field must reference a variable that was stored with "storeAs"
+6. Prefer topAppend/bottomAppend over overlay for vertical composition - they're simpler and more intuitive
+7. Use centerHorizontally before topAppend/bottomAppend when shapes have different widths
+8. Be creative but practical with dimensions - consider character density for terminal display
 
-EXAMPLE INPUT: "draw a simple house"
+EXAMPLE INPUT: "draw a star of david"
 EXAMPLE OUTPUT:
 {
 "recipe": [
 {
 "operation": "generate",
 "shape": "polygon",
-"params": { "sides": 3, "radius": 10, "filled": false, "char": "*" },
-"storeAs": "roof"
+"params": {
+"sides": 3,
+"radius": 20,
+"filled": false,
+"char": "*"
 },
-{
-"operation": "centerHorizontally",
-"source": "roof",
-"targetWidth": 20,
-"storeAs": "roofCentered"
+"storeAs": "triangleUp"
 },
 {
 "operation": "generate",
-"shape": "rectangle",
-"params": { "width": 20, "height": 15, "filled": false, "char": "*" },
-"storeAs": "houseBody"
+"shape": "polygon",
+"params": {
+"sides": 3,
+"radius": 20,
+"filled": false,
+"char": "*"
+},
+"storeAs": "triangleDown"
 },
 {
-"operation": "topAppend",
-"target": "houseBody",
-"source": "roofCentered",
-"storeAs": "house"
+"operation": "transform",
+"source": "triangleDown",
+"type": "rotate",
+"params": {
+"degrees": 180
+},
+"storeAs": "triangleDownRotated"
+},
+{
+"operation": "centerHorizontally",
+"source": "triangleUp",
+"targetWidth": 50,
+"storeAs": "triangleUpCentered"
+},
+{
+"operation": "centerHorizontally",
+"source": "triangleDownRotated",
+"targetWidth": 50,
+"storeAs": "triangleDownCentered"
+},
+{
+"operation": "overlay",
+"target": "triangleUpCentered",
+"source": "triangleDownCentered",
+"position": {
+"row": 0,
+"col": 0
+},
+"transparent": true
 }
 ],
-"output": "house"
+"output": "triangleUpCentered"
 }
+
+EXAMPLE INPUT: "draw a face with the mouth open"
+EXAMPLE OUTPUT:
+{"recipe":[{"operation":"generate","shape":"circle","params":{"radius":40,"filled":false,"char":"o"},"storeAs":"faceOutline"},{"operation":"generate","shape":"circle","params":{"radius":20,"filled":true,"char":")"},"storeAs":"fullSmile"},{"operation":"clip","source":"fullSmile","bounds":{"startRow":0,"endRow":20,"startCol":0,"endCol":32},"storeAs":"halfSmile"},{"operation":"clip","source":"halfSmile","bounds":{"startRow":0,"endRow":16,"startCol":0,"endCol":32},"storeAs":"clippedSmile"},{"operation":"centerHorizontally","source":"clippedSmile","targetWidth":80,"storeAs":"centeredSmile"},{"operation":"generate","shape":"polygon","params":{"sides":3,"radius":3,"filled":true,"char":"^"},"storeAs":"nose"},{"operation":"centerHorizontally","source":"nose","targetWidth":80,"storeAs":"centeredNose"},{"operation":"overlay","target":"faceOutline","source":"centeredNose","position":{"row":33,"col":0},"transparent":true},{"operation":"overlay","target":"faceOutline","source":"centeredSmile","position":{"row":48,"col":0},"transparent":true},{"operation":"generate","shape":"circle","params":{"radius":5,"filled":false,"char":"o"},"storeAs":"leftEye"},{"operation":"generate","shape":"circle","params":{"radius":5,"filled":false,"char":"o"},"storeAs":"rightEye"},{"operation":"overlay","target":"faceOutline","source":"leftEye","position":{"row":25,"col":25},"transparent":true},{"operation":"overlay","target":"faceOutline","source":"rightEye","position":{"row":25,"col":50},"transparent":true}],"output":"faceOutline"}
 
 Now generate a recipe for the user's request.
