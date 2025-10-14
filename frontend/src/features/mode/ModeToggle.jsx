@@ -1,4 +1,4 @@
-import { Box, Text, Switch } from '@chakra-ui/react'
+import { Box, Text, Switch, Tooltip } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleMode, selectCurrentMode } from './modeSlice'
 import { terminalTheme } from '../../theme/terminal'
@@ -8,17 +8,22 @@ import { terminalTheme } from '../../theme/terminal'
  *
  * A sliding toggle switch to select between Manual Mode and AI Mode
  * Follows the terminal theme design system
+ *
+ * In production, AI mode is disabled to prevent API token drainage
  */
 export default function ModeToggle() {
   const dispatch = useDispatch()
   const currentMode = useSelector(selectCurrentMode)
   const isManualMode = currentMode === 'manual'
+  const isProduction = import.meta.env.PROD
 
   const handleToggle = () => {
+    // Don't allow toggling to AI mode in production
+    if (isProduction) return
     dispatch(toggleMode())
   }
 
-  return (
+  const toggleContent = (
     <Box
       display="flex"
       alignItems="center"
@@ -31,10 +36,16 @@ export default function ModeToggle() {
       borderRadius="30px"
       width="fit-content"
       transition="all 0.3s ease"
-      _hover={{
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      }}
+      opacity={isProduction ? 0.6 : 1}
+      cursor={isProduction ? 'not-allowed' : 'pointer'}
+      _hover={
+        isProduction
+          ? {}
+          : {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            }
+      }
     >
       {/* Manual Mode Label */}
       <Text
@@ -50,7 +61,12 @@ export default function ModeToggle() {
       </Text>
 
       {/* Switch */}
-      <Switch.Root checked={!isManualMode} onCheckedChange={handleToggle} size="md">
+      <Switch.Root
+        checked={!isManualMode}
+        onCheckedChange={handleToggle}
+        size="md"
+        disabled={isProduction}
+      >
         <Switch.HiddenInput />
         <Switch.Control
           bg={terminalTheme.colors.retro.border}
@@ -81,5 +97,30 @@ export default function ModeToggle() {
         AI MODE
       </Text>
     </Box>
+  )
+
+  return isProduction ? (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{toggleContent}</Tooltip.Trigger>
+      <Tooltip.Positioner>
+        <Tooltip.Content
+          bg={terminalTheme.colors.retro.contentBg}
+          color={terminalTheme.colors.retro.text}
+          border="2px solid"
+          borderColor={terminalTheme.colors.retro.border}
+          borderRadius="md"
+          padding={3}
+          fontFamily={terminalTheme.fonts.retro}
+          fontSize="sm"
+          maxWidth="300px"
+          textAlign="center"
+        >
+          AI Mode disabled on the front-end so your kind developer doesn't drain his account.
+          Prefilled recipes available soon :)
+        </Tooltip.Content>
+      </Tooltip.Positioner>
+    </Tooltip.Root>
+  ) : (
+    toggleContent
   )
 }
