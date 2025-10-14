@@ -13,52 +13,11 @@ export default function MainLayout({ children }) {
       bg={terminalTheme.colors.bg.primary}
       fontFamily={terminalTheme.fonts.mono}
     >
-      {/* Terminal Header Bar */}
-      <Box
-        as="header"
-        bg={terminalTheme.colors.bg.secondary}
-        borderBottom="2px solid"
-        borderColor={terminalTheme.colors.green[500]}
-        boxShadow={terminalTheme.effects.glow.green}
-        py={3}
-      >
-        <Container maxW="container.xl">
-          <Box display="flex" alignItems="center" gap={3} pl={{ base: 4, md: 6 }}>
-            {/* Terminal window controls */}
-            <Box display="flex" gap={2}>
-              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.error} />
-              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.warning} />
-              <Box w={3} h={3} borderRadius="full" bg={terminalTheme.colors.success} />
-            </Box>
-
-            {/* Terminal prompt */}
-            <Text
-              color={terminalTheme.colors.green[500]}
-              fontSize={{ base: 'md', md: 'lg' }}
-              fontWeight="bold"
-              textShadow={terminalTheme.effects.textGlow.green}
-            >
-              user@ascii-generator:~$
-            </Text>
-
-            <Text
-              color={terminalTheme.colors.cyan[500]}
-              fontSize={{ base: 'sm', md: 'md' }}
-              ml="auto"
-            >
-              [CONNECTED]
-            </Text>
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Main Terminal Content */}
+      {/* Main Content */}
       <Container
         maxW="container.xl"
         py={{ base: 4, md: 6 }}
         px={{ base: 4, md: 6 }}
-        pt={{ base: 4, md: 6 }}
-        pl={{ base: 4, md: 6 }}
       >
         {children}
       </Container>

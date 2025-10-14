@@ -12,11 +12,14 @@ import {
   selectIsTransforming,
   transformShapeAsync,
 } from './shapeGeneratorSlice'
+import { selectIsAiMode } from '../mode/modeSlice'
 import { useShapeValidation } from './validation/useShapeValidation'
 import SelectInput from './inputs/SelectInput'
 import NumberInput from './inputs/NumberInput'
 import CheckboxInput from './inputs/CheckboxInput'
 import ButtonInput from './inputs/ButtonInput'
+import GenerateButton from './GenerateButton'
+import AIInputPanel from '../aiInput/AIInputPanel'
 
 /**
  * ControlsPanel Component
@@ -32,6 +35,7 @@ export default function ControlsPanel({ socket, isConnected }) {
   const options = useSelector(selectOptions)
   const shapeOutput = useSelector(selectShapeOutput)
   const isTransforming = useSelector(selectIsTransforming)
+  const isAiMode = useSelector(selectIsAiMode)
   const { errors } = useShapeValidation()
 
   // Fetch available shapes when component mounts
@@ -219,9 +223,14 @@ export default function ControlsPanel({ socket, isConnected }) {
 
       {/* Window Content */}
       <Box bg={terminalTheme.colors.retro.contentBg} p={6}>
-        <Stack gap={6}>
-          {/* Shape Type Selector */}
-          <Box>
+        {isAiMode ? (
+          /* AI Mode - Show AI Input Panel */
+          <AIInputPanel socket={socket} isConnected={isConnected} />
+        ) : (
+          /* Manual Mode - Show Shape Controls */
+          <Stack gap={6}>
+            {/* Shape Type Selector */}
+            <Box>
             <Text
               fontFamily={terminalTheme.fonts.retro}
               fontSize="xs"
@@ -427,7 +436,11 @@ export default function ControlsPanel({ socket, isConnected }) {
               </Stack>
             </Box>
           )}
-        </Stack>
+
+            {/* Generate Button */}
+            <GenerateButton socket={socket} isConnected={isConnected} />
+          </Stack>
+        )}
       </Box>
     </Box>
   )

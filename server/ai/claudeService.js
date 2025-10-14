@@ -21,7 +21,9 @@ function loadSystemPrompt() {
     cachedSystemPrompt = fs.readFileSync(promptPath, 'utf-8')
     return cachedSystemPrompt
   } catch (error) {
-    throw new ValidationError(`Failed to load system prompt from ${promptPath}: ${error.message}`)
+    throw new ValidationError(
+      `Failed to load system prompt from ${promptPath}: ${error.message}`
+    )
   }
 }
 
@@ -29,7 +31,9 @@ class ClaudeService {
   constructor(apiKey, options = {}) {
     this.client = new Anthropic({ apiKey })
     this.model = options.model || process.env.ANTHROPIC_MODEL
-    this.maxTokens = options.maxTokens || process.env.ANTHROPIC_MAX_TOKENS
+    this.maxTokens = Number(
+      options.maxTokens || process.env.ANTHROPIC_MAX_TOKENS
+    )
     this.systemPrompt = this.buildSystemPrompt()
   }
 

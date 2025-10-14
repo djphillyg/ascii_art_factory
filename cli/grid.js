@@ -136,7 +136,7 @@ class Grid extends EventEmitter {
    * @param {Array} vertices - Polygon vertices [{row, col}, ...]
    * @param {string} char - Fill character
    */
-  fillPolygonInterior(grid, vertices, char) {
+  static fillPolygonInterior(grid, vertices, char) {
     // For each row in grid
     for (let row = 0; row < grid.height; row++) {
       // Find all edge intersections at this row
@@ -426,7 +426,9 @@ class Grid extends EventEmitter {
 
     // Split into lines and pad to match width
     const topLines = topContent.split('\n').map(line => padLine(line, newWidth))
-    const bottomLines = bottomContent.split('\n').map(line => padLine(line, newWidth))
+    const bottomLines = bottomContent
+      .split('\n')
+      .map(line => padLine(line, newWidth))
 
     // Combine top grid above bottom grid
     const combined = [...topLines, ...bottomLines].join('\n')
@@ -453,7 +455,9 @@ class Grid extends EventEmitter {
 
     // Split into lines and pad to match width
     const topLines = topContent.split('\n').map(line => padLine(line, newWidth))
-    const bottomLines = bottomContent.split('\n').map(line => padLine(line, newWidth))
+    const bottomLines = bottomContent
+      .split('\n')
+      .map(line => padLine(line, newWidth))
 
     // Combine this grid above the appended grid
     const combined = [...topLines, ...bottomLines].join('\n')

@@ -131,6 +131,36 @@ export default function AsciiDisplay({ socket }) {
       dispatch(setTransforming(false))
     })
 
+    // AI Generation WebSocket events (same pattern as generate)
+    socket.on('aiGenerateStart', (data) => {
+      console.log('🤖 aiGenerateStart received:', data)
+      setLocal({ ...INITAL_STATE, isStreaming: true, totalRows: null, output: '' })
+      outputRef.current = ''
+      dispatch(setGenerating(true))
+      dispatch(setShapeOutput(''))
+    })
+
+    socket.on('aiGenerateRow', ({ data }) => {
+      console.log('🤖 aiGenerateRow received:', data.substring(0, 20))
+      setLocal((prev) => ({ ...prev, output: prev.output + data + '\n' }))
+      outputRef.current += `${data}\n`
+    })
+
+    socket.on('aiGenerateComplete', (data) => {
+      console.log('🤖 aiGenerateComplete received:', data)
+      setLocal((prev) => {
+        return { ...prev, isStreaming: false }
+      })
+      dispatch(setShapeOutput(outputRef.current))
+      dispatch(setGenerating(false))
+    })
+
+    socket.on('aiGenerateError', (error) => {
+      console.log('❌ aiGenerateError received:', error)
+      setLocal((prev) => ({ ...prev, isStreaming: false }))
+      dispatch(setGenerateError(error))
+    })
+
     // clean up, remove when component unmounts
     return () => {
       console.log('did it cancel out?')
@@ -142,17 +172,19 @@ export default function AsciiDisplay({ socket }) {
       socket.off('transformRow')
       socket.off('transformComplete')
       socket.off('transformError')
+      socket.off('aiGenerateStart')
+      socket.off('aiGenerateRow')
+      socket.off('aiGenerateComplete')
+      socket.off('aiGenerateError')
     }
   }, [socket]) // rerun if socket changed
 
   return (
     <Box
-      bg="#F5F0EC"
-      // p={6}
+      bg={terminalTheme.colors.retro.contentBg}
       borderRadius="lg"
-      boxShadow="0 0 30px rgba(0, 255, 0, 0.2)"
       border="2px solid"
-      borderColor="green.800"
+      borderColor={terminalTheme.colors.retro.border}
       maxH="600px"
       minH="200px"
       overflowY="auto"
@@ -185,7 +217,7 @@ export default function AsciiDisplay({ socket }) {
       {/* ASCII output */}
       <Box
         fontFamily="'Courier New', 'Courier', monospace"
-        color="green.400"
+        color={terminalTheme.colors.retro.text}
         fontSize={getFontSize()}
         px={2}
         py={3}

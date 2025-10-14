@@ -3,6 +3,8 @@ import shapesReducer from '@/features/shapes/shapesSlice';
 import shapeGeneratorReducer from '@/features/shapeGenerator/shapeGeneratorSlice';
 import shapesHistoryReducer from '@/features/history/shapesHistorySlice'
 import uiReducer from '@/features/ui/uiSlice'
+import modeReducer from '@/features/mode/modeSlice'
+import aiInputReducer from '@/features/aiInput/aiInputSlice'
 // Import more slices here as you create them
 // import historyReducer from '@/features/history/historySlice';
 
@@ -18,6 +20,8 @@ export const store = configureStore({
     shapeGenerator: shapeGeneratorReducer,
     shapesHistory: shapesHistoryReducer,
     uiSlice: uiReducer,
+    mode: modeReducer,
+    aiInput: aiInputReducer,
     // Add more reducers here
     // history: historyReducer,
   },

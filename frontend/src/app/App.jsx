@@ -1,8 +1,8 @@
 import { Stack, Flex, Box } from '@chakra-ui/react'
 import MainLayout from '../components/Layout/MainLayout'
 import ControlsPanel from '../features/shapeGenerator/ControlsPanel'
-import GenerateButton from '../features/shapeGenerator/GenerateButton'
 import AsciiDisplay from '../features/shapeGenerator/AsciiDisplay'
+import ModeToggle from '../features/mode/ModeToggle'
 import { useWebSocket } from '../hooks/useWebSocket'
 
 /**
@@ -17,18 +17,25 @@ function App() {
 
   return (
     <MainLayout>
-      <Flex gap={6} alignItems="flex-start">
-        {/* Left Side: Controls Panel */}
-        <Box minWidth="25%" maxWidth="35%">
-          <ControlsPanel socket={socket} isConnected={isConnected} />
+      <Stack gap={6}>
+        {/* Mode Toggle - Switch between Manual and AI Mode */}
+        <Box display="flex" justifyContent="center" py={4}>
+          <ModeToggle />
         </Box>
 
-        {/* Right Side: Terminal Output and Generate Button */}
-        <Stack gap={6} flex={1}>
-          <AsciiDisplay socket={socket} />
-          <GenerateButton socket={socket} isConnected={isConnected} />
-        </Stack>
-      </Flex>
+        {/* Main Content */}
+        <Flex gap={6} alignItems="flex-start">
+          {/* Left Side: Controls Panel */}
+          <Box minWidth="25%" maxWidth="35%">
+            <ControlsPanel socket={socket} isConnected={isConnected} />
+          </Box>
+
+          {/* Right Side: Terminal Output */}
+          <Box flex={1}>
+            <AsciiDisplay socket={socket} />
+          </Box>
+        </Flex>
+      </Stack>
     </MainLayout>
   )
 }

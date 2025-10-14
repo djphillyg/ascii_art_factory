@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { Box } from '@chakra-ui/react'
 import ButtonInput from './inputs/ButtonInput'
 import { generateShapeAsync, selectCurrentShapeType, selectOptions } from './shapeGeneratorSlice'
 import { useShapeValidation } from './validation/useShapeValidation'
+import { terminalTheme } from '../../theme/terminal'
 
 /**
  * GenerateButton Component
@@ -42,32 +42,31 @@ export default function GenerateButton({ socket, isConnected }) {
   }
 
   return (
-    <Box>
-      <ButtonInput
-        onClick={handleGenerate}
-        disabled={!isValid}
-        colorPalette="green"
-        size="lg"
-        width="full"
-        background="#F5E8E0"
-        boxShadow="0px 0px 0px 3px #1A1A1A, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.5), inset -2px -2px 0px 0px rgba(0, 0, 0, 0.15), 0px 4px 6px 0px rgba(0, 0, 0, 0.1)"
-        border="2px solid"
-        color="green.500"
-        _hover={{
-          bg: 'green.500',
-          color: 'black',
-        }}
-        _disabled={{
-          opacity: 0.4,
-          cursor: 'not-allowed',
-        }}
-        fontFamily="monospace"
-        textTransform="uppercase"
-        letterSpacing="wider"
-        fontWeight="bold"
-      >
-        &gt; GENERATE
-      </ButtonInput>
-    </Box>
+    <ButtonInput
+      onClick={handleGenerate}
+      disabled={!isValid}
+      size="lg"
+      width="100%"
+      background={terminalTheme.colors.retro.contentBg}
+      border="3px solid"
+      borderColor={terminalTheme.colors.retro.border}
+      borderRadius="30px"
+      color={terminalTheme.colors.retro.text}
+      _hover={{
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      }}
+      _disabled={{
+        opacity: 0.4,
+        cursor: 'not-allowed',
+      }}
+      fontFamily={terminalTheme.fonts.retro}
+      textTransform="uppercase"
+      letterSpacing="wider"
+      fontWeight="bold"
+      transition="all 0.3s ease"
+    >
+      &gt; GENERATE
+    </ButtonInput>
   )
 }

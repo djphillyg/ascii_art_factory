@@ -1,34 +1,21 @@
 import ClaudeService from '../../ai/claudeService.js'
 import RecipeExecutor from '../../ai/recipeExecutor.js'
 
-class AIHandler {
-  constructor(io) {
-    this.io = io
-    this.claudeService = new ClaudeService(process.env.ANTHROPIC_API_KEY)
-    this.recipeExecutor = new RecipeExecutor()
-  }
+// Create service instances at module level
+const claudeService = new ClaudeService(process.env.ANTHROPIC_API_KEY)
+const recipeExecutor = new RecipeExecutor()
 
-  /**
-   * Handle 'generateAIShape' event
-   */
-  handleGenerateAIShape(socket, data) {
-    const { prompt } = data
-
-    console.log(`AI generation requested: "${prompt}"`)
-
-    // Use async wrapper to handle streaming
-    this.generateWithStreaming(socket, prompt)
-  }
-
-  /**
-   * Generate and stream result row-by-row
-   */
-  async generateWithStreaming(socket, prompt) {
+export const aiHandler = (socket) => {
+  socket.on('generateAIShape', async (data) => {
     try {
+      const { prompt } = data
+
+      console.log(`AI generation requested: "${prompt}"`)
+
       // 1. Parse prompt with Claude
       socket.emit('aiGenerateStart', { status: 'Thinking...' })
 
-      const recipe = await this.claudeService.parseShapePrompt(prompt)
+      const recipe = await claudeService.parseShapePrompt(prompt)
 
       socket.emit('aiGenerateStart', {
         status: 'Generating...',
@@ -36,23 +23,30 @@ class AIHandler {
       })
 
       // 2. Execute recipe
-      const grid = this.recipeExecutor.execute(recipe)
+      const grid = recipeExecutor.execute(recipe)
 
-      // 3. Stream rows
-      grid.on('rowCompleted', rowData => {
-        socket.emit('aiGenerateRow', rowData)
+      // 3. Attach event listeners BEFORE streaming
+      grid.on('rowCompleted', ({ rowIndex, data, total }) => {
+        socket.emit('aiGenerateRow', {
+          rowIndex,
+          data,
+          progress: ((rowIndex + 1) / total) * 100,
+        })
       })
 
-      grid.on('complete', () => {
+      grid.on('complete', ({ total }) => {
+        console.log('🏁 Server emitting aiGenerateComplete to socket:', socket.id)
         socket.emit('aiGenerateComplete', {
+          totalRows: total,
           width: grid.width,
           height: grid.height,
           recipe,
         })
+        console.log('✅ aiGenerateComplete emitted successfully')
       })
 
-      // Trigger streaming
-      grid.streamRowsV1()
+      // 4. Trigger streaming with delay for animation (50ms between rows)
+      await grid.streamRowsWithDelay(50)
     } catch (error) {
       console.error('AI streaming error:', error)
       socket.emit('aiGenerateError', {
@@ -60,16 +54,5 @@ class AIHandler {
         suggestion: 'Try rephrasing your prompt',
       })
     }
-  }
-
-  /**
-   * Register all AI-related socket handlers
-   */
-  register(socket) {
-    socket.on('generateAIShape', data =>
-      this.handleGenerateAIShape(socket, data)
-    )
-  }
+  })
 }
-
-export default AIHandler

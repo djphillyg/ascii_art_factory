@@ -1,13 +1,11 @@
 // const shapeHandler = require('./handlers/shapeHandler');
 import { shapeHandler } from './handlers/shapeHandler.js'
 import { transformHandler } from './handlers/transformHandler.js'
-import AiHandler from './handlers/aiHandler.js'
+import { aiHandler } from './handlers/aiHandler.js'
 // const textHandler = require('./handlers/textHandler');
 import { Server } from 'socket.io'
 
 export let io
-
-export let handlerAi
 
 export const initSocket = (server, port) => {
   io = new Server(server, {
@@ -23,7 +21,7 @@ export const initSocket = (server, port) => {
     // Register handlers
     shapeHandler(socket)
     transformHandler(socket)
-    handlerAi = new AiHandler(socket)
+    aiHandler(socket)
 
     // textHandler(socket);
 

@@ -8,6 +8,7 @@ class RecipeExecutor {
   }
 
   execute(recipe) {
+    console.log(recipe, 'this is the recipe')
     // validate recipe structure
     this.validateRecipe(recipe)
 
@@ -71,7 +72,7 @@ class RecipeExecutor {
   }
 
   executeOverlay(operation) {
-    const { target, source, position, transparent = true } = operation
+    const { target, source, position, transparent = true, storeAs } = operation
 
     const targetGrid = this.gridStore.get(target)
     const sourceGrid = this.gridStore.get(source)
@@ -88,6 +89,7 @@ class RecipeExecutor {
       col: position.col,
       transparent,
     })
+    this.gridStore.set(storeAs, new Grid({ content: targetGrid.toString() }))
   }
 
   executeClip(operation) {
@@ -98,7 +100,7 @@ class RecipeExecutor {
       throw new Error(`Source grid ${source} not found`)
     }
 
-    const clippedGrid = sourceGrid.get(bounds)
+    const clippedGrid = sourceGrid.clip(bounds)
     this.gridStore.set(storeAs, clippedGrid)
   }
 
