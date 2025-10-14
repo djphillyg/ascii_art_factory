@@ -8,7 +8,7 @@ class RecipeExecutor {
   }
 
   execute(recipe) {
-    console.log(recipe, 'this is the recipe')
+    console.log(JSON.stringify(recipe), 'this is the recipe')
     // validate recipe structure
     this.validateRecipe(recipe)
 
