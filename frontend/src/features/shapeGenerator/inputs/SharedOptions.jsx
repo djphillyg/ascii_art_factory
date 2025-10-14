@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { Stack } from '@chakra-ui/react'
+import { Stack, HStack } from '@chakra-ui/react'
 import { selectOptions, updateOptions } from '../shapeGeneratorSlice'
 import CheckboxInput from './CheckboxInput'
 import SelectInput from './SelectInput'
@@ -59,7 +59,7 @@ export default function SharedOptions({ shapeType }) {
       )}
 
       {isGradient && isTextShape && (
-        <>
+        <HStack gap={2} alignItems="start">
           <NumberInput
             label="Width"
             value={options.width}
@@ -68,6 +68,7 @@ export default function SharedOptions({ shapeType }) {
             max={100}
             error={errors.width}
             helperText="Required for gradient pattern"
+            flex={1}
           />
           <NumberInput
             label="Height"
@@ -77,8 +78,9 @@ export default function SharedOptions({ shapeType }) {
             max={100}
             error={errors.height}
             helperText="Required for gradient pattern"
+            flex={1}
           />
-        </>
+        </HStack>
       )}
     </Stack>
   )

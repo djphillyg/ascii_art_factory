@@ -1,4 +1,4 @@
-import { NumberInput as ChakraNumberInput, Field } from '@chakra-ui/react'
+import { NumberInput as ChakraNumberInput, Field, Box } from '@chakra-ui/react'
 import { terminalTheme } from '../../../theme/terminal'
 
 /**
@@ -39,12 +39,14 @@ export default function NumberInput({
           paddingRight={terminalTheme.spacing.inputPadding}
         />
       </ChakraNumberInput.Root>
-      {error && <Field.ErrorText>{error}</Field.ErrorText>}
-      {!error && helperText && (
-        <Field.HelperText color={color} fontSize={terminalTheme.fontSizes.helper}>
-          {helperText}
-        </Field.HelperText>
-      )}
+      <Box minHeight="2.2rem">
+        {error && <Field.ErrorText>{error}</Field.ErrorText>}
+        {!error && helperText && (
+          <Field.HelperText color={color} fontSize={terminalTheme.fontSizes.helper}>
+            {helperText}
+          </Field.HelperText>
+        )}
+      </Box>
     </Field.Root>
   )
 }
