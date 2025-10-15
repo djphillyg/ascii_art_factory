@@ -93,10 +93,10 @@ Shape parameters:
 
 SIZING GUIDELINES:
 
-- small: radius=3-5, width/height=5-10
-- medium: radius=6-10, width/height=11-20
-- large: radius=11-20, width/height=21-40
-- huge: radius=21-50, width/height=41-100
+- small: radius=5-15, width/height=10-30
+- medium: radius=16-35, width/height=31-70
+- large: radius=36-60, width/height=71-120
+- huge: radius=61-100, width/height=121-200
 
 COMPOSITION GUIDELINES:
 
@@ -123,19 +123,19 @@ COMPOSITION GUIDELINES:
 2. Centered vertical stack: generate → centerHorizontally → generate → topAppend
 3. Complex composition: generate → clip → centerHorizontally → topAppend → overlay details
 
-COMMON PATTERNS:
+COMMON PATTERNS WITH REALISTIC PROPORTIONS:
 
-- Smiley face: Large circle (face) + overlay 2 small filled circles (eyes) + overlay clipped filled circle (mouth)
-- House: Generate roof + centerHorizontally to match body width + topAppend onto rectangle body
-- Robot: Generate head + bottomAppend body + bottomAppend legs (use topAppend/bottomAppend for vertical stacking)
-- Star: Polygon with 5 or 6 sides
-- Tree: Generate triangle (leaves) + generate rectangle (trunk) + centerHorizontally trunk to match leaves + bottomAppend trunk to leaves
-- Snowman: Generate 3 empty circles of decreasing size, stack with topAppend/bottomAppend, and have a smiley face in the top smallest circle
+- **Face**: Large circle (radius=45 for ~100x100 total). Eyes at 1/3 down from top (row 30), spaced at cols 25 and 65. Eye radius=6. Nose centered at row 50 (halfway), radius=4. Mouth at row 65 (1/3 up from bottom), use clipped filled circle radius=15. Use varied chars: face='o', eyes='*', mouth='-' (filled circle clipped to create smile curve)
+- **House**: Body rectangle width=80 height=50. Roof polygon (triangle) radius=50 creates ~100 width overhang. Windows are 8x6 rectangles, positioned symmetrically. Door is 12x20 centered at bottom. Use textured chars: walls='#', roof='^', windows='=', door='|'
+- **Tree**: Canopy made of 3 overlapping circles (radius=25, 20, 22) with different chars ('@', '%', '#') for depth/texture. Trunk rectangle width=12 (1/3 of canopy width ~36), height=40 (trunk should be 1:3 ratio to canopy). Center trunk before bottomAppend. Total ~100x120
+- **Robot**: Head (circle radius=20) + body (rectangle 40x50) + legs (rectangle 40x30). Head-to-body ratio ~1:2.5. Use topAppend/bottomAppend
+- **Star**: Polygon with 5-6 sides, radius=35-50 for good detail
+- **Snowman**: 3 circles with decreasing size (bottom radius=35, middle=25, top=18). Stack with topAppend/bottomAppend. Add face details in top circle (eyes at 1/3, mouth at 2/3)
 
 RULES:
 
 1. Output ONLY valid JSON, no explanations or markdown
-2. Minimum height for the drawings is at 50x50 and can extend up to 150x150
+2. Minimum size for drawings is 100x100 and can extend up to 200x200
 3. Use descriptive variable names (e.g., "face", "leftEye", "roofCentered", "houseComplete")
 4. Always specify "storeAs" for these operations: generate, clip, transform, topAppend, bottomAppend, centerHorizontally
 5. The "output" field must reference a variable that was stored with "storeAs"
@@ -143,7 +143,129 @@ RULES:
 7. Use centerHorizontally before topAppend/bottomAppend when shapes have different widths
 8. Be creative but practical with dimensions - consider character density for terminal display
 
-EXAMPLE INPUT: "draw a star of david"
+EXAMPLE INPUT: "draw a realistic face"
+EXAMPLE OUTPUT:
+{
+"recipe": [
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 45,
+"filled": false,
+"char": "o"
+},
+"storeAs": "faceOutline"
+},
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 6,
+"filled": true,
+"char": "*"
+},
+"storeAs": "leftEye"
+},
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 6,
+"filled": true,
+"char": "*"
+},
+"storeAs": "rightEye"
+},
+{
+"operation": "overlay",
+"target": "faceOutline",
+"source": "leftEye",
+"position": {
+"row": 30,
+"col": 25
+},
+"transparent": true
+},
+{
+"operation": "overlay",
+"target": "faceOutline",
+"source": "rightEye",
+"position": {
+"row": 30,
+"col": 65
+},
+"transparent": true
+},
+{
+"operation": "generate",
+"shape": "polygon",
+"params": {
+"sides": 3,
+"radius": 4,
+"filled": true,
+"char": "^"
+},
+"storeAs": "nose"
+},
+{
+"operation": "centerHorizontally",
+"source": "nose",
+"targetWidth": 90,
+"storeAs": "noseCentered"
+},
+{
+"operation": "overlay",
+"target": "faceOutline",
+"source": "noseCentered",
+"position": {
+"row": 50,
+"col": 0
+},
+"transparent": true
+},
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 15,
+"filled": true,
+"char": "-"
+},
+"storeAs": "fullMouth"
+},
+{
+"operation": "clip",
+"source": "fullMouth",
+"bounds": {
+"startRow": 0,
+"endRow": 12,
+"startCol": 0,
+"endCol": 30
+},
+"storeAs": "mouthClipped"
+},
+{
+"operation": "centerHorizontally",
+"source": "mouthClipped",
+"targetWidth": 90,
+"storeAs": "mouthCentered"
+},
+{
+"operation": "overlay",
+"target": "faceOutline",
+"source": "mouthCentered",
+"position": {
+"row": 65,
+"col": 0
+},
+"transparent": true
+}
+],
+"output": "faceOutline"
+}
+
+EXAMPLE INPUT: "draw a house with windows and a door"
 EXAMPLE OUTPUT:
 {
 "recipe": [
@@ -152,60 +274,193 @@ EXAMPLE OUTPUT:
 "shape": "polygon",
 "params": {
 "sides": 3,
-"radius": 20,
-"filled": false,
-"char": "*"
+"radius": 50,
+"filled": true,
+"char": "^"
 },
-"storeAs": "triangleUp"
+"storeAs": "roof"
+},
+{
+"operation": "centerHorizontally",
+"source": "roof",
+"targetWidth": 100,
+"storeAs": "roofCentered"
 },
 {
 "operation": "generate",
-"shape": "polygon",
+"shape": "rectangle",
 "params": {
-"sides": 3,
-"radius": 20,
-"filled": false,
-"char": "*"
+"width": 80,
+"height": 50,
+"filled": true,
+"char": "#"
 },
-"storeAs": "triangleDown"
-},
-{
-"operation": "transform",
-"source": "triangleDown",
-"type": "rotate",
-"params": {
-"degrees": 180
-},
-"storeAs": "triangleDownRotated"
+"storeAs": "houseBody"
 },
 {
 "operation": "centerHorizontally",
-"source": "triangleUp",
-"targetWidth": 50,
-"storeAs": "triangleUpCentered"
+"source": "houseBody",
+"targetWidth": 100,
+"storeAs": "houseBodyCentered"
 },
 {
-"operation": "centerHorizontally",
-"source": "triangleDownRotated",
-"targetWidth": 50,
-"storeAs": "triangleDownCentered"
+"operation": "topAppend",
+"target": "houseBodyCentered",
+"source": "roofCentered",
+"storeAs": "houseWithRoof"
+},
+{
+"operation": "generate",
+"shape": "rectangle",
+"params": {
+"width": 8,
+"height": 6,
+"filled": true,
+"char": "="
+},
+"storeAs": "leftWindow"
+},
+{
+"operation": "generate",
+"shape": "rectangle",
+"params": {
+"width": 8,
+"height": 6,
+"filled": true,
+"char": "="
+},
+"storeAs": "rightWindow"
 },
 {
 "operation": "overlay",
-"target": "triangleUpCentered",
-"source": "triangleDownCentered",
+"target": "houseWithRoof",
+"source": "leftWindow",
 "position": {
-"row": 0,
-"col": 0
+"row": 65,
+"col": 20
 },
-"transparent": true
+"transparent": false
+},
+{
+"operation": "overlay",
+"target": "houseWithRoof",
+"source": "rightWindow",
+"position": {
+"row": 65,
+"col": 72
+},
+"transparent": false
+},
+{
+"operation": "generate",
+"shape": "rectangle",
+"params": {
+"width": 12,
+"height": 20,
+"filled": true,
+"char": "|"
+},
+"storeAs": "door"
+},
+{
+"operation": "overlay",
+"target": "houseWithRoof",
+"source": "door",
+"position": {
+"row": 84,
+"col": 44
+},
+"transparent": false
 }
 ],
-"output": "triangleUpCentered"
+"output": "houseWithRoof"
 }
 
-EXAMPLE INPUT: "draw a face with the mouth open"
+EXAMPLE INPUT: "draw a realistic tree with texture"
 EXAMPLE OUTPUT:
-{"recipe":[{"operation":"generate","shape":"circle","params":{"radius":40,"filled":false,"char":"o"},"storeAs":"faceOutline"},{"operation":"generate","shape":"circle","params":{"radius":20,"filled":true,"char":")"},"storeAs":"fullSmile"},{"operation":"clip","source":"fullSmile","bounds":{"startRow":0,"endRow":20,"startCol":0,"endCol":32},"storeAs":"halfSmile"},{"operation":"clip","source":"halfSmile","bounds":{"startRow":0,"endRow":16,"startCol":0,"endCol":32},"storeAs":"clippedSmile"},{"operation":"centerHorizontally","source":"clippedSmile","targetWidth":80,"storeAs":"centeredSmile"},{"operation":"generate","shape":"polygon","params":{"sides":3,"radius":3,"filled":true,"char":"^"},"storeAs":"nose"},{"operation":"centerHorizontally","source":"nose","targetWidth":80,"storeAs":"centeredNose"},{"operation":"overlay","target":"faceOutline","source":"centeredNose","position":{"row":33,"col":0},"transparent":true},{"operation":"overlay","target":"faceOutline","source":"centeredSmile","position":{"row":48,"col":0},"transparent":true},{"operation":"generate","shape":"circle","params":{"radius":5,"filled":false,"char":"o"},"storeAs":"leftEye"},{"operation":"generate","shape":"circle","params":{"radius":5,"filled":false,"char":"o"},"storeAs":"rightEye"},{"operation":"overlay","target":"faceOutline","source":"leftEye","position":{"row":25,"col":25},"transparent":true},{"operation":"overlay","target":"faceOutline","source":"rightEye","position":{"row":25,"col":50},"transparent":true}],"output":"faceOutline"}
+{
+"recipe": [
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 25,
+"filled": true,
+"char": "@"
+},
+"storeAs": "canopyCenter"
+},
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 20,
+"filled": true,
+"char": "%"
+},
+"storeAs": "canopyLeft"
+},
+{
+"operation": "generate",
+"shape": "circle",
+"params": {
+"radius": 22,
+"filled": true,
+"char": "#"
+},
+"storeAs": "canopyRight"
+},
+{
+"operation": "overlay",
+"target": "canopyCenter",
+"source": "canopyLeft",
+"position": {
+"row": 5,
+"col": -15
+},
+"transparent": false
+},
+{
+"operation": "overlay",
+"target": "canopyCenter",
+"source": "canopyRight",
+"position": {
+"row": 5,
+"col": 30
+},
+"transparent": false
+},
+{
+"operation": "centerHorizontally",
+"source": "canopyCenter",
+"targetWidth": 100,
+"storeAs": "canopyCentered"
+},
+{
+"operation": "generate",
+"shape": "rectangle",
+"params": {
+"width": 12,
+"height": 40,
+"filled": true,
+"char": "|"
+},
+"storeAs": "trunk"
+},
+{
+"operation": "centerHorizontally",
+"source": "trunk",
+"targetWidth": 100,
+"storeAs": "trunkCentered"
+},
+{
+"operation": "bottomAppend",
+"target": "canopyCentered",
+"source": "trunkCentered",
+"storeAs": "completeTree"
+}
+],
+"output": "completeTree"
+}
 
 Now generate a recipe for the user's request.
