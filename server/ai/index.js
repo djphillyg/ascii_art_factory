@@ -19,6 +19,14 @@ const generateSchema = Joi.object({
   prompt: Joi.string().min(3).max(500).required(),
 })
 
+// Validation schema for recipe execution
+const executeRecipeSchema = Joi.object({
+  recipe: Joi.object({
+    recipe: Joi.array().required(),
+    output: Joi.string().required(),
+  }).required(),
+})
+
 /**
  * POST /api/ai/generate
  * Generate ASCII art from natural language
@@ -60,6 +68,47 @@ router.post('/generate', async (req, res) => {
     })
   } catch (error) {
     console.error('AI generation error:', error)
+    handleAIError(error, res)
+  }
+})
+
+/**
+ * POST /api/ai/execute-recipe
+ * Execute a recipe directly without AI prompt parsing
+ */
+router.post('/execute-recipe', async (req, res) => {
+  try {
+    // 1. Validate request
+    const { error, value } = executeRecipeSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation error',
+        message: error.details[0].message,
+      })
+    }
+
+    const { recipe } = value
+
+    // 2. Execute recipe
+    console.log('Executing recipe:', JSON.stringify(recipe, null, 2))
+    const grid = recipeExecutor.execute(recipe)
+    console.log(`Grid generated: ${grid.width}x${grid.height}`)
+
+    // 3. Return result
+    res.json({
+      success: true,
+      grid: grid.toString(),
+      recipe,
+      metadata: {
+        width: grid.width,
+        height: grid.height,
+        operations: recipe.recipe.length,
+        generatedAt: new Date().toISOString(),
+      },
+    })
+  } catch (error) {
+    console.error('Recipe execution error:', error)
     handleAIError(error, res)
   }
 })

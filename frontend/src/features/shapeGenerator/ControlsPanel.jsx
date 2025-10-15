@@ -10,6 +10,7 @@ import {
   updateOptions,
   selectShapeOutput,
   selectIsTransforming,
+  selectIsGenerating,
   transformShapeAsync,
 } from './shapeGeneratorSlice'
 import { selectIsAiMode } from '../mode/modeSlice'
@@ -35,6 +36,7 @@ export default function ControlsPanel({ socket, isConnected }) {
   const options = useSelector(selectOptions)
   const shapeOutput = useSelector(selectShapeOutput)
   const isTransforming = useSelector(selectIsTransforming)
+  const isGenerating = useSelector(selectIsGenerating)
   const isAiMode = useSelector(selectIsAiMode)
   const { errors } = useShapeValidation()
 
@@ -54,7 +56,12 @@ export default function ControlsPanel({ socket, isConnected }) {
   }
 
   const handleTransform = async (type, params) => {
-    console.log('🔧 Transform requested:', { type, params, socketConnected: isConnected, socketId: socket?.id })
+    console.log('🔧 Transform requested:', {
+      type,
+      params,
+      socketConnected: isConnected,
+      socketId: socket?.id,
+    })
     if (socket && isConnected) {
       console.log('📤 Emitting transformShape via socket:', socket.id)
       socket.emit('transformShape', { shape: shapeOutput, transformation: { type, params } })
@@ -222,7 +229,7 @@ export default function ControlsPanel({ socket, isConnected }) {
       </Flex>
 
       {/* Window Content */}
-      <Box bg={terminalTheme.colors.retro.contentBg} p={6}>
+      <Box bg={terminalTheme.colors.retro.dottedBg} {...terminalTheme.effects.dottedPattern} p={6}>
         {isAiMode ? (
           /* AI Mode - Show AI Input Panel */
           <AIInputPanel socket={socket} isConnected={isConnected} />
@@ -231,28 +238,92 @@ export default function ControlsPanel({ socket, isConnected }) {
           <Stack gap={6}>
             {/* Shape Type Selector */}
             <Box>
-            <Text
-              fontFamily={terminalTheme.fonts.retro}
-              fontSize="xs"
-              fontWeight="bold"
-              color={terminalTheme.colors.retro.text}
-              mb={2}
-            >
-              &gt; SHAPE TYPE
-            </Text>
-            <SelectInput
-              value={currentShapeType}
-              onChange={handleShapeChange}
-              options={availableTypes}
-              placeholder="Choose a shape..."
-              helperText={isLoading ? '[ Loading... ]' : `[ ${availableTypes.length} loaded ]`}
-              disabled={isLoading}
-            />
-          </Box>
+              <Text
+                fontFamily={terminalTheme.fonts.retro}
+                fontSize="xs"
+                fontWeight="bold"
+                color={terminalTheme.colors.retro.text}
+                mb={2}
+              >
+                &gt; SHAPE TYPE
+              </Text>
+              <SelectInput
+                value={currentShapeType}
+                onChange={handleShapeChange}
+                options={availableTypes}
+                placeholder="Choose a shape..."
+                helperText={isLoading ? '[ Loading... ]' : `[ ${availableTypes.length} loaded ]`}
+                disabled={isLoading}
+              />
+            </Box>
 
-          {/* Shape Configuration */}
-          {currentShapeType && (
-            <>
+            {/* Shape Configuration */}
+            {currentShapeType && (
+              <>
+                <Box>
+                  <Text
+                    fontFamily={terminalTheme.fonts.retro}
+                    fontSize="xs"
+                    fontWeight="bold"
+                    color={terminalTheme.colors.retro.text}
+                    mb={3}
+                  >
+                    &gt; CONFIG
+                  </Text>
+                  {renderShapeConfig()}
+                </Box>
+
+                {/* Filled Checkbox */}
+                <Box mt={-5}>
+                  <CheckboxInput
+                    label="Filled"
+                    checked={options.filled}
+                    onChange={(val) => handleOptionChange('filled', val)}
+                  />
+                </Box>
+
+                {/* Fill Pattern */}
+                <Box>
+                  <Text
+                    fontFamily={terminalTheme.fonts.retro}
+                    fontSize="s"
+                    color={terminalTheme.colors.text.primary}
+                    mb={2}
+                  >
+                    Fill Pattern
+                  </Text>
+                  <SelectInput
+                    value={options.fillPattern}
+                    options={fillPatternOptions}
+                    onChange={(val) => handleOptionChange('fillPattern', val)}
+                    error={errors.fillPattern}
+                  />
+                </Box>
+
+                {/* Gradient Direction - only show if gradient is selected */}
+                {isGradient && (
+                  <Box>
+                    <Text
+                      fontFamily={terminalTheme.fonts.retro}
+                      fontSize="xs"
+                      color={terminalTheme.colors.gray[400]}
+                      mb={2}
+                    >
+                      Gradient Direction
+                    </Text>
+                    <SelectInput
+                      value={options.direction}
+                      options={fillDirectionOptions}
+                      onChange={(val) => handleOptionChange('direction', val)}
+                      error={errors.direction}
+                    />
+                  </Box>
+                )}
+              </>
+            )}
+
+            {/* Transform Section - Show when shape has been rendered, is generating, or is transforming */}
+            {(shapeOutput || isGenerating || isTransforming) && (
               <Box>
                 <Text
                   fontFamily={terminalTheme.fonts.retro}
@@ -261,181 +332,117 @@ export default function ControlsPanel({ socket, isConnected }) {
                   color={terminalTheme.colors.retro.text}
                   mb={3}
                 >
-                  &gt; CONFIG
+                  &gt; TRANSFORM
                 </Text>
-                {renderShapeConfig()}
+                <Stack gap={4}>
+                  {/* Rotate */}
+                  <Box>
+                    <Text
+                      fontFamily={terminalTheme.fonts.retro}
+                      fontSize="xs"
+                      color={terminalTheme.colors.gray[400]}
+                      mb={2}
+                    >
+                      [ ROTATE ]
+                    </Text>
+                    <HStack gap={2}>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('rotate', { degrees: 0 })}
+                        disabled={isTransforming}
+                      >
+                        0°
+                      </ButtonInput>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('rotate', { degrees: 90 })}
+                        disabled={isTransforming}
+                      >
+                        90°
+                      </ButtonInput>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('rotate', { degrees: 180 })}
+                        disabled={isTransforming}
+                      >
+                        180°
+                      </ButtonInput>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('rotate', { degrees: 270 })}
+                        disabled={isTransforming}
+                      >
+                        270°
+                      </ButtonInput>
+                    </HStack>
+                  </Box>
+
+                  {/* Scale */}
+                  <Box>
+                    <Text
+                      fontFamily={terminalTheme.fonts.retro}
+                      fontSize="xs"
+                      color={terminalTheme.colors.gray[400]}
+                      mb={2}
+                    >
+                      [ SCALE ]
+                    </Text>
+                    <HStack gap={2}>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('scale', { factor: 0.5 })}
+                        disabled={isTransforming}
+                      >
+                        0.5x
+                      </ButtonInput>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('scale', { factor: 2 })}
+                        disabled={isTransforming}
+                      >
+                        2x
+                      </ButtonInput>
+                    </HStack>
+                  </Box>
+
+                  {/* Mirror */}
+                  <Box>
+                    <Text
+                      fontFamily={terminalTheme.fonts.retro}
+                      fontSize="xs"
+                      color={terminalTheme.colors.gray[400]}
+                      mb={2}
+                    >
+                      [ MIRROR ]
+                    </Text>
+                    <HStack gap={2}>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('mirror', { axis: 'horizontal' })}
+                        disabled={isTransforming}
+                      >
+                        Horizontal
+                      </ButtonInput>
+                      <ButtonInput
+                        size="sm"
+                        flex={1}
+                        onClick={() => handleTransform('mirror', { axis: 'vertical' })}
+                        disabled={isTransforming}
+                      >
+                        Vertical
+                      </ButtonInput>
+                    </HStack>
+                  </Box>
+                </Stack>
               </Box>
-
-              {/* Filled Checkbox */}
-              <Box>
-                <CheckboxInput
-                  label="Filled"
-                  checked={options.filled}
-                  onChange={(val) => handleOptionChange('filled', val)}
-                />
-              </Box>
-
-              {/* Fill Pattern */}
-              <Box>
-                <Text
-                  fontFamily={terminalTheme.fonts.retro}
-                  fontSize="xs"
-                  color={terminalTheme.colors.gray[400]}
-                  mb={2}
-                >
-                  Fill Pattern
-                </Text>
-                <SelectInput
-                  value={options.fillPattern}
-                  options={fillPatternOptions}
-                  onChange={(val) => handleOptionChange('fillPattern', val)}
-                  error={errors.fillPattern}
-                />
-              </Box>
-
-              {/* Gradient Direction - only show if gradient is selected */}
-              {isGradient && (
-                <Box>
-                  <Text
-                    fontFamily={terminalTheme.fonts.retro}
-                    fontSize="xs"
-                    color={terminalTheme.colors.gray[400]}
-                    mb={2}
-                  >
-                    Gradient Direction
-                  </Text>
-                  <SelectInput
-                    value={options.direction}
-                    options={fillDirectionOptions}
-                    onChange={(val) => handleOptionChange('direction', val)}
-                    error={errors.direction}
-                  />
-                </Box>
-              )}
-            </>
-          )}
-
-          {/* Transform Section - Only show when shape has been rendered */}
-          {shapeOutput && (
-            <Box>
-              <Text
-                fontFamily={terminalTheme.fonts.retro}
-                fontSize="xs"
-                fontWeight="bold"
-                color={terminalTheme.colors.retro.text}
-                mb={3}
-              >
-                &gt; TRANSFORM
-              </Text>
-              <Stack gap={4}>
-                {/* Rotate */}
-                <Box>
-                  <Text
-                    fontFamily={terminalTheme.fonts.retro}
-                    fontSize="xs"
-                    color={terminalTheme.colors.gray[400]}
-                    mb={2}
-                  >
-                    [ ROTATE ]
-                  </Text>
-                  <HStack gap={2}>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('rotate', { degrees: 0 })}
-                      disabled={isTransforming}
-                    >
-                      0°
-                    </ButtonInput>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('rotate', { degrees: 90 })}
-                      disabled={isTransforming}
-                    >
-                      90°
-                    </ButtonInput>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('rotate', { degrees: 180 })}
-                      disabled={isTransforming}
-                    >
-                      180°
-                    </ButtonInput>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('rotate', { degrees: 270 })}
-                      disabled={isTransforming}
-                    >
-                      270°
-                    </ButtonInput>
-                  </HStack>
-                </Box>
-
-                {/* Scale */}
-                <Box>
-                  <Text
-                    fontFamily={terminalTheme.fonts.retro}
-                    fontSize="xs"
-                    color={terminalTheme.colors.gray[400]}
-                    mb={2}
-                  >
-                    [ SCALE ]
-                  </Text>
-                  <HStack gap={2}>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('scale', { factor: 0.5 })}
-                      disabled={isTransforming}
-                    >
-                      0.5x
-                    </ButtonInput>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('scale', { factor: 2 })}
-                      disabled={isTransforming}
-                    >
-                      2x
-                    </ButtonInput>
-                  </HStack>
-                </Box>
-
-                {/* Mirror */}
-                <Box>
-                  <Text
-                    fontFamily={terminalTheme.fonts.retro}
-                    fontSize="xs"
-                    color={terminalTheme.colors.gray[400]}
-                    mb={2}
-                  >
-                    [ MIRROR ]
-                  </Text>
-                  <HStack gap={2}>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('mirror', { axis: 'horizontal' })}
-                      disabled={isTransforming}
-                    >
-                      Horizontal
-                    </ButtonInput>
-                    <ButtonInput
-                      size="sm"
-                      flex={1}
-                      onClick={() => handleTransform('mirror', { axis: 'vertical' })}
-                      disabled={isTransforming}
-                    >
-                      Vertical
-                    </ButtonInput>
-                  </HStack>
-                </Box>
-              </Stack>
-            </Box>
-          )}
+            )}
 
             {/* Generate Button */}
             <GenerateButton socket={socket} isConnected={isConnected} />

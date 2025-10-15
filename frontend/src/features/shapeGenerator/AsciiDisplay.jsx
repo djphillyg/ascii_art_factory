@@ -10,6 +10,7 @@ import {
   setTransforming,
   setTransformError,
 } from './shapeGeneratorSlice'
+import { setStatus } from '../aiInput/aiInputSlice'
 import { terminalTheme } from '../../theme/terminal'
 
 // Keyframe animation for row fade-in
@@ -138,6 +139,7 @@ export default function AsciiDisplay({ socket }) {
       outputRef.current = ''
       dispatch(setGenerating(true))
       dispatch(setShapeOutput(''))
+      dispatch(setStatus('The AI is generating your shape...'))
     })
 
     socket.on('aiGenerateRow', ({ data }) => {
@@ -153,12 +155,14 @@ export default function AsciiDisplay({ socket }) {
       })
       dispatch(setShapeOutput(outputRef.current))
       dispatch(setGenerating(false))
+      dispatch(setStatus('Successfully generated your shape'))
     })
 
     socket.on('aiGenerateError', (error) => {
       console.log('❌ aiGenerateError received:', error)
       setLocal((prev) => ({ ...prev, isStreaming: false }))
       dispatch(setGenerateError(error))
+      dispatch(setStatus(`Error: ${error}`))
     })
 
     // clean up, remove when component unmounts
@@ -223,6 +227,8 @@ export default function AsciiDisplay({ socket }) {
         py={3}
         lineHeight="1.2"
         overflowX="auto"
+        bg={terminalTheme.colors.retro.dottedBg}
+        {...terminalTheme.effects.dottedPattern}
       >
         {local.isStreaming ? (
           // During streaming: show each row with fade-in animation

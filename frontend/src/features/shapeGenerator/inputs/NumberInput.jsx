@@ -37,6 +37,7 @@ export default function NumberInput({
           fontSize={terminalTheme.fontSizes.input}
           paddingLeft={terminalTheme.spacing.inputPadding}
           paddingRight={terminalTheme.spacing.inputPadding}
+          {...terminalTheme.inputStyles}
         />
       </ChakraNumberInput.Root>
       <Box minHeight="2.2rem">

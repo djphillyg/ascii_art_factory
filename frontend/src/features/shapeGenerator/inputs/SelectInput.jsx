@@ -33,6 +33,7 @@ export default function SelectInput({
           fontSize={terminalTheme.fontSizes.input}
           paddingLeft={terminalTheme.spacing.inputPadding}
           paddingRight={terminalTheme.spacing.inputPadding}
+          {...terminalTheme.inputStyles}
         >
           {options.map((option) => (
             <option key={option} value={option}>

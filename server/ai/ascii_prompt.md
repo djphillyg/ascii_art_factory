@@ -21,7 +21,7 @@ Shape parameters:
 - circle: { radius: number, filled: boolean, char: string }
 - rectangle: { width: number, height: number, filled: boolean, char: string }
 - polygon: { sides: number, radius: number, filled: boolean, char: string }
-- text: { text: string } // A-Z, 0-9 only
+- text: { text: string } // ONLY these characters are supported: A-Z, 0-9, /, \, and space. Pattern: ^[A-Z0-9/\\ ]+$
 
 2. OVERLAY - Place one grid on top of another at specific coordinates
    {

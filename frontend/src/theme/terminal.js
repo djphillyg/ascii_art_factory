@@ -16,6 +16,8 @@ export const terminalTheme = {
       buttonRed: '#ff5f56', // Red window button
       buttonYellow: '#ffbd2e', // Yellow window button
       buttonGreen: '#00ff41',
+      dottedBg: '#e5e5e5', // Very light gray background for dotted pattern
+      dotColor: '#d0d0d0', // Light gray dots
     },
 
     // Background layers
@@ -110,6 +112,12 @@ export const terminalTheme = {
       green: '0 0 5px rgba(0, 255, 65, 0.7)',
       cyan: '0 0 5px rgba(0, 217, 255, 0.7)',
     },
+
+    // Dotted background pattern (classic Mac)
+    dottedPattern: {
+      backgroundImage: 'radial-gradient(circle, #d0d0d0 0.5px, transparent 0.5px)',
+      backgroundSize: '3px 3px',
+    },
   },
 
   fonts: {
@@ -131,5 +139,14 @@ export const terminalTheme = {
   // Spacing for inputs
   spacing: {
     inputPadding: '0.75rem', // Left/right padding for input fields
+  },
+
+  // Common input styles (white bg, black border)
+  inputStyles: {
+    bg: 'white',
+    border: '2px solid',
+    borderColor: 'black',
+    borderRadius: 'md',
+    color: 'black',
   },
 }

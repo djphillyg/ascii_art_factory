@@ -30,9 +30,7 @@ export default function ModeToggle() {
       justifyContent="center"
       gap={3}
       padding={4}
-      bg={terminalTheme.colors.retro.contentBg}
-      border="3px solid"
-      borderColor={terminalTheme.colors.retro.border}
+      {...terminalTheme.inputStyles}
       borderRadius="30px"
       width="fit-content"
       transition="all 0.3s ease"

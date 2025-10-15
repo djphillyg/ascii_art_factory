@@ -27,6 +27,17 @@ export default function ButtonInput({
       size={size}
       width={width}
       fontWeight={fontWeight}
+      {...terminalTheme.inputStyles}
+      _hover={{
+        bg: "gray.100",
+      }}
+      _active={{
+        bg: "gray.200",
+      }}
+      _disabled={{
+        opacity: 0.4,
+        cursor: "not-allowed",
+      }}
       {...props}
     >
       {children}

@@ -47,14 +47,12 @@ export default function GenerateButton({ socket, isConnected }) {
       disabled={!isValid}
       size="lg"
       width="100%"
-      background={terminalTheme.colors.retro.contentBg}
-      border="3px solid"
-      borderColor={terminalTheme.colors.retro.border}
+      {...terminalTheme.inputStyles}
       borderRadius="30px"
-      color={terminalTheme.colors.retro.text}
       _hover={{
         transform: 'translateY(-2px)',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        bg: 'gray.100',
       }}
       _disabled={{
         opacity: 0.4,

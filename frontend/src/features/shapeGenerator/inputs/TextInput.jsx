@@ -35,6 +35,7 @@ export default function TextInput({
         fontWeight={fontWeight}
         paddingLeft={terminalTheme.spacing.inputPadding}
         paddingRight={terminalTheme.spacing.inputPadding}
+        {...terminalTheme.inputStyles}
         {...props}
       />
       {error && <Field.ErrorText>{error}</Field.ErrorText>}

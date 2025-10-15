@@ -14,13 +14,16 @@ export default function CheckboxInput({
   ...props
 }) {
   return (
-    <Checkbox.Root
-      checked={checked}
-      onCheckedChange={(e) => onChange(e.checked)}
-      {...props}
-    >
+    <Checkbox.Root checked={checked} onCheckedChange={(e) => onChange(e.checked)} {...props}>
       <Checkbox.HiddenInput />
-      <Checkbox.Control />
+      <Checkbox.Control
+        {...terminalTheme.inputStyles}
+        borderRadius="sm"
+        _checked={{
+          bg: 'black',
+          borderColor: 'black',
+        }}
+      />
       <Checkbox.Label
         color={color}
         fontSize={terminalTheme.fontSizes.label}
