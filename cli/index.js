@@ -273,7 +273,7 @@ const commands = {
     description: 'This command will generate ASCII art text banners',
     usage: 'banner [options]',
     options: [
-      '--text=<text> The text to render (A-Z, 0-9 only)',
+      '--text=<text> The text to render (A-Z, a-z, 0-9, /, \\, space, ^)',
       '--fillPattern=<pattern> Optional fill pattern (supports: dots, gradient, diagonal, crosshatch, crosshatch)',
       '--width=<width> Width for gradient pattern (required for gradient)',
       '--height=<height> Height for gradient pattern (required for gradient)',
@@ -295,10 +295,10 @@ const commands = {
         throw new ValidationError('Error: --text is required. Please specify text to render.');
       }
 
-      // Validate text contains only A-Z and 0-9
-      const validPattern = /^[A-Z0-9]+$/;
+      // Validate text contains only A-Z, a-z, 0-9, /, \, space, and ^
+      const validPattern = /^[A-Za-z0-9/\\ ^]+$/;
       if (!validPattern.test(flags.text)) {
-        throw new ValidationError('Error: --text must contain only uppercase letters (A-Z) and numbers (0-9).');
+        throw new ValidationError('Error: --text must contain only letters (A-Z, a-z), numbers (0-9), /, \\, space, and ^.');
       }
 
       // Validate fillPattern if provided (support both camelCase and kebab-case)

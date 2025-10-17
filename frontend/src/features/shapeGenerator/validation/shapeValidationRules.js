@@ -50,15 +50,15 @@ export const shapeValidationRules = {
   text: {
     text: {
       required: true,
-      pattern: /^[A-Z0-9]+$/,
-      message: 'Only uppercase letters (A-Z) and numbers (0-9) allowed',
+      pattern: /^[A-Za-z0-9/\\ ^]+$/,
+      message: 'Only letters (A-Z, a-z), numbers (0-9), /, \\, space, and ^ allowed',
       minLength: 1,
       customValidate: (value) => {
         if (!value || value.length === 0) {
           return 'Text is required'
         }
-        if (!/^[A-Z0-9]+$/.test(value)) {
-          return 'Only uppercase letters (A-Z) and numbers (0-9) allowed'
+        if (!/^[A-Za-z0-9/\\ ^]+$/.test(value)) {
+          return 'Only letters (A-Z, a-z), numbers (0-9), /, \\, space, and ^ allowed'
         }
         return null
       }

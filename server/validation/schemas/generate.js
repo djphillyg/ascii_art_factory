@@ -58,8 +58,8 @@ export const generateSchema = Joi.object({
         if (!options.text) {
             return helpers.message('--text is required for text banners')
         }
-        if (!/^[A-Z0-9]+$/.test(options.text)) {
-            return helpers.message('--text must contain only A-Z and 0-9')
+        if (!/^[A-Za-z0-9/\\ ^]+$/.test(options.text)) {
+            return helpers.message('--text must contain only A-Z, a-z, 0-9, /, \\, space, and ^')
         }
     }
 

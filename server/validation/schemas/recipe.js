@@ -42,9 +42,9 @@ const polygonParamsSchema = Joi.object({
 })
 
 const textParamsSchema = Joi.object({
-  text: Joi.string().pattern(/^[A-Z0-9]+$/).required()
+  text: Joi.string().pattern(/^[A-Za-z0-9/\\ ^]+$/).required()
     .messages({
-      'string.pattern.base': 'text must contain only A-Z and 0-9',
+      'string.pattern.base': 'text must contain only A-Z, a-z, 0-9, /, \\, space, and ^',
       'any.required': 'text is required for text shape'
     })
 })

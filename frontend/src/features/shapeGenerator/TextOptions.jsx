@@ -20,8 +20,8 @@ export default function TextOptions({ showSharedOptions = false }) {
         label="Text"
         value={options.text}
         onChange={(val) => handleChange('text', val)}
-        placeholder="HELLOWORLD"
-        helperText="Only uppercase letters (A-Z) and numbers (0-9)"
+        placeholder="HelloWorld"
+        helperText="Letters (A-Z, a-z), numbers (0-9), /, \, space, ^"
         error={errors.text}
       />
       {showSharedOptions && <SharedOptions shapeType="text" />}

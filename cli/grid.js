@@ -17,7 +17,7 @@ class Grid extends EventEmitter {
   constructor({ width, height, content = '' }) {
     super()
     // If content is provided and not empty, initialize from string
-    if (content && content.trim().length > 0) {
+    if (content && content.length > 0) {
       this.initFromString(content)
     } else {
       // Normal constructor: width and height provided
@@ -41,7 +41,7 @@ class Grid extends EventEmitter {
    * @param {string} [options.char='*'] - Character to use for drawing
    * @returns {Grid} New grid instance with the circle drawn
    */
-  static generateCircle({ radius, filled, char = '*' }) {
+  static generateCircle({ radius, filled = false, char = '*' }) {
     // Setup: calculate grid size (diameter + 1)
     const gridSize = Number(radius) * 2 + 1
     // Determine center point coordinates
